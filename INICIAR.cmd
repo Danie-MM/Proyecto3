@@ -54,7 +54,7 @@ exit /b 0
 
 :error
 echo.
-echo No se pudo completar el arranque. Revisa el mensaje anterior y COMENZAR.md.
+echo No se pudo completar el arranque. Revisa el mensaje anterior y README.md.
 echo Si Docker funciona, consulta: docker compose logs --tail 80
 echo No borres volumenes para solucionar el error.
 if "%PETMATCHCR_INTERACTIVO%"=="1" pause
