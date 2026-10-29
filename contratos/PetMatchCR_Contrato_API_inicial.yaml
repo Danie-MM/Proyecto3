@@ -5901,7 +5901,7 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorRespuesta'
 x-limitaciones:
-- Las rutas A–E son especificación de diseño y todavía no están implementadas. Las pruebas del arranque técnico se registran en docs/evidencia-arranque.md.
+- Las rutas A–E son especificación de diseño y todavía no están implementadas. Consultar README.md para ejecutar las pruebas y GitHub Actions para los resultados del arranque técnico.
 - Autorización, fecha no futura, estado de entidades, versiones, idempotencia y transacciones exigen pruebas del
   servidor.
 - Operaciones I2 y adaptador del proveedor se añaden al mismo contrato antes de programarlas.

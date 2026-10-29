@@ -1,75 +1,90 @@
-# Proyecto3
-Curso Proyecto 3
+# PetMatchCR · Proyecto 3
 
-## Estructura vacía para organizar el código
+Base de desarrollo con Angular, Spring Boot y PostgreSQL conectados mediante Docker. La pantalla de prueba funciona; los módulos del proyecto se construirán sobre esta base.
 
-En [estructura-base/](estructura-base/) están las carpetas de **backend** (models, controllers, services, repositories, dto, config y exceptions) y **frontend** (models, services, components, pages, guards e interceptors). Solo contienen `.gitkeep`, porque Git necesita un archivo para conservar cada carpeta. Es una referencia de organización; el proyecto ejecutable permanece en `backend/` y `frontend/` de la raíz.
+## 1. Descargar y encender
 
-## Arrancar PetMatchCR en tu computadora
+Necesitás **Docker Desktop funcionando con contenedores Linux**, Git y tu editor. Docker prepara Java, Gradle, Node, Angular y PostgreSQL; no necesitás instalarlos por separado para ejecutar el proyecto.
 
-**Windows:** descargá y extraé [la versión de `main`](https://github.com/Danie-MM/Proyecto3/archive/refs/heads/main.zip), abrí Docker Desktop y hacé doble clic en **`INICIAR.cmd`**. Para apagar sin borrar datos: **`DETENER.cmd`**. Leé [COMENZAR.md](COMENZAR.md) para los cuatro pasos, requisitos y solución de problemas.
-
-La base de desarrollo reúne **Angular + Java + PostgreSQL en Docker**. Abrí Docker Desktop y una terminal de PowerShell en la raíz `Proyecto3`. Si antes encendiste `backend/compose.dev.yaml`, detenelo primero como explica [la configuración compartida](docs/configuracion-backend.md). Prepará `.env` solo si falta; si ya trabajabas con el backend, el comando conserva su configuración:
+Desde una terminal:
 
 ```powershell
-if (-not (Test-Path .env)) {
-    if (Test-Path backend/.env) { Copy-Item backend/.env .env }
-    else { Copy-Item .env.example .env }
-}
-docker compose up --build -d --wait
-docker compose ps
+git clone https://github.com/Danie-MM/Proyecto3.git
+cd Proyecto3
+.\INICIAR.cmd
 ```
 
-Abrí <http://localhost:4200/comprobar-entorno> para guardar y consultar un dato de prueba. Seguí [la guía paso a paso del frontend](frontend/README.md) para entender los archivos, editar y ejecutar pruebas; consultá [la guía del backend](backend/README.md) y [la configuración compartida](docs/configuracion-backend.md) para integrar cambios.
+También podés [descargar el ZIP](https://github.com/Danie-MM/Proyecto3/archive/refs/heads/main.zip), extraerlo y hacer doble clic en **INICIAR.cmd**. Para aportar cambios al equipo, usá Git.
 
-Usá el `compose.yaml` raíz para el trabajo diario. Después de editar código, repetí `docker compose up --build -d --wait`. Para detener: `docker compose down`, **sin `-v` para conservar los datos**. Esta base técnica todavía no implementa los módulos del proyecto.
+Esperá a que termine y abrí <http://localhost:4200/comprobar-entorno>. Guardá un texto y consultá su ID para comprobar la conexión completa. La primera descarga puede tardar varios minutos.
 
-## PetMatchCR · Organización del desarrollo
+## 2. Dónde programar
 
-Este repositorio contiene las **17 tareas iniciales** del equipo, con entregables, dependencias, criterios de aceptación y forma de presentar los avances en GitHub.
-
-### Accesos del equipo
-
-- **[Tablero de trabajo — General](https://github.com/users/NatanaelSolis/projects/1/views/1)**: Por hacer → En curso → Bloqueado → En revisión → Hecho.
-- **[Tareas organizadas por bloque](https://github.com/users/NatanaelSolis/projects/1/views/3)**: módulos, prioridades y estado.
-- **[Mis tareas](https://github.com/users/NatanaelSolis/projects/1/views/2)**: muestra lo asignado a la persona que abre la vista.
-- **[Issues del repositorio](https://github.com/Danie-MM/Proyecto3/issues)** y **[hito Primera iteración](https://github.com/Danie-MM/Proyecto3/milestone/1)**.
-
-El tablero está administrado por NatanaelSolis; sus tarjetas corresponden a los issues de **Danie-MM/Proyecto3**. Este es también su repositorio predeterminado para crear nuevas tareas.
-
-### Entregas
-
-| Entrega | Fecha | Resultado esperado |
+| Parte | Carpeta que abrís | Dónde escribís el código |
 | --- | --- | --- |
-| Primera iteración | 14 de noviembre de 2026 | 40–50 % de avance global aceptado por esfuerzo, con frontend, backend y datos integrados. |
-| Entrega final | 8 de diciembre de 2026 | Completar y demostrar el alcance acordado del proyecto. |
+| Frontend | `frontend/` en Visual Studio Code | `src/app/`: `pages`, `components`, `models`, `services`, `guards`, `interceptors`. |
+| Backend | `backend/` en IntelliJ, como proyecto Gradle | `src/main/java/cr/petmatchcr/`: `controllers`, `models`, `services`, `repositories`, `dto`, `config`, `exceptions`. |
+| Base de datos | Dentro del backend | `src/main/resources/db/migration/`: agregá migraciones nuevas; no modifiqués una ya aplicada. |
 
-El porcentaje automático del hito cuenta issues cerrados; no equivale por sí solo al porcentaje de avance global. La aceptación del alcance y los acuerdos técnicos se registran en **[G-01](https://github.com/Danie-MM/Proyecto3/issues/1)**.
+Las carpetas vacías contienen `.gitkeep` para que Git las conserve. El ejemplo funcional está en `frontend/src/app/features/entorno/` y `backend/src/main/java/cr/petmatchcr/entorno/`.
 
-### Elegir y repartir los bloques
+**Después de editar, ejecutá INICIAR.cmd otra vez:** reconstruye la aplicación; los cambios todavía no se sincronizan automáticamente. Para terminar el día, usá **DETENER.cmd**. Cada persona tiene su propia base local.
 
-| Bloque | Trabajo inicial | Tareas |
-| --- | --- | --- |
-| Común | Acuerdos, responsables y proyecto base ejecutable | [G-01](https://github.com/Danie-MM/Proyecto3/issues/1), [G-02](https://github.com/Danie-MM/Proyecto3/issues/2) |
-| A · Acceso | Registro, roles, permisos y sesiones | [A-01](https://github.com/Danie-MM/Proyecto3/issues/3), [A-03](https://github.com/Danie-MM/Proyecto3/issues/5), [A-02](https://github.com/Danie-MM/Proyecto3/issues/4) |
-| B · Mascotas | Perfil privado, publicación, fotografía y vacunas | [B-01](https://github.com/Danie-MM/Proyecto3/issues/6), [B-02](https://github.com/Danie-MM/Proyecto3/issues/7), [B-03](https://github.com/Danie-MM/Proyecto3/issues/8) |
-| C · Extravíos | Ubicación manual, reportes y avisos | [C-01](https://github.com/Danie-MM/Proyecto3/issues/9), [C-02](https://github.com/Danie-MM/Proyecto3/issues/10), [C-03](https://github.com/Danie-MM/Proyecto3/issues/11) |
-| D · Adopción | Catálogo, solicitudes y seguimiento de decisiones | [D-01](https://github.com/Danie-MM/Proyecto3/issues/12), [D-02](https://github.com/Danie-MM/Proyecto3/issues/13), [D-03](https://github.com/Danie-MM/Proyecto3/issues/14) |
-| E · Aportes | Campañas, aportes pendientes sin cobro e historial | [E-01](https://github.com/Danie-MM/Proyecto3/issues/15), [E-02](https://github.com/Danie-MM/Proyecto3/issues/16), [E-03](https://github.com/Danie-MM/Proyecto3/issues/17) |
+## 3. Trabajar con el equipo
 
-Los responsables están **pendientes de elección**. Al elegir un bloque, registrar la decisión en G-01 y asignar sus issues a la cuenta real de la persona.
+Guardá tus cambios en tu rama antes de actualizar. Con `git status` limpio, desde la raíz del repositorio:
 
-### Por dónde empezar
+```powershell
+git fetch origin
+git switch main
+git pull --ff-only origin main
+git switch -c feature/mi-tarea
+```
 
-1. **G-01 → G-02 → A-01 → A-03 → A-02** para cerrar acuerdos, tener una base común y habilitar identidad y permisos.
-2. Revisar la sección **Qué necesita de los demás** de cada issue antes de integrar. Se pueden preparar pantallas, migraciones y pruebas en paralelo.
-3. Priorizar las tareas con **prioridad-P0**: G-01, G-02, A-01, A-02, A-03, B-01 y B-02. Las otras diez tienen **prioridad-P1** y completan los primeros recorridos funcionales.
+Reemplazá `mi-tarea` por un nombre de tu trabajo. Si Git avisa de cambios pendientes o ramas divergentes, consultá con coordinación sin descartar ni forzar cambios.
 
-### Cómo registrar avances
+- Elegí tu tarea en el [tablero](https://github.com/users/NatanaelSolis/projects/1/views/1) o en los [issues](https://github.com/Danie-MM/Proyecto3/issues).
+- Hacé commits pequeños con mensajes claros, subí tu rama y abrí un **PR hacia main** enlazando el issue. Indicá qué hiciste y qué probaste; pedí revisión a otro integrante antes de integrar.
+- Acordá cambios de rutas, campos y tipos usando el [contrato API compartido](contratos/PetMatchCR_Contrato_API_inicial.yaml). Los bloques A–E del contrato son diseño pendiente de implementar.
+- Coordiná cambios de dependencias, versiones y Docker con Natanael y José. No subás `.env`, `node_modules` ni archivos generados.
 
-- Mantener el estado del tablero actualizado. Si algo se bloquea, escribir qué falta, de quién depende y el siguiente paso.
-- En cada avance, dejar el enlace al commit o PR, qué se completó, qué se probó y qué sigue.
-- Usar commits con un cambio coherente y un mensaje claro; enlazar el issue desde el PR.
-- Pasar a **En revisión** con los criterios de aceptación comprobados y evidencia. El autor no se autoaprueba.
-- Pasar a **Hecho** después de revisión e integración; una pantalla sola no termina una tarea que requiere frontend y backend.
-- Adoptar versiones, contratos, nombres de datos, estructura y reglas de ramas en G-01 antes de construir dependencias compartidas.
+## 4. Comprobar y resolver problemas
+
+Desde la raíz, con Docker encendido:
+
+```powershell
+docker compose ps
+docker compose exec frontend npm run test:ci
+docker compose exec backend ./gradlew test --no-daemon --rerun-tasks
+```
+
+Los tres servicios deben aparecer `healthy`. GitHub también ejecuta las comprobaciones del proyecto: [ver resultados](https://github.com/Danie-MM/Proyecto3/actions). Si falla el arranque, revisá `docker compose logs --tail 80 frontend backend db`.
+
+**Conservá tu `.env` y tus datos:** INICIAR.cmd crea la configuración solo si falta. No usés `docker compose down -v`, porque borra la base. Usá una sola copia activa y el `compose.yaml` de la raíz. Los puertos 4200 y 8080 deben estar libres.
+
+<details>
+<summary>Versiones y archivos que sí necesita el proyecto</summary>
+
+Angular 17.3.12, CLI 17.3.17, TypeScript 5.4.5, Node 20.11.1, npm 10.2.4, Java 21, Spring Boot 3.2.5, Gradle 8.7 y PostgreSQL 15.19. Usamos Gradle; PostgreSQL todavía requiere confirmación docente.
+
+`compose.yaml`, los Dockerfile y `.env.example` preparan el entorno; `.gitignore` y `.gitattributes` cuidan lo que comparte Git; `.github/` y `scripts/` ejecutan las comprobaciones automáticas. Se conservan las [referencias y licencias](backend/THIRD_PARTY.md).
+
+</details>
+
+<details>
+<summary>Si usás macOS/Linux o la configuración anterior del backend</summary>
+
+En macOS/Linux, con Docker y Compose disponibles, desde la raíz:
+
+```sh
+if [ ! -f .env ]; then
+  if [ -f backend/.env ]; then cp backend/.env .env; else cp .env.example .env; fi
+fi
+docker compose up --build -d --wait --wait-timeout 240
+```
+
+Para detener: `docker compose down`. Los `.cmd` son para Windows; cada integrante debe comprobar el arranque en su sistema.
+
+Si todavía tenés encendido el Compose anterior, detenelo primero desde la raíz con `docker compose --env-file backend/.env -f backend/compose.dev.yaml down`. Después usá INICIAR.cmd o el Compose raíz; no los encendás al mismo tiempo. Se conserva el volumen anterior y se reutiliza `backend/.env` si falta `.env` en la raíz.
+
+</details>
