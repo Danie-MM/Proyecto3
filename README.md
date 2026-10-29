@@ -7,7 +7,7 @@ En [estructura-base/](estructura-base/) están las carpetas de **backend** (mode
 
 ## Arrancar PetMatchCR en tu computadora
 
-**Windows:** descargá y extraé la versión compartida, abrí Docker Desktop y hacé doble clic en **`INICIAR.cmd`**. Para apagar sin borrar datos: **`DETENER.cmd`**. Leé [COMENZAR.md](COMENZAR.md) para los cuatro pasos, requisitos y solución de problemas. Mientras el PR esté en revisión, usá la rama `feature/arranque-backend`.
+**Windows:** descargá y extraé [la versión de `main`](https://github.com/Danie-MM/Proyecto3/archive/refs/heads/main.zip), abrí Docker Desktop y hacé doble clic en **`INICIAR.cmd`**. Para apagar sin borrar datos: **`DETENER.cmd`**. Leé [COMENZAR.md](COMENZAR.md) para los cuatro pasos, requisitos y solución de problemas.
 
 La base de desarrollo reúne **Angular + Java + PostgreSQL en Docker**. Abrí Docker Desktop y una terminal de PowerShell en la raíz `Proyecto3`. Si antes encendiste `backend/compose.dev.yaml`, detenelo primero como explica [la configuración compartida](docs/configuracion-backend.md). Prepará `.env` solo si falta; si ya trabajabas con el backend, el comando conserva su configuración:
 

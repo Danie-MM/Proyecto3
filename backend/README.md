@@ -110,8 +110,8 @@ Consultá ese mismo ID. `down` conserva el volumen; **`down -v` elimina los dato
 
 ## 8. Compartir un avance revisable
 
-La rama de trabajo es `feature/arranque-backend`, creada desde `main` porque aún no existía `develop` al clonar. Esta preparación no crea commits ni publica cambios por sí sola.
+La base compartida está integrada en `main`. Creá una rama propia desde `main` para cada tarea; `INICIAR.cmd` ejecuta el proyecto localmente y no publica cambios por sí solo.
 
-Desde la raíz `Proyecto3` revisá `git status` y `git diff` antes de guardar un commit. José y vos deben acordar el punto de integración en `develop` antes de subir y abrir el PR de G-02. La tarea completa incluye revisar la integración y repetir las pruebas en la computadora de José.
+Desde la raíz `Proyecto3` revisá `git status` y `git diff` antes de guardar un commit. Subí tu rama y abrí un PR hacia `main` para revisión. Si el equipo adopta después `develop`, registren ese cambio antes de modificar el destino de integración. La tarea completa incluye revisar la integración y repetir las pruebas en la computadora de José.
 
 Entregale [la configuración de integración](../docs/configuracion-backend.md) y [el contrato API](../contratos/PetMatchCR_Contrato_API_inicial.yaml). PostgreSQL sigue pendiente de confirmación del docente, según el acuerdo del equipo.
