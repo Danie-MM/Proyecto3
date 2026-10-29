@@ -1,0 +1,8 @@
+spring:
+  flyway:
+    schemas: pruebas
+    default-schema: pruebas
+  jpa:
+    properties:
+      hibernate:
+        default_schema: pruebas

@@ -1,0 +1,51 @@
+# PetMatchCR: prueba real del backend local
+# 1. Desde Proyecto3/backend, levantar el entorno siguiendo README.md.
+# 2. Ejecutar Guardar en Postman o con un cliente de archivos .http.
+# 3. Copiar el id de la respuesta y sustituir registroId antes de Consultar.
+# Estas rutas solo existen con perfil local o test; no requieren sesión.
+
+@baseUrl = http://localhost:8080
+@registroId = PEGAR_AQUI_EL_UUID_DEVUELTO
+
+### Salud del backend y de su conexión a PostgreSQL: esperar 200 y status UP
+GET {{baseUrl}}/actuator/health
+Accept: application/json
+
+### Guardar: esperar 201, UUID, texto sin espacios externos y creadoEn UTC
+POST {{baseUrl}}/api/v1/pruebas-entorno
+Content-Type: application/json
+Accept: application/json
+
+{"texto":"  Primera prueba de Natanael  "}
+
+### Consultar: esperar 200 con los mismos tres campos
+# Después de guardar, sustituir registroId arriba por el UUID real.
+GET {{baseUrl}}/api/v1/pruebas-entorno/{{registroId}}
+Accept: application/json
+
+### Texto vacío: esperar 400 VALIDACION y erroresCampos con campo texto
+POST {{baseUrl}}/api/v1/pruebas-entorno
+Content-Type: application/json
+Accept: application/json
+
+{"texto":"   "}
+
+### Tipo incorrecto: esperar 400 SOLICITUD_INVALIDA
+POST {{baseUrl}}/api/v1/pruebas-entorno
+Content-Type: application/json
+Accept: application/json
+
+{"texto":123}
+
+### UUID mal escrito: esperar 400 VALIDACION y erroresCampos con campo id
+GET {{baseUrl}}/api/v1/pruebas-entorno/no-es-un-uuid
+Accept: application/json
+
+### UUID sin registro: esperar 404 NO_ENCONTRADO
+# Este UUID no lo crea la aplicación como dato de ejemplo.
+GET {{baseUrl}}/api/v1/pruebas-entorno/00000000-0000-4000-8000-000000000000
+Accept: application/json
+
+# Persistencia: guardar el UUID, detener y levantar los mismos servicios sin
+# borrar el volumen y volver a ejecutar Consultar. Debe devolver el mismo texto.
+# Una respuesta de error contiene codigo, mensaje, erroresCampos y trazaId.
