@@ -1,6 +1,10 @@
 # Proyecto3
 Curso Proyecto 3
 
+## Estructura vacía para organizar el código
+
+En [estructura-base/](estructura-base/) están las carpetas de **backend** (models, controllers, services, repositories, dto, config y exceptions) y **frontend** (models, services, components, pages, guards e interceptors). Solo contienen `.gitkeep`, porque Git necesita un archivo para conservar cada carpeta. Es una referencia de organización; el proyecto ejecutable permanece en `backend/` y `frontend/` de la raíz.
+
 ## Arrancar PetMatchCR en tu computadora
 
 **Windows:** descargá y extraé la versión compartida, abrí Docker Desktop y hacé doble clic en **`INICIAR.cmd`**. Para apagar sin borrar datos: **`DETENER.cmd`**. Leé [COMENZAR.md](COMENZAR.md) para los cuatro pasos, requisitos y solución de problemas. Mientras el PR esté en revisión, usá la rama `feature/arranque-backend`.
