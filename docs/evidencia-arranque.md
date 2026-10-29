@@ -1,6 +1,6 @@
 # Evidencia del arranque local de PetMatchCR
 
-La comprobación más reciente es la integración del frontend del **28 de octubre de 2026**, al final de este documento. El apartado del 27 conserva el resultado histórico del backend.
+La comprobación más reciente es la **entrega descargable del 28 de octubre de 2026**, al final de este documento. Los apartados anteriores conservan los resultados históricos.
 
 ## Backend: 27 de octubre de 2026
 
@@ -100,3 +100,26 @@ Registro de prueba creado desde la pantalla:
 La fecha del registro está en UTC; corresponde al 28 de octubre en Costa Rica. Para repetir el recorrido y las pruebas, seguir [la guía del frontend](../frontend/README.md). Para el trabajo actual se usa el Compose raíz, no el comando histórico de backend aislado.
 
 Alcance: base de desarrollo local y pantalla técnica. Los módulos A–E, login, CI, despliegue público, publicación en GitHub y comprobación en otras computadoras siguen pendientes. No se volvieron a ejecutar las 17 pruebas Java en esta integración; su resultado previo se conserva en el apartado del 27, y el código Java no cambió. PostgreSQL sigue pendiente de confirmación docente.
+
+## Entrega descargable: 28 de octubre de 2026
+
+Se prepararon `INICIAR.cmd`, `DETENER.cmd`, `COMENZAR.md` y una revisión automatizada en `.github/workflows/validar-base.yml`. Este apartado actualiza los pendientes de publicación y CI de la comprobación anterior. El estado de publicación y de cada ejecución remota se consulta en [los PR](https://github.com/Danie-MM/Proyecto3/pulls) y [GitHub Actions](https://github.com/Danie-MM/Proyecto3/actions).
+
+Para comprobar la descarga se generó un ZIP exclusivamente con archivos versionados y se extrajo en una carpeta nueva, sin `.env`, sin `node_modules` y sin archivos generados. Se usó un proyecto Compose independiente, `petmatchcr-verificacion-entrega`, y un volumen nuevo. Las capas base de Docker ya estaban descargadas: esta comprobación demuestra independencia de archivos y datos locales, no una reinstalación completa del sistema.
+
+| Comprobación de la entrega | Resultado observado |
+| --- | --- |
+| `INICIAR.cmd --no-interactivo` desde la carpeta extraída | Creó `.env`, construyó ambas aplicaciones y dejó los tres servicios saludables. No requirió Java ni Node de Windows. |
+| Base vacía | Flyway preparó la tabla; el recorrido HTTP pudo guardar y consultar. |
+| Pruebas Angular | 20 aprobadas dentro de Docker. |
+| Pruebas Java | 17 pruebas, 0 fallos, 0 errores, según los XML JUnit copiados del contenedor. |
+| `scripts/verificar-integracion.py` | Verificó 201, 200, 400 y 404 pasando por el puerto 4200 de Angular. Conservó texto Unicode y fecha UTC. |
+| Separación de datos | Después de las pruebas, `public.prueba_entorno` contenía solamente el registro del recorrido HTTP; JUnit usó `pruebas`. |
+| `DETENER.cmd --no-interactivo` | Detuvo y retiró los contenedores de la copia de prueba. El volumen permaneció. |
+| Revisión del workflow | Sintaxis Python y YAML válidas; actionlint 1.7.12 sin errores. |
+
+El modo `--no-interactivo` omite abrir el navegador y esperar una tecla; ejecuta la misma preparación y los mismos comandos Docker que el doble clic normal. La detección de Linux contempla la salida con saltos LF de Docker en Windows.
+
+CI construye y prueba la base en un entorno de GitHub, guarda logs y reportes siete días y detiene los servicios. Un fallo marca la comprobación como fallida. **No se ha configurado una regla de protección de rama ni un umbral de cobertura**; corresponden al acuerdo con QA y al administrador del repositorio. La existencia del workflow no prueba que una ejecución remota haya finalizado correctamente: hay que revisar su resultado en el PR.
+
+Queda pendiente que José u otro integrante reproduzca `COMENZAR.md` en su propia computadora y revise el PR antes de integrar. Esta verificación se hizo con una copia limpia en la computadora de Natanael, no en un segundo equipo. Los módulos de negocio y la confirmación docente de PostgreSQL continúan pendientes.
