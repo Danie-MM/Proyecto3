@@ -23,12 +23,22 @@ No necesitás instalar Java, Maven, Gradle, Node, Angular ni PostgreSQL en Windo
 Para trabajar en Git es preferible clonar la rama compartida en vez de descargar ZIP:
 
 ```powershell
-git clone --branch feature/arranque-backend https://github.com/Danie-MM/Proyecto3.git
+git clone https://github.com/Danie-MM/Proyecto3.git
 cd Proyecto3
 .\INICIAR.cmd
 ```
 
-Mientras esta entrega esté en revisión, descargá o cloná **`feature/arranque-backend`**: `main` todavía puede contener solamente la planificación. El PR indica el estado de integración. Desde la rama compartida, cada integrante crea su propia rama de trabajo; no cambien todos la misma rama.
+La base compartida está en **`main`** e incluye `estructura-base/`, una referencia con carpetas vacías. La aplicación que se ejecuta con Docker está en `backend/` y `frontend/` de la raíz. Cada integrante crea su propia rama a partir de `main` para desarrollar.
+
+Si ya clonaste el repositorio, guardá tus cambios en tu rama antes de actualizar. Con el trabajo guardado y `git status` limpio, ejecutá:
+
+```powershell
+git fetch origin
+git switch main
+git pull --ff-only origin main
+```
+
+Si Git avisa que hay cambios pendientes o que las ramas divergieron, consultá con coordinación antes de continuar; no los descartés ni fuerces la actualización.
 
 ## Pruebas y ayuda
 
