@@ -1,6 +1,25 @@
 # Proyecto3
 Curso Proyecto 3
 
+## Arrancar PetMatchCR en tu computadora
+
+**Windows:** descargá y extraé la versión compartida, abrí Docker Desktop y hacé doble clic en **`INICIAR.cmd`**. Para apagar sin borrar datos: **`DETENER.cmd`**. Leé [COMENZAR.md](COMENZAR.md) para los cuatro pasos, requisitos y solución de problemas. Mientras el PR esté en revisión, usá la rama `feature/arranque-backend`.
+
+La base de desarrollo reúne **Angular + Java + PostgreSQL en Docker**. Abrí Docker Desktop y una terminal de PowerShell en la raíz `Proyecto3`. Si antes encendiste `backend/compose.dev.yaml`, detenelo primero como explica [la configuración compartida](docs/configuracion-backend.md). Prepará `.env` solo si falta; si ya trabajabas con el backend, el comando conserva su configuración:
+
+```powershell
+if (-not (Test-Path .env)) {
+    if (Test-Path backend/.env) { Copy-Item backend/.env .env }
+    else { Copy-Item .env.example .env }
+}
+docker compose up --build -d --wait
+docker compose ps
+```
+
+Abrí <http://localhost:4200/comprobar-entorno> para guardar y consultar un dato de prueba. Seguí [la guía paso a paso del frontend](frontend/README.md) para entender los archivos, editar y ejecutar pruebas; consultá [la guía del backend](backend/README.md) y [la configuración compartida](docs/configuracion-backend.md) para integrar cambios.
+
+Usá el `compose.yaml` raíz para el trabajo diario. Después de editar código, repetí `docker compose up --build -d --wait`. Para detener: `docker compose down`, **sin `-v` para conservar los datos**. Esta base técnica todavía no implementa los módulos del proyecto.
+
 ## PetMatchCR · Organización del desarrollo
 
 Este repositorio contiene las **17 tareas iniciales** del equipo, con entregables, dependencias, criterios de aceptación y forma de presentar los avances en GitHub.

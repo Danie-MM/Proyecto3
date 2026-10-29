@@ -1,0 +1,67 @@
+<div class="page">
+  <header class="header">
+    <a class="brand" href="/comprobar-entorno" aria-label="PetMatchCR, inicio">
+      <img src="assets/petmatch.svg" width="44" height="44" alt="">
+      <span>PetMatch<span class="brand-cr">CR</span></span>
+    </a>
+    <span class="environment">Prueba de entorno</span>
+  </header>
+
+  <main>
+    <section class="intro" aria-labelledby="titulo">
+      <p class="eyebrow">EL PRIMER PASO DEL EQUIPO</p>
+      <h1 id="titulo">Comprobemos que<br><span>todo se conecta.</span></h1>
+      <p class="lead">Guardá un texto y recuperalo con su ID. Así probamos juntos la pantalla, el backend y la base de datos.</p>
+      <div class="journey" aria-label="Recorrido de la prueba: pantalla, backend y base de datos">
+        <span>Pantalla</span><span aria-hidden="true">→</span><span>Backend</span><span aria-hidden="true">→</span><span>Base de datos</span>
+      </div>
+    </section>
+
+    <div class="forms">
+      <section class="card" aria-labelledby="guardar-titulo">
+        <div class="card-heading"><span class="step">01</span><span class="step-label">CREAR UN REGISTRO</span></div>
+        <h2 id="guardar-titulo">Guardá un texto</h2>
+        <p class="card-description">Empezá con un mensaje corto para comprobar que podemos guardar información.</p>
+        <form (ngSubmit)="guardar()" [attr.aria-busy]="accion === 'guardar'" novalidate>
+          <label for="texto">Texto de prueba</label>
+          <textarea id="texto" name="texto" [(ngModel)]="texto" [disabled]="ocupado" rows="3" placeholder="Ejemplo: Mi entorno de PetMatchCR está listo" aria-describedby="texto-ayuda texto-contador"></textarea>
+          <div class="field-meta"><span id="texto-ayuda">De 1 a 80 caracteres, sin espacios externos.</span><span id="texto-contador" [class.over-limit]="caracteres > 80">{{ caracteres }}/80</span></div>
+          <button class="button primary" type="submit" [disabled]="ocupado">{{ accion === 'guardar' ? 'Guardando…' : 'Guardar texto' }}<span aria-hidden="true">↗</span></button>
+        </form>
+      </section>
+
+      <section class="card" aria-labelledby="consultar-titulo">
+        <div class="card-heading"><span class="step">02</span><span class="step-label">RECUPERAR EL REGISTRO</span></div>
+        <h2 id="consultar-titulo">Encontrá tu registro</h2>
+        <p class="card-description">Después de guardar, el ID se completa aquí. Consultalo para confirmar que el dato sigue disponible.</p>
+        <form (ngSubmit)="consultar()" [attr.aria-busy]="accion === 'consultar'" novalidate>
+          <label for="registro-id">ID del registro</label>
+          <input id="registro-id" name="registroId" [(ngModel)]="id" [disabled]="ocupado" type="text" autocomplete="off" spellcheck="false" placeholder="Pegá el ID que recibiste al guardar" aria-describedby="id-ayuda">
+          <p class="field-hint" id="id-ayuda">Un ID es el identificador único del dato, en formato UUID.</p>
+          <button class="button secondary" type="submit" [disabled]="ocupado">{{ accion === 'consultar' ? 'Consultando…' : 'Consultar registro' }}<span aria-hidden="true">→</span></button>
+        </form>
+      </section>
+    </div>
+
+    <section class="feedback" aria-live="polite" aria-atomic="true" aria-label="Resultado de la prueba">
+      @if (error) {
+        <div class="error-message" role="alert"><span class="feedback-icon" aria-hidden="true">!</span><div><h2>No pudimos completar este paso</h2><p>{{ error }}</p></div></div>
+      }
+      @if (resultado; as registro) {
+        <article class="result">
+          <div class="result-heading"><span class="feedback-icon success-icon" aria-hidden="true">✓</span><div><p class="eyebrow">RESPUESTA DEL SERVIDOR</p><h2>{{ resultadoTitulo }}</h2></div></div>
+          <blockquote>{{ registro.texto }}</blockquote>
+          <dl><div><dt>ID del registro</dt><dd class="record-id">{{ registro.id }}</dd></div><div><dt>Fecha de creación · UTC</dt><dd>{{ registro.creadoEn }}</dd></div></dl>
+        </article>
+      } @else if (!error && !ocupado) {
+        <div class="empty-state"><span aria-hidden="true">↳</span><p>Tu resultado aparecerá aquí.<br><strong>Empezá guardando un texto en el paso 01.</strong></p></div>
+      }
+      @if (ocupado) {
+        <div class="pending"><span class="spinner" aria-hidden="true"></span><p>{{ accion === 'guardar' ? 'Enviando tu texto al servidor…' : 'Buscando el registro en la base de datos…' }}</p></div>
+      }
+    </section>
+
+    <aside class="learning-note"><span class="note-icon" aria-hidden="true">i</span><p><strong>Una pequeña prueba, una base para el equipo.</strong><br>El dato se guarda en PostgreSQL y se conserva al detener los contenedores sin eliminar el volumen.</p></aside>
+  </main>
+  <footer><span>PetMatchCR <span class="footer-dot">·</span> Grupo 3</span><span>Entorno de desarrollo local</span></footer>
+</div>
