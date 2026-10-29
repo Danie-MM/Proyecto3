@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_DB: petmatchcr
       POSTGRES_USER: petmatch_app
-      POSTGRES_PASSWORD: ${DB_PASSWORD:?Copie .env.example a .env o conserve backend/.env}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Copie .env.example a .env en la raiz; si tiene backend/.env, copie ese archivo a .env}
     volumes:
       - petmatchcr_db:/var/lib/postgresql/data
     healthcheck:
@@ -22,7 +22,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/petmatchcr
       SPRING_DATASOURCE_USERNAME: petmatch_app
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:?Copie .env.example a .env o conserve backend/.env}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:?Copie .env.example a .env en la raiz; si tiene backend/.env, copie ese archivo a .env}
       SPRING_PROFILES_ACTIVE: local
     ports:
       - "127.0.0.1:8080:8080"
