@@ -16,7 +16,7 @@ if errorlevel 1 (
     echo Docker no responde. Abri Docker Desktop y espera Engine running.
     goto error
 )
-docker info --format "{{.OSType}}" | findstr /x "linux" >nul
+docker info --format "{{.OSType}}" | findstr /i /c:"linux" >nul
 if errorlevel 1 (
     echo Este proyecto necesita contenedores Linux en Docker Desktop.
     goto error
