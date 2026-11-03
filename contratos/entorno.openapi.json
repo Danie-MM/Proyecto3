@@ -67,6 +67,16 @@
                 }
               }
             }
+          },
+          "415": {
+            "description": "Tipo de contenido distinto de application/json",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         }
       }
