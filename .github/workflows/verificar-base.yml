@@ -1,0 +1,28 @@
+name: Verificar base PetMatchCR
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      DB_PASSWORD: petmatch_solo_ci
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Construir y encender la base
+        run: docker compose up --build -d --wait --wait-timeout 240
+      - name: Verificar backend con Maven
+        run: docker compose exec -T backend ./mvnw -B -ntp verify
+      - name: Probar frontend
+        run: docker compose exec -T frontend npm run test:ci
+      - name: Verificar alta y consulta a través de Angular
+        run: python3 contratos/verificar_entorno.py http://localhost:4200
+      - name: Diagnóstico de servicios
+        if: failure()
+        run: docker compose logs --tail 100
+      - name: Detener servicios
+        if: always()
+        run: docker compose down

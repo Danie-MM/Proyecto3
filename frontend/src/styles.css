@@ -1,7 +1,7 @@
 * { box-sizing: border-box; }
 html { color-scheme: light; }
-body { margin: 0; background: #f7f8f2; color: #183c37; font-family: 'Segoe UI', system-ui, sans-serif; }
-button, input, textarea { font: inherit; }
+body { margin: 0; background: #f6f7f3; color: #233830; font: 16px/1.55 system-ui, sans-serif; }
+button, input { font: inherit; }
 button { cursor: pointer; }
-button:disabled { cursor: wait; }
-::selection { background: #c2e9dd; color: #123f35; }
+button:disabled { opacity: .65; cursor: wait; }
+:focus-visible { outline: 3px solid #328164; outline-offset: 3px; }

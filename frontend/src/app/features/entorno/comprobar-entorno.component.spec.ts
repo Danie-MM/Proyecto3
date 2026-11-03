@@ -1,96 +1,85 @@
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of, Subject, throwError } from 'rxjs';
 import { ComprobarEntornoComponent } from './comprobar-entorno.component';
-import { PruebaEntorno } from './prueba-entorno.model';
-import { PruebaEntornoService } from './prueba-entorno.service';
 
-describe('ComprobarEntornoComponent', () => {
+describe('Comprobación de entorno', () => {
+  const ruta = '/api/v1/pruebas-entorno';
+  const dato = { id: '86ddf395-a109-42b7-9754-b8ec35d28b71', texto: 'Prueba del equipo', creadoEn: '2026-11-02T18:00:00Z' };
   let fixture: ComponentFixture<ComprobarEntornoComponent>;
-  let componente: ComprobarEntornoComponent;
-  let servicio: jasmine.SpyObj<PruebaEntornoService>;
-  const registro: PruebaEntorno = { id: 'a47d3b84-75ce-4e61-9c35-e03137e60f99', texto: 'Hola, equipo', creadoEn: '2026-10-28T16:20:00Z' };
+  let pantalla: ComprobarEntornoComponent;
+  let http: HttpTestingController;
 
   beforeEach(async () => {
-    servicio = jasmine.createSpyObj<PruebaEntornoService>('PruebaEntornoService', ['guardar', 'consultar']);
     await TestBed.configureTestingModule({
-      imports: [ComprobarEntornoComponent],
-      providers: [{ provide: PruebaEntornoService, useValue: servicio }]
+      imports: [ComprobarEntornoComponent], providers: [provideHttpClient(), provideHttpClientTesting()]
     }).compileComponents();
     fixture = TestBed.createComponent(ComprobarEntornoComponent);
-    componente = fixture.componentInstance;
+    pantalla = fixture.componentInstance;
+    http = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
   });
+  afterEach(() => http.verify());
 
-  it('no manda solicitudes para texto vacío o de más de 80 puntos de código', () => {
-    componente.texto = ' \n\t';
-    componente.guardar();
-    expect(componente.error).toContain('1 y 80');
-    componente.texto = '🐾'.repeat(81);
-    componente.guardar();
-    expect(servicio.guardar).not.toHaveBeenCalled();
-  });
-
-  it('acepta 80 emojis, normaliza espacios y llena el ID con la respuesta', () => {
-    const texto = '🐾'.repeat(80);
-    servicio.guardar.and.returnValue(of({ ...registro, texto }));
-    componente.texto = `  ${texto}  `;
-    componente.guardar();
-    expect(servicio.guardar).toHaveBeenCalledOnceWith(texto);
-    expect(componente.id).toBe(registro.id);
-    expect(componente.resultado?.texto).toBe(texto);
-    expect(componente.ocupado).toBeFalse();
-  });
-
-  it('deshabilita ambas acciones y evita envíos duplicados mientras espera', () => {
-    const pendiente = new Subject<PruebaEntorno>();
-    servicio.guardar.and.returnValue(pendiente);
-    componente.texto = registro.texto;
-    componente.id = registro.id;
-    componente.guardar();
+  it('guarda con POST, espera la confirmación y permite recuperar el mismo registro', () => {
+    pantalla.texto = '  Prueba del equipo  ';
+    pantalla.guardar();
+    const alta = http.expectOne({ method: 'POST', url: ruta });
+    expect(alta.request.body).toEqual({ texto: dato.texto });
+    expect(pantalla.ocupado).toBeTrue();
+    pantalla.guardar();
+    pantalla.consultar();
+    http.expectNone(() => true);
+    alta.flush(dato, { status: 201, statusText: 'Creado' });
     fixture.detectChanges();
-    const botones = fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>;
-    expect(botones.length).toBe(2);
-    botones.forEach(boton => expect(boton.disabled).toBeTrue());
-    componente.guardar();
-    componente.consultar();
-    expect(servicio.guardar).toHaveBeenCalledTimes(1);
-    expect(servicio.consultar).not.toHaveBeenCalled();
-    pendiente.next(registro);
-    pendiente.complete();
-    expect(componente.ocupado).toBeFalse();
-  });
-
-  it('valida el UUID antes de hacer una consulta y borra el resultado anterior', () => {
-    componente.resultado = registro;
-    componente.id = 'ID inválido';
-    componente.consultar();
-    expect(servicio.consultar).not.toHaveBeenCalled();
-    expect(componente.resultado).toBeNull();
-    expect(componente.error).toContain('UUID');
-  });
-
-  it('consulta el ID completo y presenta texto e instante UTC recibidos', () => {
-    servicio.consultar.and.returnValue(of(registro));
-    componente.id = ` ${registro.id} `;
-    componente.consultar();
+    expect(fixture.nativeElement.querySelector('.resultado').textContent).toContain('Mensaje guardado');
+    expect(pantalla.id).toBe(dato.id);
+    pantalla.consultar();
+    expect(pantalla.registro).toBeNull();
+    http.expectOne({ method: 'GET', url: ruta + '/' + dato.id }).flush(dato);
     fixture.detectChanges();
-    expect(servicio.consultar).toHaveBeenCalledOnceWith(registro.id);
-    expect(fixture.nativeElement.textContent).toContain(registro.texto);
-    expect(fixture.nativeElement.textContent).toContain(registro.creadoEn);
-    expect(componente.resultadoTitulo).toBe('Encontramos tu registro');
+    const resultado = fixture.nativeElement.querySelector('.resultado').textContent;
+    expect(resultado).toContain('Mensaje encontrado');
+    expect(resultado).toContain(dato.texto);
+    expect(resultado).toContain(dato.creadoEn);
   });
 
-  it('quita el éxito anterior y libera los controles cuando el servidor rechaza la consulta', () => {
-    servicio.consultar.and.returnValue(throwError(() => new Error('No encontramos ese registro.')));
-    componente.resultado = registro;
-    componente.resultadoTitulo = 'Tu texto quedó guardado';
-    componente.id = registro.id;
-    componente.consultar();
+  it('valida el ID y los límites del texto antes de enviarlos', () => {
+    pantalla.id = 'id-incompleto';
+    pantalla.consultar();
+    expect(pantalla.error).toContain('ID');
+    for (const texto of ['   ', '🐾'.repeat(81)]) {
+      pantalla.texto = texto;
+      pantalla.guardar();
+      expect(pantalla.error).toContain('80');
+    }
+    http.expectNone(() => true);
+    pantalla.texto = '🐾'.repeat(80);
+    pantalla.guardar();
+    http.expectOne({ method: 'POST', url: ruta }).flush({ ...dato, texto: pantalla.texto }, { status: 201, statusText: 'Creado' });
+    expect(pantalla.registro?.texto).toBe(pantalla.texto);
+  });
+
+  it('muestra un error al buscar un ID inexistente y deja libre el formulario', () => {
+    pantalla.registro = dato;
+    pantalla.id = dato.id;
+    pantalla.consultar();
+    http.expectOne(ruta + '/' + dato.id).flush({}, { status: 404, statusText: 'No encontrado' });
     fixture.detectChanges();
-    expect(componente.resultado).toBeNull();
-    expect(componente.resultadoTitulo).toBe('');
-    expect(componente.ocupado).toBeFalse();
-    expect(fixture.nativeElement.querySelector('[role="alert"]').textContent).toContain('No encontramos ese registro');
-    expect(fixture.nativeElement.querySelector('.result')).toBeNull();
+    expect(fixture.nativeElement.querySelector('[role=alert]').textContent).toContain('No encontramos');
+    expect(fixture.nativeElement.querySelector('.resultado')).toBeNull();
+    expect(pantalla.ocupado).toBeFalse();
+  });
+
+  it('rechaza una respuesta incompleta y permite reintentar tras un fallo de conexión', () => {
+    pantalla.texto = dato.texto;
+    pantalla.guardar();
+    http.expectOne(ruta).flush({ texto: dato.texto }, { status: 201, statusText: 'Creado' });
+    expect(pantalla.registro).toBeNull();
+    expect(pantalla.error).toContain('No pudimos confirmar');
+    pantalla.guardar();
+    http.expectOne(ruta).error(new ProgressEvent('error'));
+    expect(pantalla.ocupado).toBeFalse();
+    expect(pantalla.registro).toBeNull();
   });
 });

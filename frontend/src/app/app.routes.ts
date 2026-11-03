@@ -1,11 +1,8 @@
 import { Routes } from '@angular/router';
+import { ComprobarEntornoComponent } from './features/entorno/comprobar-entorno.component';
 
 export const routes: Routes = [
+  { path: 'comprobar-entorno', component: ComprobarEntornoComponent },
   { path: '', pathMatch: 'full', redirectTo: 'comprobar-entorno' },
-  {
-    path: 'comprobar-entorno',
-    loadComponent: () => import('./features/entorno/comprobar-entorno.component')
-      .then(module => module.ComprobarEntornoComponent)
-  },
   { path: '**', redirectTo: 'comprobar-entorno' }
 ];
