@@ -1,9 +1,7 @@
 node_modules
 dist
-.angular
 coverage
+.angular
 .git
-.vscode
-.env
-.env.*
 *.log
+.env*

@@ -1,20 +1,14 @@
-# Configuración local y secretos
 .env
 .env.*
 !.env.example
-
-# Archivos generados
-**/build/
-**/.gradle/
+**/target/
 **/node_modules/
 **/dist/
 **/.angular/
 **/coverage/
-**/__pycache__/
-*.pyc
-
-# Configuración personal del editor
 .idea/
+.vscode/
 *.iml
+*.log
 .DS_Store
 Thumbs.db

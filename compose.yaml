@@ -1,57 +1,51 @@
-# Conservamos el nombre del arranque anterior para reutilizar su volumen de datos.
-name: petmatchcr-backend
+name: petmatchcr-equipo
 services:
   db:
     image: postgres:15.19-bookworm@sha256:22c6356b2897cb0b4be6ad550b44ff97a0f29df7dbe327c01bc3c84bd457694d
     environment:
       POSTGRES_DB: petmatchcr
       POSTGRES_USER: petmatch_app
-      POSTGRES_PASSWORD: ${DB_PASSWORD:?Copie .env.example a .env en la raiz; si tiene backend/.env, copie ese archivo a .env}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Copiá .env.example a .env}
     volumes:
-      - petmatchcr_db:/var/lib/postgresql/data
+      - datos:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U petmatch_app -d petmatchcr"]
-      interval: 10s
+      test: ["CMD", "pg_isready", "-U", "petmatch_app", "-d", "petmatchcr"]
+      interval: 5s
       timeout: 5s
-      start_period: 60s
-      retries: 12
+      retries: 20
 
   backend:
     build: ./backend
-    image: petmatchcr-backend:dev
     environment:
+      SPRING_PROFILES_ACTIVE: local
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/petmatchcr
       SPRING_DATASOURCE_USERNAME: petmatch_app
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:?Copie .env.example a .env en la raiz; si tiene backend/.env, copie ese archivo a .env}
-      SPRING_PROFILES_ACTIVE: local
-    ports:
-      - "127.0.0.1:8080:8080"
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:?Copiá .env.example a .env}
     depends_on:
       db:
         condition: service_healthy
+    ports:
+      - "127.0.0.1:${BACKEND_PORT:-8080}:8080"
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8080/actuator/health"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
-      start_period: 60s
-      retries: 12
+      retries: 24
+      start_period: 45s
 
   frontend:
     build: ./frontend
-    image: petmatchcr-frontend:dev
-    environment:
-      NG_CLI_ANALYTICS: "false"
-    ports:
-      - "127.0.0.1:4200:4200"
     depends_on:
       backend:
         condition: service_healthy
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-4200}:4200"
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4200/comprobar-entorno',{signal:AbortSignal.timeout(4000)}).then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
-      interval: 10s
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4200/comprobar-entorno').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 5s
       timeout: 5s
-      start_period: 60s
-      retries: 12
+      retries: 24
+      start_period: 45s
 
 volumes:
-  petmatchcr_db:
+  datos:

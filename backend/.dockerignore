@@ -1,8 +1,5 @@
-.git
-.gradle
-build
+target
 .idea
-*.iml
+.git
 .env
-.env.*
-*.log
+*.iml
