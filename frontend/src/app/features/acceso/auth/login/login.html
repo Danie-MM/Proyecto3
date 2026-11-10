@@ -1,0 +1,94 @@
+
+<!--
+  Autor: Daniela Morales
+  Versión: 1.0
+  Descripción: pagina de login
+-->
+
+<section class="login">
+  <div class="login__panel">
+
+    <header class="login__encabezado">
+      <a routerLink="/" class="login__marca">
+        <span class="login__marca-icono">
+          <img src="/assets/icons/pets-svgrepo-com.svg" alt="" />
+        </span>
+        <span>PetMatchCR</span>
+      </a>
+
+      <span class="login__etiqueta">Adopción responsable</span>
+    </header>
+
+    <div class="login__contenido">
+      <span class="login__bienvenida">BIENVENIDO DE NUEVO</span>
+      <h1 class="login__titulo">Inicia sesión</h1>
+
+      <p class="login__subtitulo">
+        Accede a tu cuenta para encontrar a tu próximo compañero
+        o administrar las adopciones de tu refugio.
+      </p>
+
+      <div class="login__tarjeta">
+        <h2 class="login__tarjeta-titulo">Continúa con tu cuenta</h2>
+
+        <p class="login__tarjeta-descripcion">
+          Utilizamos Google para que puedas ingresar de forma sencilla y segura.
+        </p>
+
+        @if (mensaje()) {
+          <div class="login__mensaje"
+               role="alert"
+               [class.login__mensaje--error]="tipoMensaje() === 'error'"
+               [class.login__mensaje--advertencia]="tipoMensaje() === 'advertencia'"
+               [class.login__mensaje--exito]="tipoMensaje() === 'exito'">
+            {{ mensaje() }}
+          </div>
+        }
+
+        <div class="login__google"
+             [class.login__google--cargando]="cargando()">
+          <div #botonGoogle class="login__google-real"></div>
+        </div>
+
+        @if (cargando()) {
+          <p class="login__estado">Verificando tu cuenta...</p>
+        }
+
+        <div class="login__separador"></div>
+
+        <p class="login__registro">
+          ¿Todavía no tienes una cuenta?
+          <a routerLink="/registro" class="login__registro-enlace">Regístrate aquí</a>
+        </p>
+      </div>
+    </div>
+
+    <footer class="login__pie">
+      PetMatchCR · Conectando mascotas con familias
+    </footer>
+
+  </div>
+
+  <aside class="login__ilustracion">
+    <div class="login__ilustracion-contenido">
+      <span class="login__ilustracion-etiqueta">PETMATCHCR</span>
+
+      <div class="login__ilustracion-simbolo" aria-hidden="true">
+        P
+      </div>
+
+      <h2>Un hogar para cada mascota</h2>
+
+      <p>
+        Conectamos personas, refugios y animales para construir
+        nuevas historias de adopción.
+      </p>
+
+      <div class="login__beneficios">
+        <p>Explora mascotas en adopción</p>
+        <p>Conecta con refugios</p>
+        <p>Gestiona tus solicitudes</p>
+      </div>
+    </div>
+  </aside>
+</section>

@@ -1,0 +1,353 @@
+
+/*
+ * Author: Daniela Morales
+ * Version: 1.0
+ * Description: CSS de registro.html.
+ */
+
+:host {
+  display: block;
+  font-family: "DM Sans", Arial, sans-serif;
+  color: #40372f;
+}
+
+.registro {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  max-width: 1120px;
+  margin: 32px auto;
+  background-color: #fff;
+  border: 1px solid #e8ddce;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.registro__ilustracion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  background-color: #f0e4d1;
+}
+
+.registro__ilustracion-contenido {
+  width: 100%;
+  max-width: 360px;
+}
+
+.registro__ilustracion-etiqueta {
+  color: #846b50;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.registro__ilustracion-simbolo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  margin: 40px auto 30px;
+  background-color: #79634b;
+  border-radius: 12px;
+}
+
+.registro__ilustracion-simbolo img {
+  display: block;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.registro__ilustracion h2 {
+  margin: 0 0 14px;
+  color: #594735;
+  font-size: 30px;
+  line-height: 1.25;
+}
+
+.registro__ilustracion p {
+  color: #796b5b;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.registro__panel {
+  padding: 36px 48px 24px;
+}
+
+.registro__encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.registro__marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #594735;
+  font-size: 18px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.registro__marca-icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background-color: #79634b;
+  border-radius: 50%;
+}
+
+.registro__marca-icono img {
+  display: block;
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.registro__etiqueta {
+  color: #8a7967;
+  font-size: 11px;
+}
+
+.registro__contenido {
+  max-width: 460px;
+  margin: 48px auto;
+}
+
+.registro__bienvenida {
+  color: #94775b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+}
+
+.registro__titulo {
+  margin: 12px 0;
+  color: #40372f;
+  font-size: 36px;
+}
+
+.registro__subtitulo {
+  margin-bottom: 28px;
+  color: #817467;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* Formulario */
+
+.registro__tarjeta {
+  padding: 24px;
+  background-color: #fff;
+  border: 1px solid #e8ddce;
+  border-radius: 8px;
+}
+
+.registro__form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.registro__campo {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.registro__campo label {
+  color: #594735;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.registro__campo input:not([type="radio"]) {
+  box-sizing: border-box;
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  background-color: #fff;
+  border: 1px solid #ded2c2;
+  border-radius: 6px;
+  color: #40372f;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.registro__campo input::placeholder {
+  color: #a79a8b;
+}
+
+.registro__campo input:focus {
+  outline: none;
+  border-color: #a98764;
+}
+
+.registro__campo input.ng-invalid.ng-touched:not([type="radio"]) {
+  border-color: #b46a59;
+}
+
+.registro__error {
+  color: #a33f35;
+  font-size: 12px;
+}
+
+.registro__roles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.rol-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 64px;
+  padding: 14px;
+  background-color: #fff;
+  border: 1px solid #ded2c2;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.rol-card:hover {
+  border-color: #a98764;
+}
+
+.rol-card:has(input:checked) {
+  background-color: #f7efe3;
+  border-color: #a98764;
+}
+
+.rol-card input {
+  accent-color: #846b50;
+}
+
+.rol-card span {
+  color: #594735;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.registro__mensaje {
+  padding: 12px;
+  background-color: #fff0ed;
+  border-radius: 6px;
+  color: #a33f35;
+  font-size: 13px;
+}
+
+.registro__google,
+.registro__google-real {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;
+}
+
+.registro__google {
+  margin-top: 8px;
+}
+
+.registro__google--cargando {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.registro__estado {
+  margin: 0;
+  color: #817467;
+  font-size: 12px;
+  text-align: center;
+}
+
+.registro__separador {
+  height: 1px;
+  margin: 26px 0 20px;
+  background-color: #eee5d9;
+}
+
+.registro__login {
+  margin: 0;
+  color: #817467;
+  font-size: 13px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.registro__login a {
+  color: #806448;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.registro__login a:hover {
+  text-decoration: underline;
+}
+
+.registro__pie {
+  color: #9b8d7e;
+  font-size: 11px;
+  text-align: center;
+}
+
+/* Diseño adaptable */
+
+@media (max-width: 900px) {
+  .registro {
+    grid-template-columns: 1fr;
+    margin: 16px;
+  }
+
+  .registro__ilustracion {
+    padding: 36px;
+  }
+
+  .registro__ilustracion-simbolo {
+    margin: 24px auto;
+  }
+
+  .registro__panel {
+    padding: 28px;
+  }
+
+  .registro__contenido {
+    margin: 40px auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .registro__panel {
+    padding: 22px;
+  }
+
+  .registro__tarjeta {
+    padding: 20px;
+  }
+
+  .registro__titulo {
+    font-size: 28px;
+  }
+
+  .registro__etiqueta {
+    display: none;
+  }
+
+  .registro__roles {
+    grid-template-columns: 1fr;
+  }
+
+  .registro__ilustracion {
+    padding: 28px;
+  }
+
+  .registro__ilustracion h2 {
+    font-size: 24px;
+  }
+}
