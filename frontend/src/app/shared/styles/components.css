@@ -1,0 +1,126 @@
+/*
+ * Controles reutilizables según los nombres del Plan (págs. 51–54).
+ * Se importan una vez en styles.css. Cada feature conserva en su CSS
+ * la distribución de la pantalla y agrega estas clases al HTML.
+ */
+.btn-primary, .btn-secondary, .btn-link, .btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  min-block-size: var(--control-height);
+  max-inline-size: 100%;
+  padding: .5rem 1rem;
+  border: 0;
+  border-radius: var(--control-radius);
+  font: inherit;
+  font-weight: 650;
+  line-height: 1.5rem;
+  text-align: center;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  transition: background-color .15s ease, color .15s ease;
+}
+/*
+ * Excepción de accesibilidad: texto oscuro sobre café claro da 6.54:1;
+ * blanco daría 2.35:1. En hover oscuro sí usamos blanco (5.62:1).
+ * El objetivo para texto normal es al menos 4.5:1.
+ */
+.btn-primary { color: var(--color-text); background: var(--color-primary); }
+.btn-primary:hover:not(:disabled) { color: var(--color-white); background: var(--color-primary-hover); }
+.btn-secondary { color: var(--color-text); background: var(--color-navigation); }
+.btn-secondary:hover:not(:disabled) { background: var(--color-neutral); }
+.btn-link {
+  color: var(--color-primary-hover);
+  background: transparent;
+  text-decoration: underline;
+  text-underline-offset: .2em;
+}
+.btn-link:hover:not(:disabled) { background: var(--color-background); }
+.btn-danger { color: var(--color-white); background: var(--color-danger); }
+.btn-danger:hover:not(:disabled) { background: var(--color-danger-hover); }
+.btn-primary:disabled, .btn-secondary:disabled, .btn-link:disabled, .btn-danger:disabled { opacity: .65; cursor: not-allowed; }
+
+/* 20rem es el ancho del Plan; min() evita desbordar columnas o móviles. */
+.input-text-basic, .input-text-area, .select-single {
+  inline-size: min(var(--control-width), 100%);
+  min-inline-size: 0;
+  min-block-size: var(--control-height);
+  padding: .4rem var(--space-control);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--control-radius);
+  background: var(--color-white);
+  color: var(--color-text);
+  font: inherit;
+  line-height: 1.5rem;
+}
+.input-text-basic::placeholder, .input-text-area::placeholder {
+  /* Un gris legible evita que una instrucción desaparezca sobre blanco. */
+  color: var(--color-text-muted);
+  opacity: 1;
+}
+.select-single { cursor: pointer; }
+.select-single:hover:not(:disabled) { background: var(--color-navigation); }
+.input-text-area {
+  /* Medidas base del textarea, pág. 53; altura limitada en pantallas bajas. */
+  inline-size: min(10rem, 100%);
+  block-size: 30rem;
+  min-block-size: 6rem;
+  max-block-size: 50vh;
+  resize: vertical;
+}
+.input-text-basic[aria-invalid="true"], .input-text-area[aria-invalid="true"], .select-single[aria-invalid="true"] {
+  border-color: var(--color-danger);
+  outline: 1px solid var(--color-danger);
+}
+.input-text-basic:disabled, .input-text-area:disabled, .select-single:disabled { background: var(--color-navigation); cursor: not-allowed; }
+.checkbox-group input[type="checkbox"] { inline-size: 1.125rem; block-size: 1.125rem; flex: 0 0 auto; accent-color: var(--color-selected-control); }
+
+.card-basic {
+  inline-size: min(20rem, 100%);
+  min-inline-size: 0;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--control-radius);
+  background: var(--color-background);
+}
+.card-header, .card-footer { padding: 1rem; }
+.card-header { border-block-end: 1px solid var(--color-primary); }
+.card-footer { border-block-start: 1px solid var(--color-primary); }
+/* Texto oscuro sobre gris: 10.22:1; blanco solo alcanzaría 1.50:1. */
+.navbar-top { color: var(--color-text); background: var(--color-navigation); }
+.navbar-top nav { justify-content: center; font-size: 1.25rem; }
+.navbar-top a { color: var(--color-text); }
+.navbar-top a:hover { color: var(--color-text); text-decoration: underline; }
+
+/*
+ * <dialog>.showModal() bloquea el fondo. El componente abre, cierra y
+ * devuelve el foco; este CSS solo define presentación y tamaños máximos.
+ * En móvil conservamos 1rem de margen y dejamos desplazar el contenido.
+ */
+dialog.modal-sm, dialog.modal-md, dialog.modal-lg {
+  inline-size: min(var(--modal-width), calc(100vw - 2rem));
+  max-block-size: calc(100dvh - 2rem);
+  padding: 0;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--control-radius);
+  color: var(--color-text);
+  background: var(--color-white);
+  overflow: auto;
+}
+.modal-sm { --modal-width: 28rem; }
+.modal-md { --modal-width: 40rem; }
+.modal-lg { --modal-width: 56rem; }
+dialog::backdrop { background: var(--color-backdrop); }
+.modal-header, .modal-body, .modal-footer { padding: 1.25rem; }
+.modal-header { background: var(--color-background); border-block-end: 1px solid var(--color-primary); }
+.modal-header h2 { margin: 0; font-size: 1.5rem; line-height: 1.3; }
+.modal-footer { display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: .75rem; border-block-start: 1px solid var(--color-primary); }
+.modal-body .input-text-area {
+  /* Adaptación al diálogo: cabe el motivo y queda espacio para sus acciones. */
+  inline-size: 100%;
+  max-block-size: min(30rem, 30vh);
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary, .btn-secondary, .btn-link, .btn-danger { transition: none; }
+}

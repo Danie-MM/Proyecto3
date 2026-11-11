@@ -1,24 +1,38 @@
-<a class="volver" routerLink="/mascotas">← Mis mascotas</a>
+<a class="volver btn-link" routerLink="/mascotas">← Mis mascotas</a>
 <p *ngIf="cargando" role="status" class="aviso">Consultando el perfil guardado…</p>
 <p *ngIf="confirmacion" role="status" class="exito">{{ confirmacion }}</p>
-<div *ngIf="error" role="alert" class="error">{{ error }}<button *ngIf="!mascota || conflicto" class="enlace" (click)="cargar()">Recargar datos</button></div>
+<div *ngIf="error" role="alert" class="error">{{ error }}<button *ngIf="!mascota" class="btn-link" (click)="cargar()">Recargar datos</button></div>
 <ng-container *ngIf="mascota as m">
-  <div class="titulo"><div><p class="eyebrow">PERFIL PRIVADO</p><h1>{{ m.nombre }}</h1><p>{{ texto(m.especie) }} · Edad estimada: {{ m.edadEstimadaMeses }} meses</p></div>
-    <a *ngIf="m.activa" class="boton" [routerLink]="['/mascotas', m.id, 'editar']">Editar perfil</a></div>
-  <section class="tarjeta"><div class="linea"><h2>Datos de la mascota</h2><span class="estado" [class.inactiva]="!m.activa">{{ m.activa ? 'Activa' : 'Desactivada' }}</span></div>
+  <div class="titulo"><div><p class="eyebrow">PERFIL PRIVADO</p><h1 #tituloPerfil tabindex="-1">{{ m.nombre }}</h1><p>{{ texto(m.especie) }} · Edad estimada: {{ m.edadEstimadaMeses }} meses</p></div>
+    <a *ngIf="m.activa" class="btn-primary" [routerLink]="['/mascotas', m.id, 'editar']">Editar perfil</a></div>
+  <section class="tarjeta card-basic"><div class="linea"><h2>Datos de la mascota</h2><span class="estado" [class.inactiva]="!m.activa">{{ m.activa ? 'Activa' : 'Desactivada' }}</span></div>
     <dl class="ficha"><div><dt>Tamaño</dt><dd>{{ texto(m.tamano) }}</dd></div><div><dt>Energía</dt><dd>{{ texto(m.energia) }}</dd></div>
       <div><dt>Disponibilidad</dt><dd>{{ texto(m.disponibilidad) }}</dd></div><div><dt>Registrada el</dt><dd>{{ m.creadoEn | date:'dd/MM/yyyy HH:mm' }}</dd></div>
       <div class="completo"><dt>Comportamientos</dt><dd class="etiquetas"><span *ngFor="let etiqueta of m.comportamientos" class="etiqueta">{{ etiqueta.nombre }}</span></dd></div>
       <div class="completo"><dt>Identificador de la mascota</dt><dd class="identificador">{{ m.id }}</dd></div></dl>
     <p *ngIf="!m.activa" class="aviso">La desactivación conserva el perfil y sus relaciones. No elimina a la mascota de la base de datos.</p>
-    <button class="secundario" (click)="cargar()" [disabled]="ocupado">Volver a consultar</button>
+    <button class="btn-secondary" (click)="cargar()" [disabled]="ocupado">Volver a consultar</button>
   </section>
-  <section *ngIf="m.activa" class="tarjeta baja"><h2>Desactivar el perfil</h2><p>Usá esta opción cuando ya no debás gestionar este perfil. Se conservan el identificador y los registros relacionados.</p>
-    <button *ngIf="!confirmarBaja" class="peligro" (click)="confirmarBaja = true">Desactivar mascota</button>
-    <form *ngIf="confirmarBaja" (ngSubmit)="desactivar()" novalidate><label for="motivo">Motivo de desactivación *</label>
-      <textarea id="motivo" name="motivo" [(ngModel)]="motivo" rows="3" [disabled]="ocupado" aria-describedby="ayuda-motivo" required></textarea>
-      <small id="ayuda-motivo">Entre 1 y 500 caracteres. Confirmá para guardar la desactivación.</small>
-      <div class="acciones"><button class="peligro" type="submit" [disabled]="ocupado || conflicto">{{ ocupado ? 'Desactivando…' : 'Confirmar desactivación' }}</button>
-        <button type="button" class="secundario" (click)="confirmarBaja = false" [disabled]="ocupado">Cancelar</button></div></form>
+  <section *ngIf="m.activa" class="tarjeta card-basic baja"><h2>Desactivar el perfil</h2><p>Usá esta opción cuando ya no debás gestionar este perfil. Se conservan el identificador y los registros relacionados.</p>
+    <button class="btn-danger" type="button" (click)="abrirBaja()">Desactivar mascota</button>
   </section>
+  <app-confirmacion-modal [abierta]="confirmarBaja" [titulo]="'Desactivar a ' + m.nombre"
+    descripcion="El perfil dejará de estar activo. Se conservarán su identificador y los registros relacionados."
+    tamano="md" [ocupado]="ocupado || recargandoBaja" [retornoAlternativo]="tituloPerfil" (cancelada)="cancelarBaja()">
+    <p>{{ texto(m.especie) }} · {{ m.edadEstimadaMeses }} meses · Energía {{ texto(m.energia) }}</p>
+    <div *ngIf="errorBaja" role="alert" class="error">{{ errorBaja }}</div>
+    <p *ngIf="avisoBaja" role="status" class="aviso">{{ avisoBaja }}</p>
+    <p *ngIf="ocupado || recargandoBaja" role="status">{{ recargandoBaja ? 'Actualizando el perfil…' : 'Guardando la desactivación…' }}</p>
+    <form id="formulario-baja-mascota" (ngSubmit)="desactivar()" novalidate>
+      <label for="motivo">Motivo de desactivación *</label>
+      <textarea #motivoCampo id="motivo" name="motivo" class="input-text-area" [(ngModel)]="motivo" (ngModelChange)="errorMotivo = ''"
+        rows="3" [disabled]="ocupado || recargandoBaja || !m.activa" [attr.aria-invalid]="errorMotivo ? 'true' : null"
+        [attr.aria-describedby]="errorMotivo ? 'ayuda-motivo error-motivo' : 'ayuda-motivo'" required></textarea>
+      <small id="ayuda-motivo">Entre 1 y 500 caracteres. La desactivación se guarda solo al confirmar.</small>
+      <p *ngIf="errorMotivo" id="error-motivo" role="alert" class="error">{{ errorMotivo }}</p>
+    </form>
+    <button accionesModal *ngIf="conflicto" class="btn-secondary" type="button" [disabled]="ocupado || recargandoBaja" (click)="recargarParaBaja()">Recargar datos</button>
+    <button accionesModal class="btn-danger" type="submit" form="formulario-baja-mascota"
+      [disabled]="ocupado || recargandoBaja || conflicto || !m.activa">{{ ocupado ? 'Desactivando…' : 'Confirmar desactivación' }}</button>
+  </app-confirmacion-modal>
 </ng-container>

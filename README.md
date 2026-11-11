@@ -19,6 +19,9 @@ El backend usa **Spring Boot 4.1.2, Java 21 y Maven 3.9.16**. El frontend conser
 
 Cada integrante trabaja con su propia base de desarrollo. Si ya usás los puertos 4200 u 8080, cambiá `FRONTEND_PORT` o `BACKEND_PORT` en tu `.env` y abrí el puerto elegido. En macOS o Linux podés preparar la configuración con `test -f .env || cp .env.example .env`.
 
+Para programar con **backend en IntelliJ y frontend en Visual Studio Code**, seguí
+[Ejecutar en mi PC](docs/EJECUTAR_EN_MI_PC.md): PostgreSQL queda en Docker, el backend usa 8083 y Angular 4200.
+
 ## Dónde programar
 
 | Carpeta | Qué va allí |
@@ -69,7 +72,8 @@ docker compose -f compose.yaml -f compose.b01-demo.yaml up --build -d --wait --w
 ```
 
 Abrí [Mis mascotas](http://localhost:4200/mascotas) con el puerto predeterminado 4200, o el `FRONTEND_PORT`
-que elegiste en tu `.env`. En la computadora de Natanael se usa 4202; ese ajuste no es obligatorio para el equipo.
+que elegiste en tu `.env`. Para este modo Docker, en la computadora de Natanael se usa 4202;
+el arranque desde Visual Studio Code usa 4200. Ese ajuste de Docker no es obligatorio para el equipo.
 Si tu instalación necesita un `compose.override.yaml` personal, agregá `-f compose.override.yaml` antes de
 `-f compose.b01-demo.yaml`; ese archivo es opcional, local y no se incluye en el repositorio.
 Elegí **Responsable de Luna** en el selector de demostración. Luna ya viene como dato inicial.

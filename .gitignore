@@ -8,6 +8,9 @@
 **/coverage/
 .idea/
 .vscode/
+!frontend/.vscode/
+frontend/.vscode/*
+!frontend/.vscode/tasks.json
 *.iml
 *.log
 .DS_Store

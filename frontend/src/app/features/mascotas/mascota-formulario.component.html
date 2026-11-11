@@ -1,32 +1,33 @@
-<a class="volver" [routerLink]="original ? ['/mascotas', original.id] : ['/mascotas']">← Volver</a>
+<!-- Las clases de controles vienen de shared/styles; .campos solo distribuye el formulario. -->
+<a class="volver btn-link" [routerLink]="original ? ['/mascotas', original.id] : ['/mascotas']">← Volver</a>
 <p class="eyebrow">PERFIL PRIVADO</p><h1>{{ editando ? 'Editar mascota' : 'Registrar mascota' }}</h1>
 <p>Los campos marcados con * son obligatorios. El perfil se guarda en la base de datos del proyecto.</p>
 <p *ngIf="cargando" role="status" class="aviso">Cargando datos del formulario…</p>
-<div *ngIf="error" role="alert" class="error">{{ error }}<button *ngIf="!catalogos" class="enlace" (click)="cargar()">Reintentar carga</button></div>
+<div *ngIf="error" role="alert" class="error">{{ error }}<button *ngIf="!catalogos" class="btn-link" (click)="cargar()">Reintentar carga</button></div>
 <section *ngIf="conflicto" class="aviso"><p>Al recargar se reemplazan los campos por la versión guardada. Copiá antes cualquier cambio que quieras conservar.</p>
-  <button class="secundario" (click)="cargar()">Recargar versión vigente</button></section>
+  <button class="btn-secondary" (click)="cargar()">Recargar versión vigente</button></section>
 <p *ngIf="original && !original.activa" class="aviso">Esta mascota está desactivada. Conserva su perfil, pero no se permite editarlo.</p>
-<form *ngIf="catalogos" class="tarjeta formulario" (ngSubmit)="guardar()" novalidate>
+<form *ngIf="catalogos" class="card-basic tarjeta formulario" (ngSubmit)="guardar()" novalidate>
   <fieldset [disabled]="ocupado || cargando || original?.activa === false"><legend class="sr-only">Datos de la mascota</legend><div class="campos">
-    <div class="campo completo"><label for="nombre">Nombre *</label><input id="nombre" name="nombre" [(ngModel)]="datos.nombre" autocomplete="off" required aria-describedby="ayuda-nombre error-nombre" [attr.aria-invalid]="!!errores['nombre']">
+    <div class="campo completo"><label for="nombre">Nombre *</label><input class="input-text-basic" id="nombre" name="nombre" [(ngModel)]="datos.nombre" autocomplete="off" required aria-describedby="ayuda-nombre error-nombre" [attr.aria-invalid]="!!errores['nombre']">
       <small id="ayuda-nombre">Entre 1 y 100 caracteres.</small><small id="error-nombre" class="error-campo">{{ errores['nombre'] }}</small></div>
-    <div class="campo"><label for="especie">Especie *</label><select id="especie" name="especie" [(ngModel)]="datos.especie" required aria-describedby="error-especie" [attr.aria-invalid]="!!errores['especie']">
+    <div class="campo"><label for="especie">Especie *</label><select class="select-single" id="especie" name="especie" [(ngModel)]="datos.especie" required aria-describedby="error-especie" [attr.aria-invalid]="!!errores['especie']">
       <option value="" disabled>Seleccioná una especie</option><option *ngFor="let especie of especies" [value]="especie">{{ texto(especie) }}{{ !catalogos.especies.includes(especie) ? ' (retirada)' : '' }}</option>
     </select><small id="error-especie" class="error-campo">{{ errores['especie'] }}</small></div>
-    <div class="campo"><label for="edad">Edad estimada en meses *</label><input id="edad" name="edad" type="number" min="0" max="2147483647" step="1" [(ngModel)]="datos.edadEstimadaMeses" required aria-describedby="error-edad" [attr.aria-invalid]="!!errores['edadEstimadaMeses']">
+    <div class="campo"><label for="edad">Edad estimada en meses *</label><input class="input-text-basic" id="edad" name="edad" type="number" min="0" max="2147483647" step="1" [(ngModel)]="datos.edadEstimadaMeses" required aria-describedby="error-edad" [attr.aria-invalid]="!!errores['edadEstimadaMeses']">
       <small id="error-edad" class="error-campo">{{ errores['edadEstimadaMeses'] }}</small></div>
-    <div class="campo"><label for="tamano">Tamaño *</label><select id="tamano" name="tamano" [(ngModel)]="datos.tamano" required aria-describedby="error-tamano" [attr.aria-invalid]="!!errores['tamano']">
+    <div class="campo"><label for="tamano">Tamaño *</label><select class="select-single" id="tamano" name="tamano" [(ngModel)]="datos.tamano" required aria-describedby="error-tamano" [attr.aria-invalid]="!!errores['tamano']">
       <option value="" disabled>Seleccioná un tamaño</option><option *ngFor="let tamano of catalogos.tamanos" [value]="tamano">{{ texto(tamano) }}</option></select><small id="error-tamano" class="error-campo">{{ errores['tamano'] }}</small></div>
-    <div class="campo"><label for="energia">Nivel de energía *</label><select id="energia" name="energia" [(ngModel)]="datos.energia" required aria-describedby="error-energia" [attr.aria-invalid]="!!errores['energia']">
+    <div class="campo"><label for="energia">Nivel de energía *</label><select class="select-single" id="energia" name="energia" [(ngModel)]="datos.energia" required aria-describedby="error-energia" [attr.aria-invalid]="!!errores['energia']">
       <option value="" disabled>Seleccioná un nivel</option><option *ngFor="let energia of catalogos.energias" [value]="energia">{{ texto(energia) }}</option></select><small id="error-energia" class="error-campo">{{ errores['energia'] }}</small></div>
-  </div><fieldset class="comportamientos" aria-describedby="error-comportamientos"><legend>Comportamientos *</legend><p class="muted">Seleccioná las etiquetas que describen a la mascota.</p>
+  </div><fieldset class="comportamientos checkbox-group" aria-describedby="error-comportamientos"><legend>Comportamientos *</legend><p class="muted">Seleccioná las etiquetas que describen a la mascota.</p>
     <label *ngFor="let etiqueta of catalogos.comportamientos" class="opcion"><input type="checkbox" [name]="'etiqueta-' + etiqueta.id" [ngModel]="tieneEtiqueta(etiqueta.id)" (ngModelChange)="cambiarEtiqueta(etiqueta.id, $event)" [disabled]="etiqueta.activo === false && !tieneEtiqueta(etiqueta.id)">
       {{ etiqueta.nombre }}<span *ngIf="etiqueta.activo === false"> (retirada)</span></label>
     <p *ngIf="!catalogos.comportamientos.length" class="aviso">Todavía no hay etiquetas de comportamiento disponibles. El equipo debe cargar el catálogo acordado para registrar mascotas.</p>
     <small id="error-comportamientos" class="error-campo">{{ errores['comportamientoIds'] }}</small></fieldset>
-  <div *ngIf="!editando && sesion.organizaciones.length" class="campo"><label for="organizacion">Ámbito del perfil</label><select id="organizacion" name="organizacion" [(ngModel)]="datos.organizacionId">
+  <div *ngIf="!editando && sesion.organizaciones.length" class="campo"><label for="organizacion">Ámbito del perfil</label><select class="select-single" id="organizacion" name="organizacion" [(ngModel)]="datos.organizacionId">
     <option value="">Mi perfil individual</option><option *ngFor="let org of sesion.organizaciones" [value]="org.id">{{ org.nombre }}</option></select><small>Solo podés elegir una organización que tenés autorizada.</small></div>
   <p class="muted">{{ editando ? 'La edición conserva el responsable, la organización y la disponibilidad.' : 'El servidor te asigna como responsable y crea el perfil como No disponible.' }}</p>
-  <div class="acciones"><button type="submit" [disabled]="ocupado || !catalogos.comportamientos.length">{{ ocupado ? 'Guardando…' : (editando ? 'Guardar cambios' : 'Guardar mascota') }}</button>
-    <a [routerLink]="original ? ['/mascotas', original.id] : ['/mascotas']">Cancelar</a></div></fieldset>
+  <div class="acciones"><button class="btn-primary" type="submit" [disabled]="ocupado || !catalogos.comportamientos.length">{{ ocupado ? 'Guardando…' : (editando ? 'Guardar cambios' : 'Guardar mascota') }}</button>
+    <a class="btn-link" [routerLink]="original ? ['/mascotas', original.id] : ['/mascotas']">Cancelar</a></div></fieldset>
 </form>
