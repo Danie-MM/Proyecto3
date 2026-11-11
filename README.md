@@ -55,3 +55,47 @@ docker compose exec frontend npm run test:ci
 ```
 
 Maven genera los informes en `target/surefire-reports/`. El flujo del PR también comprueba el alta y la lectura por el proxy de Angular. La aceptación de G-02 incluye que otra persona reproduzca el arranque desde una base vacía y registre su resultado en el issue.
+
+## B-01: perfiles privados de mascotas
+
+Implementa alta, listado, detalle, edición con `versionEsperada` y desactivación lógica con motivo.
+Los reenvíos de creación y baja usan `Idempotency-Key`; el servidor deriva responsable y ámbitos.
+El catálogo de especies se consulta en PostgreSQL. V1–V5 conservan el trabajo manual; V6 amplía el perfil.
+
+Para recorrerlo localmente, con Docker Desktop encendido y `.env` preparado:
+
+```powershell
+docker compose -f compose.yaml -f compose.b01-demo.yaml up --build -d --wait --wait-timeout 240
+```
+
+Abrí [Mis mascotas](http://localhost:4200/mascotas) con el puerto predeterminado 4200, o el `FRONTEND_PORT`
+que elegiste en tu `.env`. En la computadora de Natanael se usa 4202; ese ajuste no es obligatorio para el equipo.
+Si tu instalación necesita un `compose.override.yaml` personal, agregá `-f compose.override.yaml` antes de
+`-f compose.b01-demo.yaml`; ese archivo es opcional, local y no se incluye en el repositorio.
+Elegí **Responsable de Luna** en el selector de demostración. Luna ya viene como dato inicial.
+Para practicar el recorrido completo, creá **Luna prueba B-01**, editá su edad, recargá y desactivá esa copia
+desde su detalle. Conservá la Luna inicial activa para otras demostraciones.
+
+La demostración usa el esquema `demo_b01`, actores ficticios y las tres etiquetas locales autorizadas:
+Sociable, Tranquilo y Juguetón, identificadas con `(demo)`. No reemplazan el catálogo aprobado del equipo.
+`public` conserva los datos de desarrollo normales y `pruebas` se usa para verificaciones automatizadas.
+En pgAdmin, abrí **petmatchcr → Schemas → demo_b01 → Tables → mascota** para ver los registros de la demostración.
+
+La sesión real de A y sus organizaciones todavía requieren integración: su rama actual usa email/Long y JWT,
+mientras el acuerdo de B usa UUID y sesión con CSRF. Los puertos `IdentidadMascotas` y `AmbitosMascotas`
+separan esa conexión; fuera de la demostración no se inventan identidades ni permisos.
+
+- [Explicación del código y recorrido para aprender](docs/B01_PASO_A_PASO.md).
+- [Auditoría de las ramas del equipo y pendientes de integración](docs/INTEGRACION_B01.md).
+- [Contrato HTTP de B-01](contratos/mascotas.openapi.json).
+
+El funcionamiento local de B no acredita por sí solo la integración con A. El catálogo público de D también
+necesita B-02 (publicación); fotos, publicación y clínica quedan en sus respectivos issues.
+
+Validación automatizada del 10 de noviembre de 2026: `mvnw clean verify` completó **130 pruebas de backend**
+sin fallos ni errores; el frontend compiló y completó **18 pruebas**. Estos resultados corresponden al módulo
+con contextos controlados y no acreditan todavía la integración del ingreso real de A.
+
+La comprobación en el navegador recorrió alta, recarga, edición, conflicto entre dos pestañas,
+aislamiento entre responsables y desactivación con conservación del identificador. Luna quedó activa
+con 9 meses y energía alta; la mascota ficticia de comprobación quedó desactivada en `demo_b01`.

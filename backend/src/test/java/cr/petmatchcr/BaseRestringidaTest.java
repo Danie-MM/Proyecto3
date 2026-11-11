@@ -11,6 +11,8 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -28,5 +30,22 @@ class BaseRestringidaTest {
         int estado = http.perform(get("/api/v1/pruebas-entorno/11111111-1111-4111-8111-111111111111"))
                 .andReturn().getResponse().getStatus();
         assertThat(estado).isIn(401, 403);
+    }
+
+    @Test
+    void laDemostracionNoSeRegistraFueraDeSuPerfil() {
+        var rutas = requestMappingHandlerMapping.getHandlerMethods().keySet().stream()
+                .flatMap(info -> info.getPatternValues().stream()).toList();
+        assertThat(rutas).noneMatch(ruta -> ruta.contains("demo-b01"));
+    }
+
+    @Test
+    void unNombreConFormaDeUuidNoSustituyeLaIdentidadVerificadaPorA() throws Exception {
+        // Este contexto no instala adaptadores ficticios: el puerto por defecto deniega.
+        http.perform(get("/api/v1/mascotas/contexto")
+                        .with(user("11111111-1111-4111-8111-111111111111")))
+                .andExpect(status().isUnauthorized());
+        http.perform(get("/api/v1/mascotas").with(user("usuario@example.test")))
+                .andExpect(status().isUnauthorized());
     }
 }
