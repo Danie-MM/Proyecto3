@@ -4,11 +4,23 @@ import { TestBed } from '@angular/core/testing';
 import { MascotasApiService } from './mascotas-api.service';
 
 describe('API de perfiles privados', () => {
-  let api: MascotasApiService; let http: HttpTestingController;
-  const datos = { nombre: 'Luna', especie: 'GATO', edadEstimadaMeses: 8, tamano: 'PEQUENO', energia: 'MEDIA', comportamientoIds: ['etiqueta'], organizacionId: null };
+  let api: MascotasApiService;
+  let http: HttpTestingController;
+  const datos = {
+    nombre: 'Luna',
+    especie: 'GATO',
+    edadEstimadaMeses: 8,
+    tamano: 'PEQUENO',
+    energia: 'MEDIA',
+    comportamientoIds: ['etiqueta'],
+    organizacionId: null,
+  };
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
-    api = TestBed.inject(MascotasApiService); http = TestBed.inject(HttpTestingController);
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+    api = TestBed.inject(MascotasApiService);
+    http = TestBed.inject(HttpTestingController);
   });
   afterEach(() => http.verify());
 
@@ -29,15 +41,18 @@ describe('API de perfiles privados', () => {
   });
   it('no envía escrituras si falla la obtención del token', () => {
     let error = false;
-    api.crear(datos, 'clave').subscribe({ error: () => error = true });
+    api.crear(datos, 'clave').subscribe({ error: () => (error = true) });
     http.expectOne('/api/v1/sesion/csrf').flush({}, { status: 503, statusText: 'Unavailable' });
-    expect(error).toBeTrue(); http.expectNone('/api/v1/mascotas');
+    expect(error).toBeTrue();
+    http.expectNone('/api/v1/mascotas');
   });
   it('combina filtros y conserva la paginación acordada', () => {
     api.listar(2, false, 'organizacion').subscribe();
-    const peticion = http.expectOne(request => request.url === '/api/v1/mascotas');
-    expect(peticion.request.params.get('pagina')).toBe('2'); expect(peticion.request.params.get('limite')).toBe('20');
-    expect(peticion.request.params.get('activas')).toBe('false'); expect(peticion.request.params.get('organizacionId')).toBe('organizacion');
+    const peticion = http.expectOne((request) => request.url === '/api/v1/mascotas');
+    expect(peticion.request.params.get('pagina')).toBe('2');
+    expect(peticion.request.params.get('limite')).toBe('20');
+    expect(peticion.request.params.get('activas')).toBe('false');
+    expect(peticion.request.params.get('organizacionId')).toBe('organizacion');
     peticion.flush({ elementos: [], pagina: 2, limite: 20, totalElementos: 0 });
   });
 });

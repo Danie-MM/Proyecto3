@@ -38,6 +38,25 @@ El adaptador real de A está pendiente de la integración documentada en [INTEGR
 
 El recorrido es: **formulario → controlador → servicio → repositorio → PostgreSQL → respuesta → pantalla**. Cada capa tiene una tarea distinta. Si mañana un compañero modifica una regla de autorización, debe buscarla en el contexto y el servicio; si cambia el formato del JSON, debe revisar DTO, controlador, contrato y pantalla.
 
+### Cómo leer los archivos del frontend en Visual Studio Code
+
+La carpeta `frontend/src/app/features/mascotas` contiene 11 archivos de funcionamiento y 5 archivos de pruebas. Es una división por responsabilidades: una pantalla puede tener su lógica en TypeScript y su presentación en HTML. El mismo formulario sirve para registrar y editar.
+
+| Archivos | Responsabilidad |
+| --- | --- |
+| `mascotas.model.ts` | Describe qué datos envía y recibe Angular. Estas interfaces de TypeScript no crean tablas ni sustituyen los modelos Java. |
+| `mascotas-api.service.ts` | Hace las solicitudes HTTP al backend. |
+| `mascota-formulario.component.ts` y `.html` | Manejan los campos, validaciones y guardado. Leé primero el HTML y después el método `guardar()`. |
+| `mascotas-lista.component.ts` | Consulta y muestra la lista con filtros y paginación. Su HTML está dentro del mismo archivo. |
+| `mascota-detalle.component.ts` y `.html` | Muestran un perfil y permiten confirmar su desactivación. |
+| `mascotas-layout.component.ts` | Contiene la navegación y el marco común de las pantallas. |
+| `sesion-mascotas.service.ts` | Mantiene el contexto del usuario y avisa cuando cambia, para limpiar datos de la sesión anterior. |
+| `intentos-mascota.service.ts` | Conserva la clave de un intento para que reenviar una operación no duplique la mascota. |
+| `mascotas.css` | Distribuye los elementos de estas pantallas; los colores y controles compartidos están en `shared/styles`. |
+| Los cinco archivos `.spec.ts` | Comprueban que las funciones anteriores se comporten como esperamos. No agregan pantallas. |
+
+Para estudiar, seguí este orden: datos → formulario → servicio HTTP → lista y detalle → sesión y reintentos → pruebas. El código está indentado y separado en bloques; los comentarios explican el motivo de las protecciones. La cantidad de líneas de formato no agrega nuevas reglas de negocio.
+
 ## 6. Dos protecciones que conviene explicar con un ejemplo
 
 **Versión:** dos formularios abren Luna con versión 0. El primero guarda y la versión pasa a 1. El segundo todavía envía 0: recibe HTTP 409 y no sobrescribe el cambio anterior. Debe recargar y decidir si vuelve a editar.
@@ -67,6 +86,8 @@ El texto entre comillas es un marcador: sustituilo por el UUID antes de ejecutar
 ## Evidencia automatizada
 
 El 10 de noviembre de 2026 se completó `mvnw clean verify`: **130 pruebas de backend, sin fallos ni errores**. También se completaron la compilación de Angular y **16 pruebas del frontend**. Las pruebas comprueban el comportamiento con contextos y datos ficticios; no son evidencia de que el login de A ya esté conectado. Los pasos manuales anteriores son una guía de demostración, no una afirmación de ejecución en navegador.
+
+La comprobación más reciente del frontend, del **11 de noviembre de 2026**, completó la compilación de producción y **28 pruebas en Windows con Chrome Headless**, después de formatear los archivos de mascotas y corregir la versión de TypeScript utilizada por VS Code. Los recuentos de 16 y 18 en notas anteriores corresponden a ejecuciones previas a las pruebas del diseño compartido; el backend no se modificó en esta revisión.
 
 ## Cómo explicar tu parte
 

@@ -13,14 +13,16 @@ describe('Claves de reintento de mascotas', () => {
     const clave = await new IntentosMascotaService().obtener(actorA, operacion, datos);
     expect(await new IntentosMascotaService().obtener(actorA, operacion, datos)).toBe(clave);
     const almacenado = sessionStorage.getItem('petmatch.b01.intento.' + actorA + '.' + operacion)!;
-    expect(almacenado).not.toContain('Nombre privado ficticio'); expect(almacenado).not.toContain('GATO');
+    expect(almacenado).not.toContain('Nombre privado ficticio');
+    expect(almacenado).not.toContain('GATO');
     expect(JSON.parse(almacenado).huella.length).toBe(64);
   });
   it('cambia de clave al modificar datos o iniciar una nueva creación confirmada', async () => {
     const intentos = new IntentosMascotaService();
     const original = await intentos.obtener(actorA, operacion, { edad: 8 });
     const modificada = await intentos.obtener(actorA, operacion, { edad: 9 });
-    expect(modificada).not.toBe(original); intentos.completar(actorA, operacion);
+    expect(modificada).not.toBe(original);
+    intentos.completar(actorA, operacion);
     expect(await intentos.obtener(actorA, operacion, { edad: 9 })).not.toBe(modificada);
   });
   it('completar la creación de B no elimina la intención pendiente de A con los mismos datos', async () => {
