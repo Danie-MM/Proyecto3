@@ -4,14 +4,15 @@
     {
       "label": "Frontend: iniciar local",
       "type": "process",
-      "command": "powershell.exe",
+      "command": "node",
       "args": [
-        "-NoProfile",
-        "-File",
-        "${workspaceFolder}/../tools/Iniciar-Frontend.ps1"
+        "${workspaceFolder}/../tools/Iniciar-Frontend.cjs"
       ],
       "options": {
-        "cwd": "${workspaceFolder}"
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "Path": "${env:LOCALAPPDATA}\\PetMatchCR\\tools\\node-v20.11.1-win-x64;${env:Path}"
+        }
       },
       "presentation": {
         "reveal": "always",

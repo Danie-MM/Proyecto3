@@ -82,22 +82,32 @@ El proyecto fija **Node 20.11.1 y npm 10.2.4**. En esta computadora se preparó 
 %LOCALAPPDATA%\PetMatchCR\tools\node-v20.11.1-win-x64
 ```
 
-El script también acepta Node 20.11.1 con npm 10.2.4 desde `PATH` si no existe esa copia. Si encuentra una versión diferente, se detiene y explica el problema. No descarga programas, no cambia el Node global y no modifica las políticas de PowerShell.
+La tarea también acepta Node 20.11.1 con npm 10.2.4 desde `PATH` si no existe esa copia. Si encuentra una versión diferente, se detiene y explica el problema. No descarga programas, no cambia el Node global y no modifica las políticas de PowerShell.
 
 1. Con la carpeta **`frontend`** abierta en Visual Studio Code, seleccioná **Terminal → Ejecutar tarea**.
 2. Elegí **Frontend: iniciar local**.
 3. Esperá la compilación de Angular y abrí **`http://127.0.0.1:4200/mascotas`**.
 4. Mantené la terminal abierta mientras usás la pantalla. Para detenerla, presioná **Ctrl+C** en esa terminal.
 
-La tarea ejecuta `tools/Iniciar-Frontend.ps1`. Este archivo comprueba las versiones y las dependencias locales. Si faltan, ejecuta `npm ci`, que instala las versiones registradas en `package-lock.json`; después ejecuta `npm run start:local`.
+La tarea ejecuta Node directamente con `tools/Iniciar-Frontend.cjs`. Este archivo comprueba las versiones y las dependencias locales. Si faltan, ejecuta `npm ci`, que instala las versiones registradas en `package-lock.json`; después ejecuta `npm run start:local`. Usa el mismo Node para iniciar npm y pasa sus argumentos por separado, sin construir comandos de shell.
+
+El primer intento de la tarea con Windows PowerShell 5 fue bloqueado por su política `Restricted`. Por eso la tarea ahora inicia JavaScript con Node: no requiere cambiar la política, usar `Bypass` ni ejecutar `npm.ps1`.
 
 `node_modules` existe solo en tu computadora y no se sube a Git. Las dependencias instaladas dentro del contenedor de Docker no sustituyen las que necesita Visual Studio Code en Windows. Si el equipo cambia dependencias y ya tenés una instalación local, actualizala con `npm ci` usando las versiones indicadas.
 
-También podés iniciar la misma tarea desde PowerShell, estando en la raíz del repositorio:
+Con Node 20.11.1 ya seleccionado en `PATH`, también podés iniciar el archivo desde una terminal en la raíz del repositorio:
+
+```text
+node tools/Iniciar-Frontend.cjs
+```
+
+Se conserva `tools/Iniciar-Frontend.ps1` como alternativa desde la sesión de **PowerShell 7** donde ya funcionó, estando en la raíz del repositorio:
 
 ```powershell
 .\tools\Iniciar-Frontend.ps1
 ```
+
+Si otra sesión bloquea ese archivo, usá la tarea de Node; no hace falta cambiar la política de ejecución.
 
 Los dos comandos del proyecto tienen propósitos distintos:
 
@@ -142,10 +152,10 @@ No hace falta copiar un segundo conjunto de colores o construir otro modal para 
 
 - Se preparó Node 20.11.1 con npm 10.2.4 en la carpeta local de PetMatchCR y `npm ci` terminó correctamente.
 - El backend arrancó desde IntelliJ con los perfiles `local,demo-b01` en el puerto 8083. La comprobación de salud devolvió `UP`.
-- El script de esta guía inició Angular directamente en Windows en el puerto 4200.
+- Desde **Terminal → Run Task → Frontend: iniciar local** se ejecutó la tarea de Visual Studio Code basada en `Iniciar-Frontend.cjs`. Angular terminó de compilar y quedó en modo de observación en `http://127.0.0.1:4200/`. Al recargar el navegador, Luna mostró 9 meses, energía alta, estado activo y la etiqueta Juguetón (demo). La alternativa `Iniciar-Frontend.ps1` también había funcionado desde PowerShell 7; la tarea usa Node para evitar el bloqueo de scripts observado en Windows PowerShell 5, sin cambiar esa política.
 - Se retiraron las referencias de IntelliJ a los módulos antiguos `.main` y `.test`, conservando los archivos fuente. Se resolvieron los errores de símbolos Java observados.
 - Se agregó la fuente DDL **PetMatchCR migraciones**, con dialecto PostgreSQL. Al abrir V6 por su ruta, IntelliJ actualizó el modelo que antes solo reconocía V1–V5: pasó a mostrar 7 tablas, 1 vista y 15 rutinas. `MascotaRepository` quedó sin errores rojos y reconoció las funciones SQL utilizadas.
-- Visual Studio Code abrió el `frontend` de la copia correcta y mostró cero errores. La confianza del espacio de trabajo seguía pendiente de confirmación del usuario.
+- Visual Studio Code abrió el `frontend` de la copia correcta y mostró cero errores. Con autorización del usuario, se verificó en **Workspace Trust** que esa carpeta exacta ya figuraba como confiable; no se amplió la confianza a su carpeta padre.
 - La compilación del frontend y sus **28 pruebas** terminaron correctamente en Docker. Esta ejecución verifica el código compartido; no equivale a haber ejecutado esas pruebas en Windows.
 - En el navegador, Angular en 4200 consultó el backend local en 8083. Se creó **Prueba diseño B-01** y se comprobó que sus datos permanecieran después de recargar.
 - En la confirmación de desactivación, el foco inicial quedó en **Cancelar**. **Escape** cerró el diálogo y devolvió el foco a **Desactivar**. Un motivo vacío mostró el error dentro del diálogo y llevó el foco al campo correspondiente; con un motivo válido, la desactivación se guardó y permaneció después de recargar.
@@ -155,4 +165,4 @@ La fuente DDL es un **modelo virtual construido a partir de los archivos SQL**; 
 
 Permanecen alertas conocidas de las inspecciones del editor: cuatro sobre los argumentos de llamadas JDBC `CALL` que incluyen `NULL` para el parámetro de salida, y una en V6 sobre `DROP CONSTRAINT mascota_especie_check`. Esta última consulta un modelo final donde esa restricción ya fue eliminada, mientras que Flyway ejecuta las migraciones en orden. Son avisos de análisis del editor, distintos de errores de compilación Java. No se ocultaron las inspecciones ni se alteró el SQL para eliminarlos; el alta y la desactivación descritas arriba se comprobaron contra PostgreSQL. Los avisos del corrector por palabras en español también se distinguen de errores de código.
 
-Estas comprobaciones acreditan el recorrido descrito con el arranque local y las identidades de demostración. La confirmación de confianza en Visual Studio Code seguía pendiente al registrar estos resultados. La integración con el acceso real de A continúa siendo un trabajo separado.
+Estas comprobaciones acreditan el recorrido descrito con el arranque local y las identidades de demostración. La integración con el acceso real de A continúa siendo un trabajo separado.
