@@ -15,10 +15,14 @@ trabajar en esta rama no implica haber integrado sus correcciones a `main`.
 | --- | --- |
 | Dependencias frontend | Reinstaladas con `npm ci`, respetando `package-lock.json`. |
 | Compilación frontend | Compilación de producción completada después de preparar las dependencias. |
-| Pruebas frontend | **44 pruebas aprobadas** con Chrome Headless nativo de Windows. |
-| Pruebas backend | **160 pruebas aprobadas**, 0 fallos, 0 errores y 0 omitidas. La ejecución nativa terminó con `BUILD SUCCESS` en el registro de las 20:49:21. |
+| Pruebas frontend | Última tarea nativa: **49/49 aprobadas** con Chrome Headless de Windows, incluidas cinco nuevas de redirección. |
+| Pruebas backend | **160 pruebas aprobadas**, 0 fallos, 0 errores y 0 omitidas. La ejecución nativa terminó con `BUILD SUCCESS` en el registro de las 20:49:21; el backend no se modificó después. |
 | Arranque local | Backend y frontend iniciaron correctamente con la configuración local de integración. |
-| Recorrido completo A/B/C | El ingreso Google real y el recorrido completo autenticado siguen pendientes. Las pruebas automatizadas y el arranque no sustituyen esa comprobación ni la aceptación del equipo. |
+| Origen Google | `http://localhost:4200` permitió seleccionar la cuenta. `http://127.0.0.1:4200` había producido `origin_mismatch`. |
+| Registro y sesión reales | Registro Google completado en el esquema local `integracion_abc`; la aplicación mostró `/comprobar-entorno` con sesión iniciada y rol `ADOPTANTE`. |
+| Redirección local | Verificada en navegador: `127.0.0.1:4200` pasó a `localhost:4200`. |
+| Pantallas autenticadas | `/mascotas` cargó correctamente la lista vacía; `/mi-ubicacion` mostró formulario y mapa sin errores. |
+| Recorrido completo A/B/C | El CRUD completo autenticado de mascotas y ubicación sigue pendiente. Las pruebas automatizadas, el arranque y el registro no sustituyen esa comprobación ni la aceptación del equipo. |
 
 La verificación backend aprobada se obtuvo después de corregir los fallos y
 separar los esquemas de las pruebas normales y de demostración. El resultado
@@ -85,7 +89,7 @@ Ejecutar tarea**:
 | --- | --- |
 | Backend: verificar integracion ABC | Ejecuta `clean verify` con Maven Wrapper y registra el resultado en `backend-verificacion.log`; usa esquemas de prueba separados. No deja un servidor iniciado. |
 | Backend: iniciar integracion ABC | Maven Wrapper inicia Spring en `http://127.0.0.1:8083`, perfiles `local,integracion`. |
-| Frontend: iniciar local | Angular queda disponible en `http://127.0.0.1:4200/login`. |
+| Frontend: iniciar local | Angular queda disponible en `http://localhost:4200/login`. |
 | Frontend: compilar | Compila producción y termina; no inicia un servidor. |
 | Frontend: probar | Ejecuta las pruebas una vez con Chrome Headless. Requiere Chrome instalado. |
 
@@ -134,10 +138,17 @@ valores únicamente en tu configuración local. No los pongás en capturas, mens
 de commit ni esta guía.
 
 El cliente Google es un identificador público compartido con la constante del
-frontend. Su responsable debe habilitar `http://localhost:4200` y
-`http://127.0.0.1:4200` como orígenes autorizados. El preparador no cambia Google
-Cloud Console ni garantiza esa habilitación. Un error de cliente/origen debe
-revisarse con el responsable de esa cuenta, sin desactivar la autenticación.
+frontend. **http://localhost:4200** es el origen aceptado por la configuración
+actual: la comprobación visual permitió seleccionar una cuenta, completar su
+registro e iniciar sesión. El host `http://127.0.0.1:4200` había producido
+`origin_mismatch`.
+
+La aplicación redirige las visitas a `http://127.0.0.1:4200` hacia
+`http://localhost:4200` antes de iniciar Angular y Google. Se conservan la ruta,
+la consulta, el fragmento y el puerto; API, base y proxy mantienen sus direcciones. Las cookies y el
+almacenamiento de ambos hosts son distintos, por lo que la sesión debe continuar
+en `localhost`. El preparador no cambia Google Cloud Console ni autoriza otros
+orígenes.
 
 Si el volumen de PostgreSQL ya existe, conservá la contraseña con la que se
 inicializó: cambiar `DB_PASSWORD` en `.env` no cambia la contraseña de la base.
@@ -200,7 +211,7 @@ aplicaciones de Docker con `docker compose -f compose.yaml stop backend frontend
 y levantá la base con el comando de `compose.ide.yaml`. Para detener todo sin
 eliminar datos, usá `docker compose -f compose.yaml down`, sin `-v`.
 La reproducción completa en otra computadora requiere registrar su propio
-resultado; las pruebas 160/44 citadas aquí son las ejecuciones nativas verificadas.
+resultado; las pruebas 160/49 citadas aquí son las ejecuciones nativas verificadas.
 
 ## Qué se reconcilió
 
@@ -233,8 +244,9 @@ un conflicto. El primer ensayo se hace en `integracion_abc` nuevo.
    verificar cambios nuevos. Con ambas verificaciones resueltas, ejecutar
    **Backend: iniciar integracion ABC** y luego **Frontend: iniciar local**.
    Comprobar que el backend inicia sin errores de configuración o migraciones y
-   entrar por `http://127.0.0.1:4200/login`.
-   Usar siempre el mismo host; no alternar con `localhost` durante la sesión.
+   entrar por `http://localhost:4200/login`.
+   Mantener `localhost` durante la sesión; las visitas a `127.0.0.1:4200` se
+   redirigen a ese origen.
 4. Con datos ficticios, probar registro/ingreso, crear una mascota, recargar y
    editar. Guardar y recargar las preferencias de ubicación de la misma cuenta.
 5. Probar cuenta distinta, acceso ajeno, cierre de sesión, reintentos y edición
@@ -262,9 +274,9 @@ aprobar automáticamente todos los requisitos del proyecto.
 | D | El catálogo público y sus filtros todavía requieren implementación y la información publicable de B-02; no se debe exponer una respuesta privada de B. |
 
 La aceptación final exige los recorridos y criterios acordados con el equipo. Las
-44 pruebas frontend y las 160 pruebas backend aprobadas son evidencia de esas
+49 pruebas frontend y las 160 pruebas backend aprobadas son evidencia de esas
 ejecuciones; no certifican que PetMatchCR completo esté terminado ni sustituyen la
-revisión funcional con ingreso Google real pendiente.
+comprobación pendiente del recorrido CRUD completo autenticado.
 
 Las guías anteriores de B con `demo-b01` y el selector de Luna describen una
 demostración histórica. Las rutas actuales `/mascotas`, `/mi-ubicacion` y

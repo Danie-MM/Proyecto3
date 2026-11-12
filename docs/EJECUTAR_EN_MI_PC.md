@@ -6,7 +6,7 @@ pueden iniciar y verificar el mismo backend Java; no crean otro proyecto.
 
 | Parte | Dirección predeterminada |
 | --- | --- |
-| Angular | `http://127.0.0.1:4200/login` |
+| Angular | `http://localhost:4200/login` |
 | API | `http://127.0.0.1:8083` |
 | PostgreSQL | `127.0.0.1:55432`, base `petmatchcr` |
 | Perfiles backend | `local,integracion` |
@@ -62,12 +62,15 @@ Revisá `DB_PASSWORD`. En una base que ya existe debe ser la contraseña con la 
 se inicializó el volumen: editar `.env` no cambia una contraseña de PostgreSQL.
 No borres el volumen para resolver una diferencia de configuración.
 
-El ingreso Google real depende de la configuración de su cuenta. Su responsable
-debe habilitar `http://localhost:4200` y `http://127.0.0.1:4200` como orígenes
-autorizados. Si cambiás el puerto del frontend, necesita autorización equivalente.
-El script no modifica la consola de Google y no garantiza que esos orígenes estén
-habilitados. Un cliente Google propio requiere actualizar de forma coherente la
-configuración del backend y la constante del frontend.
+Para el cliente Google actual, abrí **http://localhost:4200/login**. Ese origen
+permitió seleccionar la cuenta en la comprobación visual; `http://127.0.0.1:4200`
+produjo `origin_mismatch`. La aplicación redirige las visitas a ese host numérico
+en el puerto 4200 hacia `localhost` antes de iniciar Angular y Google. No cambia
+el proxy ni la conexión de API/PostgreSQL.
+
+El script no modifica Google Cloud Console ni agrega orígenes autorizados. Si se
+usa otro cliente o puerto, su configuración debe revisarse por separado y mantener
+el mismo identificador público en backend y frontend.
 
 ## 3. Encender PostgreSQL
 
@@ -136,8 +139,9 @@ y pruebas conservan sus comandos.
 
 ## 6. Entrar y comprobar el funcionamiento
 
-Abrí **http://127.0.0.1:4200/login**. Mantené el mismo host durante la sesión:
-no alternés entre `localhost` y `127.0.0.1`. `/mascotas`, `/mi-ubicacion` y
+Abrí **http://localhost:4200/login** y conservá `localhost` durante la sesión.
+Una visita a `http://127.0.0.1:4200` se redirige automáticamente; sus cookies y
+almacenamiento previos no se comparten con `localhost`. `/mascotas`, `/mi-ubicacion` y
 `/comprobar-entorno` están protegidas; se requiere autenticación real. El selector
 histórico de actores de B no sustituye este acceso.
 
@@ -165,7 +169,7 @@ apuntar a datos que se quieran conservar. Revisá las advertencias de migracione
 | No se encuentra JDK 21 | SDK en IntelliJ y JDK 21 disponible para el lanzador en `JAVA_HOME` o `.jdks`. |
 | Fallo de conexión PostgreSQL | Docker encendido, servicio db, puerto 55432 y credenciales correctas. |
 | Puerto 4200 u 8083 ocupado | Otra tarea o aplicación Docker sigue ejecutándose. Detener la instancia que no corresponde. |
-| Fallo Google de origen/cliente | Coincidencia del cliente público y autorización del origen por el responsable de Google. |
+| Google muestra `origin_mismatch` | Abrir `http://localhost:4200/login`, origen comprobado con el cliente actual. La redirección desde `127.0.0.1:4200` requiere esta revisión del frontend. |
 | API rechaza una operación | Revisar respuesta y logs; no desactivar seguridad ni usar una identidad de demo para ocultarlo. |
 | Flyway encuentra una versión incompatible | Revisar el historial de ese esquema; no borrar volúmenes ni ejecutar `clean`. |
 | VS Code marca `describe`, `it` o `expect` | Elegir **TypeScript: Select TypeScript Version > Use Workspace Version**, versión 5.4.5; conservar las pruebas. |
@@ -173,9 +177,17 @@ apuntar a datos que se quieran conservar. Revisá las advertencias de migracione
 ## Evidencia y antecedentes
 
 En esta reparación se confirmaron **160 pruebas backend** (0 fallos, 0 errores,
-0 omitidas), **44 pruebas frontend** nativas con Chrome Headless y compilación
-frontend tras `npm ci`. Backend y frontend también iniciaron localmente.
-El ingreso Google real y el recorrido completo autenticado siguen pendientes.
+0 omitidas), sin cambios posteriores en ese backend. La última tarea frontend
+terminó con **49/49 pruebas aprobadas** en Chrome Headless nativo, incluidas cinco
+nuevas de redirección. También se comprobó la compilación frontend tras `npm ci`;
+backend y frontend iniciaron localmente.
+En la última comprobación visual desde `localhost:4200` se seleccionó una cuenta
+Google y se completó su registro real en el esquema local `integracion_abc`.
+La aplicación mostró `/comprobar-entorno` con la sesión iniciada y rol `ADOPTANTE`.
+Se observó en navegador la redirección de `127.0.0.1:4200` a `localhost:4200`.
+La ruta `/mascotas` cargó correctamente su lista vacía y `/mi-ubicacion` mostró
+formulario y mapa sin errores. El recorrido CRUD completo de mascotas y ubicación
+con esa cuenta sigue pendiente.
 
 Las verificaciones anteriores de B con Luna, `demo-b01` y 28 pruebas frontend
 pertenecen a una revisión histórica. Las guías antiguas siguen sirviendo para

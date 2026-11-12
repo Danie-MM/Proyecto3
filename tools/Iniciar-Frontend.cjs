@@ -72,7 +72,7 @@ if (huellaInstalada !== huellaLock || dependenciasNecesarias.some(archivo => !fs
 }
 
 console.log(`Node ${process.version} / npm ${versionNpm}`);
-if (modo === 'start:local') console.log('Frontend: http://127.0.0.1:4200/login');
+if (modo === 'start:local') console.log('Frontend: http://localhost:4200/login');
 console.log('Backend esperado: http://127.0.0.1:8083. Para detener Angular usa Ctrl+C.');
 // Angular 17 admite --prebundle=false: evita la cache Vite/deps que OneDrive puede bloquear.
 // Solo afecta al servidor local. Angular sigue compilando y observando los cambios normalmente.
