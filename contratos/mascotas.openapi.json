@@ -1,0 +1,1474 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "PetMatchCR · Perfil privado B-01",
+    "version": "0.2.0",
+    "description": "Contrato de la implementación local B-01. El puerto de identidad y ámbitos de A requiere integración real. La sesión de demostración no es el login del equipo. Publicación, fotografía y catálogo de adopción corresponden a B-02/D."
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Mismo origen; el frontend usa su proxy /api."
+    }
+  ],
+  "security": [
+    {
+      "sesion": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Catálogos"
+    },
+    {
+      "name": "Contexto"
+    },
+    {
+      "name": "Perfil privado"
+    },
+    {
+      "name": "Demostración local",
+      "description": "Solo con perfiles local y demo-b01."
+    }
+  ],
+  "paths": {
+    "/api/v1/catalogos/mascotas": {
+      "get": {
+        "operationId": "consultarCatalogosMascotas",
+        "tags": [
+          "Catálogos"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Catálogos compartidos; no incluyen perfiles privados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogosMascotaRespuesta"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Fallo interno: no se presenta la operación como guardada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Persistencia temporalmente no disponible.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sesion/csrf": {
+      "get": {
+        "operationId": "obtenerCsrf",
+        "tags": [
+          "Contexto"
+        ],
+        "security": [],
+        "description": "Obtiene un token vinculado a la sesión; no autentica a una persona.",
+        "responses": {
+          "200": {
+            "description": "Token CSRF; conservar también la cookie del servidor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenCsrf"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mascotas/contexto": {
+      "get": {
+        "operationId": "consultarContextoMascotas",
+        "tags": [
+          "Contexto"
+        ],
+        "description": "Identidad y organizaciones vigentes del actor. La implementación de A permanece pendiente de integración; fuera de la demostración o tests el puerto por defecto no concede identidad.",
+        "responses": {
+          "200": {
+            "description": "Contexto vigente del servidor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextoMascotasRespuesta"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta autenticación o identidad vigente aportada por el adaptador.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Fallo interno: no se presenta la operación como guardada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Persistencia temporalmente no disponible.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mascotas": {
+      "get": {
+        "operationId": "listarMascotasPrivadas",
+        "tags": [
+          "Perfil privado"
+        ],
+        "parameters": [
+          {
+            "name": "pagina",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "name": "organizacionId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Filtra por organización administrable. Omitido: todos los perfiles autorizados."
+          },
+          {
+            "name": "activas",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "true: activas; false: inactivas; omitido: ambas."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Página de perfiles autorizados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginaMascotasRespuesta"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida o campo reservado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta autenticación o identidad vigente aportada por el adaptador.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "CSRF inválido o ámbito organizativo no autorizado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Fallo interno: no se presenta la operación como guardada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Persistencia temporalmente no disponible.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "crearMascota",
+        "tags": [
+          "Perfil privado"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Token de GET /api/v1/sesion/csrf asociado a la misma cookie. Renovar al cambiar de actor."
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "UUID por intención y actor. Repetir misma clave y datos normalizados conserva un único recurso/evento. Otros datos producen 409; el permiso se revalida incluso al reenviar."
+          }
+        ],
+        "description": "El servidor fija ID, creadoEn, responsableUsuarioId, version=0, activa=true y disponibilidad=NO_DISPONIBLE. No se aceptan campos fuera del DTO.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrearMascotaSolicitud"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Mascota persistida o resultado de reenvío autorizado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MascotaPrivadaRespuesta"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Location": {
+                "schema": {
+                  "type": "string",
+                  "format": "uri-reference"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida o campo reservado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta autenticación o identidad vigente aportada por el adaptador.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "CSRF inválido o ámbito organizativo no autorizado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Versión obsoleta, estado incompatible o clave de idempotencia usada con otros datos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Se requiere application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Fallo interno: no se presenta la operación como guardada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Persistencia temporalmente no disponible.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mascotas/{mascotaId}": {
+      "parameters": [
+        {
+          "name": "mascotaId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "consultarMascotaPrivada",
+        "tags": [
+          "Perfil privado"
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil privado autorizado, incluida mascota inactiva.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MascotaPrivadaRespuesta"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida o campo reservado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta autenticación o identidad vigente aportada por el adaptador.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Mascota inexistente o fuera del ámbito: no se distingue el caso.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Fallo interno: no se presenta la operación como guardada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Persistencia temporalmente no disponible.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "editarMascota",
+        "tags": [
+          "Perfil privado"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Token de GET /api/v1/sesion/csrf asociado a la misma cookie. Renovar al cambiar de actor."
+          }
+        ],
+        "description": "Reemplaza los campos editables y selección de comportamientos con control de versión. No cambia responsable, organización ni disponibilidad. No admite edición de una mascota desactivada.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditarMascotaSolicitud"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cambios guardados con versión incrementada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MascotaPrivadaRespuesta"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida o campo reservado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta autenticación o identidad vigente aportada por el adaptador.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "CSRF inválido o ámbito organizativo no autorizado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Mascota inexistente o fuera del ámbito: no se distingue el caso.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Versión obsoleta, estado incompatible o clave de idempotencia usada con otros datos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Se requiere application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Fallo interno: no se presenta la operación como guardada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Persistencia temporalmente no disponible.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mascotas/{mascotaId}/desactivacion": {
+      "parameters": [
+        {
+          "name": "mascotaId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "desactivarMascota",
+        "tags": [
+          "Perfil privado"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Token de GET /api/v1/sesion/csrf asociado a la misma cookie. Renovar al cambiar de actor."
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "UUID por intención y actor. Repetir misma clave y datos normalizados conserva un único recurso/evento. Otros datos producen 409; el permiso se revalida incluso al reenviar."
+          }
+        ],
+        "description": "Baja lógica y auditoría atómicas. Conserva UUID, relaciones y disponibilidad; no publica ni reabre adopciones.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DesactivarMascotaSolicitud"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Mascota inactiva; reenvío autorizado no duplica el evento.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MascotaPrivadaRespuesta"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida o campo reservado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta autenticación o identidad vigente aportada por el adaptador.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "CSRF inválido o ámbito organizativo no autorizado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Mascota inexistente o fuera del ámbito: no se distingue el caso.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Versión obsoleta, estado incompatible o clave de idempotencia usada con otros datos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Se requiere application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Fallo interno: no se presenta la operación como guardada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Persistencia temporalmente no disponible.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/demo-b01/actores": {
+      "get": {
+        "operationId": "listarActoresDemoB01",
+        "tags": [
+          "Demostración local"
+        ],
+        "security": [],
+        "description": "Existe únicamente cuando están activos los perfiles local y demo-b01. No es un directorio de usuarios reales.",
+        "responses": {
+          "200": {
+            "description": "Identidades ficticias conocidas para la demostración.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActoresDemoRespuesta"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/demo-b01/sesion": {
+      "post": {
+        "operationId": "seleccionarActorDemoB01",
+        "tags": [
+          "Demostración local"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "name": "X-CSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Token de GET /api/v1/sesion/csrf asociado a la misma cookie. Renovar al cambiar de actor."
+          }
+        ],
+        "description": "Solo local + demo-b01. Acepta uno de los actores ficticios conocidos, rota el identificador de sesión e invalida el token CSRF anterior. Volver a GET /api/v1/sesion/csrf después.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SesionDemoSolicitud"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Actor ficticio seleccionado en sesión.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SesionDemoSolicitud"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida o campo reservado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "CSRF inválido o ámbito organizativo no autorizado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Se requiere application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "sesion": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "PETMATCH_SESSION",
+        "description": "Cookie de sesión de esta base y demostración. La conexión con A real se documenta en docs/INTEGRACION_B01.md; A publica actualmente JWT Bearer."
+      }
+    },
+    "schemas": {
+      "CrearMascotaSolicitud": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "nombre",
+          "especie",
+          "edadEstimadaMeses",
+          "tamano",
+          "energia",
+          "comportamientoIds"
+        ],
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Se recortan extremos antes de validar. Límite en puntos de código Unicode."
+          },
+          "especie": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{0,29}$",
+            "description": "Código del catálogo de especies. Para asignarlo debe estar activo; al editar se puede conservar la especie histórica retirada."
+          },
+          "edadEstimadaMeses": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "tamano": {
+            "type": "string",
+            "enum": [
+              "PEQUENO",
+              "MEDIANO",
+              "GRANDE"
+            ]
+          },
+          "energia": {
+            "type": "string",
+            "enum": [
+              "BAJA",
+              "MEDIA",
+              "ALTA"
+            ]
+          },
+          "comportamientoIds": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Solo etiquetas activas en nuevas asignaciones. PUT reemplaza la selección: una etiqueta retirada ya asociada se conserva solo si se envía su ID."
+          },
+          "organizacionId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid",
+            "description": "Omitido o null: perfil individual. Si se indica, exige representación vigente de esa organización."
+          }
+        }
+      },
+      "EditarMascotaSolicitud": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "nombre",
+          "especie",
+          "edadEstimadaMeses",
+          "tamano",
+          "energia",
+          "comportamientoIds",
+          "versionEsperada"
+        ],
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Se recortan extremos antes de validar. Límite en puntos de código Unicode."
+          },
+          "especie": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{0,29}$",
+            "description": "Código del catálogo de especies. Para asignarlo debe estar activo; al editar se puede conservar la especie histórica retirada."
+          },
+          "edadEstimadaMeses": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "tamano": {
+            "type": "string",
+            "enum": [
+              "PEQUENO",
+              "MEDIANO",
+              "GRANDE"
+            ]
+          },
+          "energia": {
+            "type": "string",
+            "enum": [
+              "BAJA",
+              "MEDIA",
+              "ALTA"
+            ]
+          },
+          "comportamientoIds": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Solo etiquetas activas en nuevas asignaciones. PUT reemplaza la selección: una etiqueta retirada ya asociada se conserva solo si se envía su ID."
+          },
+          "versionEsperada": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          }
+        }
+      },
+      "DesactivarMascotaSolicitud": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "motivo",
+          "versionEsperada"
+        ],
+        "properties": {
+          "motivo": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "description": "Motivo no vacío después de recortar extremos; se conserva en la auditoría de baja."
+          },
+          "versionEsperada": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          }
+        }
+      },
+      "EtiquetaRespuesta": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "nombre"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nombre": {
+            "type": "string"
+          }
+        }
+      },
+      "EtiquetaCatalogo": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "nombre",
+          "activo"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "activo": {
+            "type": "boolean"
+          }
+        }
+      },
+      "OrganizacionPermitida": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "nombre"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nombre": {
+            "type": "string"
+          }
+        }
+      },
+      "ContextoMascotasRespuesta": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "usuarioId",
+          "organizaciones"
+        ],
+        "properties": {
+          "usuarioId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organizaciones": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrganizacionPermitida"
+            }
+          }
+        }
+      },
+      "MascotaPrivadaRespuesta": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "creadoEn",
+          "version",
+          "nombre",
+          "especie",
+          "edadEstimadaMeses",
+          "tamano",
+          "energia",
+          "responsableUsuarioId",
+          "organizacionId",
+          "disponibilidad",
+          "activa",
+          "comportamientoIds",
+          "comportamientos",
+          "fotoUrl"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "creadoEn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "nombre": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Se recortan extremos antes de validar. Límite en puntos de código Unicode."
+          },
+          "especie": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{0,29}$",
+            "description": "Código del catálogo de especies. Para asignarlo debe estar activo; al editar se puede conservar la especie histórica retirada."
+          },
+          "edadEstimadaMeses": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "tamano": {
+            "type": "string",
+            "enum": [
+              "PEQUENO",
+              "MEDIANO",
+              "GRANDE"
+            ]
+          },
+          "energia": {
+            "type": "string",
+            "enum": [
+              "BAJA",
+              "MEDIA",
+              "ALTA"
+            ]
+          },
+          "responsableUsuarioId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organizacionId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "disponibilidad": {
+            "type": "string",
+            "enum": [
+              "NO_DISPONIBLE",
+              "DISPONIBLE",
+              "ADOPTADA"
+            ],
+            "description": "B-01 crea NO_DISPONIBLE y no modifica la disponibilidad en edición o baja."
+          },
+          "activa": {
+            "type": "boolean"
+          },
+          "comportamientoIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "uniqueItems": true
+          },
+          "comportamientos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EtiquetaRespuesta"
+            }
+          },
+          "fotoUrl": {
+            "type": "null",
+            "description": "B-01 devuelve null; fotografía corresponde a B-02."
+          }
+        }
+      },
+      "PaginaMascotasRespuesta": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "elementos",
+          "pagina",
+          "limite",
+          "totalElementos"
+        ],
+        "properties": {
+          "elementos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MascotaPrivadaRespuesta"
+            }
+          },
+          "pagina": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "limite": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "totalElementos": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "CatalogosMascotaRespuesta": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "especies",
+          "tamanos",
+          "energias",
+          "comportamientos",
+          "versionCatalogo"
+        ],
+        "properties": {
+          "especies": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]{0,29}$",
+              "description": "Código del catálogo de especies. Para asignarlo debe estar activo; al editar se puede conservar la especie histórica retirada."
+            },
+            "description": "Códigos de especies activas ordenados por código."
+          },
+          "tamanos": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "PEQUENO",
+                "MEDIANO",
+                "GRANDE"
+              ]
+            }
+          },
+          "energias": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "BAJA",
+                "MEDIA",
+                "ALTA"
+              ]
+            }
+          },
+          "comportamientos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EtiquetaCatalogo"
+            },
+            "description": "Incluye vigentes y retiradas para interpretar selecciones históricas."
+          },
+          "versionCatalogo": {
+            "type": "string",
+            "const": "0.2"
+          }
+        }
+      },
+      "ErrorApi": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "codigo",
+          "mensaje",
+          "erroresCampos",
+          "trazaId"
+        ],
+        "properties": {
+          "codigo": {
+            "type": "string"
+          },
+          "mensaje": {
+            "type": "string"
+          },
+          "erroresCampos": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "campo",
+                "mensaje"
+              ],
+              "properties": {
+                "campo": {
+                  "type": "string"
+                },
+                "mensaje": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "trazaId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "TokenCsrf": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "token"
+        ],
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        }
+      },
+      "ActorDemo": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "nombre",
+          "organizaciones"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "organizaciones": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrganizacionPermitida"
+            }
+          }
+        }
+      },
+      "ActoresDemoRespuesta": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "actores",
+          "actorActualId"
+        ],
+        "properties": {
+          "actores": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActorDemo"
+            }
+          },
+          "actorActualId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          }
+        }
+      },
+      "SesionDemoSolicitud": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "actorId"
+        ],
+        "properties": {
+          "actorId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "ResumenMascotaExtravio": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mascotaId",
+          "nombre",
+          "especie"
+        ],
+        "properties": {
+          "mascotaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nombre": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Se recortan extremos antes de validar. Límite en puntos de código Unicode."
+          },
+          "especie": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{0,29}$",
+            "description": "Código del catálogo de especies. Para asignarlo debe estar activo; al editar se puede conservar la especie histórica retirada."
+          }
+        }
+      }
+    }
+  },
+  "x-contrato-interno-c": {
+    "interfaz": "cr.petmatchcr.mascotas.api.MascotasParaExtravios",
+    "operaciones": [
+      "comprobarResponsable(UUID mascotaId)",
+      "consultarResumenParaExtravio(UUID mascotaId)"
+    ],
+    "respuesta": {
+      "$ref": "#/components/schemas/ResumenMascotaExtravio"
+    },
+    "description": "Solo responsable vigente autorizado; el resumen exige mascota activa, sin exigir publicación para adopción. No es un endpoint HTTP."
+  }
+}
