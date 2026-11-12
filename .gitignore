@@ -17,3 +17,6 @@ frontend/.vscode/*
 *.log
 .DS_Store
 Thumbs.db
+
+.jwt-secret.local
+start-dev.ps1

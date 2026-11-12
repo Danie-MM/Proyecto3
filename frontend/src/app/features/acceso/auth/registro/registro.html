@@ -1,0 +1,134 @@
+﻿
+<!--
+  Author: Daniela Morales
+  Version: 1.0
+  Description: Formulario de registro de usuarios
+-->
+
+<section class="registro">
+  <aside class="registro__ilustracion">
+    <div class="registro__ilustracion-contenido">
+      <span class="registro__ilustracion-etiqueta">PETMATCHCR</span>
+
+      <div class="registro__ilustracion-simbolo">
+        <img src="/assets/icons/pets-svgrepo-com.svg" alt="PetMatchCR" />
+      </div>
+
+      <h2>Un hogar para cada mascota</h2>
+
+      <p>
+        Forma parte de una comunidad que conecta mascotas,
+        familias y refugios.
+      </p>
+    </div>
+  </aside>
+
+  <div class="registro__panel">
+    <header class="registro__encabezado">
+      <a routerLink="/" class="registro__marca">
+        <span class="registro__marca-icono">
+          <img src="/assets/icons/pets-svgrepo-com.svg" alt="" />
+        </span>
+        <span>PetMatchCR</span>
+      </a>
+
+      <span class="registro__etiqueta">Adopción responsable</span>
+    </header>
+
+    <div class="registro__contenido">
+      <span class="registro__bienvenida">ÚNETE A PETMATCHCR</span>
+      <h1 class="registro__titulo">Crea tu cuenta</h1>
+
+      <p class="registro__subtitulo">
+        Completa tus datos para comenzar a formar parte
+        de nuestra comunidad.
+      </p>
+
+      <div class="registro__tarjeta">
+        <form class="registro__form" [formGroup]="form" novalidate>
+
+          <div class="registro__campo">
+            <label for="nombreCompleto">Nombre completo</label>
+
+            <input
+              id="nombreCompleto"
+              type="text"
+              formControlName="nombreCompleto"
+              placeholder="Ingresa tu nombre completo"
+              autocomplete="name"
+              (blur)="normalizarNombre()"
+            />
+
+            @if (form.controls.nombreCompleto.touched && form.controls.nombreCompleto.invalid) {
+              <small class="registro__error">
+                Ingresa nombre completo.
+              </small>
+            }
+          </div>
+
+          <div class="registro__campo">
+            <label for="fechaNacimiento">Fecha de nacimiento</label>
+
+            <input
+              id="fechaNacimiento"
+              type="date"
+              formControlName="fechaNacimiento"
+              [max]="hoy"
+            />
+
+            @if (form.controls.fechaNacimiento.touched && form.controls.fechaNacimiento.invalid) {
+              <small class="registro__error">
+                Ingresa una fecha de nacimiento permitida.
+              </small>
+            }
+          </div>
+
+          <div class="registro__campo">
+            <label>Tipo de cuenta</label>
+
+            <div class="registro__roles">
+              @for (rol of roles; track rol.valor) {
+                <label class="rol-card">
+                  <input type="radio" formControlName="rol" [value]="rol.valor" />
+                  <span>{{ rol.titulo }}</span>
+                </label>
+              }
+            </div>
+
+            @if (form.controls.rol.touched && form.controls.rol.invalid) {
+              <small class="registro__error">
+                Selecciona un tipo de cuenta.
+              </small>
+            }
+          </div>
+
+          @if (mensaje) {
+            <div class="registro__mensaje" role="alert">
+              {{ mensaje }}
+            </div>
+          }
+
+          <div class="registro__google">
+            <div #botonGoogle class="registro__google-real"></div>
+          </div>
+
+          @if (cargando) {
+            <p class="registro__estado">Registrando tu cuenta...</p>
+          }
+
+        </form>
+
+        <div class="registro__separador"></div>
+
+        <p class="registro__login">
+          ¿Tienes una cuenta?
+          <a routerLink="/login">Inicia sesión</a>
+        </p>
+      </div>
+    </div>
+
+    <footer class="registro__pie">
+      PetMatchCR · Conecta mascotas con sus familias
+    </footer>
+  </div>
+</section>
