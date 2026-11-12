@@ -1,6 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { ComprobarEntornoComponent } from './comprobar-entorno.component';
 
 describe('Comprobación de entorno', () => {
@@ -12,7 +13,8 @@ describe('Comprobación de entorno', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ComprobarEntornoComponent], providers: [provideHttpClient(), provideHttpClientTesting()]
+      imports: [ComprobarEntornoComponent],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])]
     }).compileComponents();
     fixture = TestBed.createComponent(ComprobarEntornoComponent);
     pantalla = fixture.componentInstance;
@@ -24,7 +26,9 @@ describe('Comprobación de entorno', () => {
   it('guarda con POST, espera la confirmación y permite recuperar el mismo registro', () => {
     pantalla.texto = '  Prueba del equipo  ';
     pantalla.guardar();
+    http.expectOne('/api/v1/sesion/csrf').flush({ token: 'csrf-guardar' });
     const alta = http.expectOne({ method: 'POST', url: ruta });
+    expect(alta.request.headers.get('X-CSRF-TOKEN')).toBe('csrf-guardar');
     expect(alta.request.body).toEqual({ texto: dato.texto });
     expect(pantalla.ocupado).toBeTrue();
     pantalla.guardar();
@@ -56,6 +60,7 @@ describe('Comprobación de entorno', () => {
     http.expectNone(() => true);
     pantalla.texto = '🐾'.repeat(80);
     pantalla.guardar();
+    http.expectOne('/api/v1/sesion/csrf').flush({ token: 'csrf-limites' });
     http.expectOne({ method: 'POST', url: ruta }).flush({ ...dato, texto: pantalla.texto }, { status: 201, statusText: 'Creado' });
     expect(pantalla.registro?.texto).toBe(pantalla.texto);
   });
@@ -74,10 +79,12 @@ describe('Comprobación de entorno', () => {
   it('rechaza una respuesta incompleta y permite reintentar tras un fallo de conexión', () => {
     pantalla.texto = dato.texto;
     pantalla.guardar();
+    http.expectOne('/api/v1/sesion/csrf').flush({ token: 'csrf-incompleta' });
     http.expectOne(ruta).flush({ texto: dato.texto }, { status: 201, statusText: 'Creado' });
     expect(pantalla.registro).toBeNull();
     expect(pantalla.error).toContain('No pudimos confirmar');
     pantalla.guardar();
+    http.expectOne('/api/v1/sesion/csrf').flush({ token: 'csrf-reintento' });
     http.expectOne(ruta).error(new ProgressEvent('error'));
     expect(pantalla.ocupado).toBeFalse();
     expect(pantalla.registro).toBeNull();

@@ -21,6 +21,41 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'mascotas',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/mascotas/mascotas-layout.component')
+      .then(modulo => modulo.MascotasLayoutComponent),
+    children: [
+      {
+        path: '', pathMatch: 'full', title: 'Mis mascotas | PetMatchCR',
+        loadComponent: () => import('./features/mascotas/mascotas-lista.component')
+          .then(modulo => modulo.MascotasListaComponent)
+      },
+      {
+        path: 'nueva', title: 'Registrar mascota | PetMatchCR',
+        loadComponent: () => import('./features/mascotas/mascota-formulario.component')
+          .then(modulo => modulo.MascotaFormularioComponent)
+      },
+      {
+        path: ':id/editar', data: { editar: true }, title: 'Editar mascota | PetMatchCR',
+        loadComponent: () => import('./features/mascotas/mascota-formulario.component')
+          .then(modulo => modulo.MascotaFormularioComponent)
+      },
+      {
+        path: ':id', title: 'Perfil de mascota | PetMatchCR',
+        loadComponent: () => import('./features/mascotas/mascota-detalle.component')
+          .then(modulo => modulo.MascotaDetalleComponent)
+      }
+    ]
+  },
+  {
+    path: 'mi-ubicacion',
+    title: 'Mi ubicación | PetMatchCR',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/extravios/preferencias-ubicacion/preferencias-ubicacion.component')
+      .then(modulo => modulo.PreferenciasUbicacionComponent)
+  },
+  {
     path: '',
     pathMatch: 'full',
     redirectTo: 'login'

@@ -18,9 +18,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const token = authService.obtenerToken();
   const esApi = req.url.startsWith('/api/');
   const esAuth = req.url.startsWith('/api/auth/');
+  const esCsrf = req.method === 'GET' && req.url === '/api/v1/sesion/csrf';
   let solicitud = req;
 
-  if (token && esApi && !esAuth) {
+  // Obtener CSRF debe permitir reingresar aunque el navegador conserve un JWT vencido.
+  if (token && esApi && !esAuth && !esCsrf) {
     solicitud = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`

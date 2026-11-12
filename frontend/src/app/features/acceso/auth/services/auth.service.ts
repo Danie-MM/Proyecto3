@@ -1,7 +1,7 @@
 
 import { inject, Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { EscriturasHttpService } from '../../../../shared/escrituras-http.service';
 
 import { RegistroRequest } from '../models/registro-request';
 import { RegistroResponse } from '../models/registro-response';
@@ -19,7 +19,7 @@ import { ReactivacionPendiente } from '../models/reactivacion-pendiente';
 })
 export class AuthService {
 
-  private readonly http = inject(HttpClient);
+  private readonly escrituras = inject(EscriturasHttpService);
   private readonly baseUrl = '/api/auth';
 
   private static readonly TOKEN_KEY = 'petmatch_token';
@@ -40,18 +40,18 @@ export class AuthService {
 
   /** Envía los datos de un nuevo usuario al servidor. */
   registrar(request: RegistroRequest): Observable<RegistroResponse> {
-    return this.http.post<RegistroResponse>(`${this.baseUrl}/registro`, request);
+    return this.escrituras.enviar<RegistroResponse>('POST', `${this.baseUrl}/registro`, request);
   }
 
   /** Solicita el inicio de sesión de un usuario.*/
   iniciarSesion(request: LoginRequest): Observable<RegistroResponse> {
-    return this.http.post<RegistroResponse>(`${this.baseUrl}/login`, request);
+    return this.escrituras.enviar<RegistroResponse>('POST', `${this.baseUrl}/login`, request);
   }
 
   /**
    * Solicita la reactivación de una cuenta desactivada.*/
   reactivar(request: LoginRequest): Observable<RegistroResponse> {
-    return this.http.post<RegistroResponse>(`${this.baseUrl}/reactivar`, request);
+    return this.escrituras.enviar<RegistroResponse>('POST', `${this.baseUrl}/reactivar`, request);
   }
 
   /** Guarda el token de autenticación en el almacenamiento local. */

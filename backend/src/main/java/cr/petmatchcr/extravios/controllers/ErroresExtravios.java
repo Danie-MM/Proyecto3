@@ -1,34 +1,39 @@
 package cr.petmatchcr.extravios.controllers;
 
+import cr.petmatchcr.comun.ErrorApi;
+import cr.petmatchcr.extravios.service.ErrorUbicacion;
+import jakarta.persistence.OptimisticLockException;
+import org.springframework.core.annotation.Order;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Map;
-
+/** Devuelve errores del contrato sin publicar SQL ni detalles internos de persistencia. */
+@Order(-1)
 @RestControllerAdvice(assignableTypes = PreferenciaUbicacionController.class)
 public class ErroresExtravios {
-
-    @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<Map<String, String>> manejarError(
-            ResponseStatusException ex) {
-
-        String codigo = switch (ex.getStatusCode().value()) {
-            case 400 -> "SOLICITUD_INVALIDA";
-            case 404 -> "PREFERENCIA_NO_ENCONTRADA";
-            case 409 -> "PREFERENCIA_YA_EXISTE";
-            default -> "ERROR_SOLICITUD";
-        };
-
-        return ResponseEntity
-                .status(ex.getStatusCode())
-                .body(Map.of(
-                        "codigo", codigo,
-                        "mensaje", ex.getReason() != null
-                                ? ex.getReason()
-                                : "No se pudo completar la solicitud"
-                ));
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorApi> parametroAusente(MissingServletRequestParameterException error) {
+        return negocio(new ErrorUbicacion(400, "VALIDACION", "Indicá la versión de la última consulta."));
     }
 
+    @ExceptionHandler(ErrorUbicacion.class)
+    public ResponseEntity<ErrorApi> negocio(ErrorUbicacion error) {
+        return ResponseEntity.status(error.getEstado()).body(ErrorApi.crear(error.getCodigo(), error.getMessage()));
+    }
+
+    @ExceptionHandler({OptimisticLockingFailureException.class, OptimisticLockException.class})
+    public ResponseEntity<ErrorApi> version(Exception error) {
+        return negocio(new ErrorUbicacion(409, "VERSION_DESACTUALIZADA",
+                "La ubicación cambió. Recargá antes de volver a guardar."));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorApi> duplicado(DataIntegrityViolationException error) {
+        return negocio(new ErrorUbicacion(409, "CONFLICTO",
+                "El estado de la ubicación cambió. Volvé a consultar antes de guardar."));
+    }
 }

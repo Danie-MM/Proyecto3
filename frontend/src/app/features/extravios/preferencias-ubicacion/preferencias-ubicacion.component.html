@@ -91,6 +91,11 @@
     </div>
 
     <!-- Referencia de ubicación -->
+    <button type="button" class="boton-omitir" (click)="omitirUbicacion()"
+            [disabled]="cargando || guardando">
+      Continuar sin ubicación
+    </button>
+    <p class="ayuda">Podés usar tu cuenta sin compartir ubicación. Sin un punto no recibirás avisos por cercanía.</p>
     <div style="margin-top: 22px;">
 
       <label
@@ -159,13 +164,18 @@
       </p>
     }
 
+    @if (conflictoVersion || errorCarga) {
+      <p class="ayuda">Recargar reemplaza los cambios sin guardar con la información del servidor.</p>
+      <button type="button" class="boton-omitir" (click)="cargarPreferencias()"
+              [disabled]="cargando || guardando">Recargar datos guardados</button>
+    }
+
     <!-- Botón de guardado -->
     <button
       class="boton-guardar"
       type="button"
       (click)="guardarUbicacion()"
-      [disabled]="cargando || guardando ||
-                  latitud === null || longitud === null"
+      [disabled]="cargando || guardando || conflictoVersion || errorCarga"
     >
       {{ guardando ? 'Guardando...' : 'Guardar ubicación' }}
     </button>
@@ -175,7 +185,7 @@
         class="boton-eliminar"
         type="button"
         (click)="eliminarUbicacion()"
-        [disabled]="cargando || guardando"
+        [disabled]="cargando || guardando || conflictoVersion || errorCarga"
       >
         Eliminar ubicación
       </button>

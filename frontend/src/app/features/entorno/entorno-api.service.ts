@@ -1,6 +1,6 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { map, timeout } from 'rxjs';
+import { map, switchMap, timeout } from 'rxjs';
 
 export interface RegistroEntorno {
   id: string;
@@ -16,7 +16,10 @@ export class EntornoApiService {
   private readonly ruta = '/api/v1/pruebas-entorno';
 
   crear(texto: string) {
-    return this.http.post<RegistroEntorno>(this.ruta, { texto }, { observe: 'response' }).pipe(
+    return this.http.get<{ token: string }>('/api/v1/sesion/csrf').pipe(
+      switchMap(({ token }) => this.http.post<RegistroEntorno>(this.ruta, { texto }, {
+        observe: 'response', headers: { 'X-CSRF-TOKEN': token }
+      })),
       timeout(10000), map(respuesta => this.registro(respuesta, 201))
     );
   }

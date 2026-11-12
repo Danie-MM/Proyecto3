@@ -10,6 +10,7 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface PreferenciaUbicacionMapper {
 
+    @Mapping(target = "configurada", constant = "true")
     PreferenciaUbicacionDTO toDTO(
             PreferenciaUbicacion entidad
     );

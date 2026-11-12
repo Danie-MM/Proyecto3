@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -24,6 +25,10 @@ public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    // Identidad estable compartida con B y C; el Long sigue siendo interno de A.
+    @Column(name = "id_publico", nullable = false, unique = true, updatable = false)
+    private UUID idPublico = UUID.randomUUID();
 
     @Column(name = "nombre_completo", nullable = false)
     private String nombreCompleto;

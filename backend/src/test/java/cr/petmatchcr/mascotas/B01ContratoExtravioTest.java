@@ -18,6 +18,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -43,6 +44,7 @@ class B01ContratoExtravioTest {
     @Autowired MascotaService mascotas;
     @Autowired MascotasParaExtravios paraExtravios;
     @Autowired JdbcTemplate jdbc;
+    @Value("${spring.flyway.default-schema}") String esquemaPruebas;
     @Autowired ObjectMapper json;
     @Autowired AmbitosDePrueba ambitos;
     @Autowired PlatformTransactionManager transacciones;
@@ -55,7 +57,8 @@ class B01ContratoExtravioTest {
 
     @BeforeEach
     void prepararSoloDatosDeEsteCaso() {
-        assertThat(jdbc.queryForObject("SELECT current_schema()", String.class)).isEqualTo("pruebas");
+        assertThat(jdbc.queryForObject("SELECT current_schema()", String.class))
+                .matches("pruebas_[a-z0-9_]+").isEqualTo(esquemaPruebas);
         responsable = UUID.randomUUID();
         representante = UUID.randomUUID();
         ajeno = UUID.randomUUID();

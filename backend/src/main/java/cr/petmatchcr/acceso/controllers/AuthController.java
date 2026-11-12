@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*") // Ajustar según las políticas de CORS del frontend del equipo
 public class AuthController {
 
     private final AuthService authService;

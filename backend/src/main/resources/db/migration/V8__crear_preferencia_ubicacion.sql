@@ -1,5 +1,5 @@
 
--- C-01: Preferencias de ubicación y consentimiento para avisos.
+-- C-01: se integra después de usuarios, conservando V1–V6 de B.
 CREATE TABLE preferencia_ubicacion (
                                        id uuid PRIMARY KEY,
                                        usuario_id uuid NOT NULL UNIQUE,
