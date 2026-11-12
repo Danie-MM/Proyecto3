@@ -6,10 +6,108 @@
       "type": "process",
       "command": "node",
       "args": [
-        "${workspaceFolder}/../tools/Iniciar-Frontend.cjs"
+        "${workspaceFolder}/../tools/Iniciar-Frontend.cjs",
+        "start:local"
       ],
       "options": {
         "cwd": "${workspaceFolder}",
+        "env": {
+          "Path": "${env:LOCALAPPDATA}\\PetMatchCR\\tools\\node-v20.11.1-win-x64;${env:Path}"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Frontend: compilar",
+      "type": "process",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/../tools/Iniciar-Frontend.cjs",
+        "build"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "Path": "${env:LOCALAPPDATA}\\PetMatchCR\\tools\\node-v20.11.1-win-x64;${env:Path}"
+        }
+      },
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Frontend: probar",
+      "type": "process",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/../tools/Iniciar-Frontend.cjs",
+        "test"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "Path": "${env:LOCALAPPDATA}\\PetMatchCR\\tools\\node-v20.11.1-win-x64;${env:Path}"
+        }
+      },
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Backend: iniciar integracion ABC",
+      "type": "process",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/../tools/Iniciar-Backend.cjs"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/../backend",
+        "env": {
+          "Path": "${env:LOCALAPPDATA}\\PetMatchCR\\tools\\node-v20.11.1-win-x64;${env:Path}"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Backend: verificar integracion ABC",
+      "type": "process",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/../tools/Iniciar-Backend.cjs",
+        "verificar"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/../backend",
         "env": {
           "Path": "${env:LOCALAPPDATA}\\PetMatchCR\\tools\\node-v20.11.1-win-x64;${env:Path}"
         }

@@ -243,6 +243,7 @@ public class AuthService {
 
         UsuarioDTO datosUsuario = new UsuarioDTO(
                 usuario.getId(),
+                usuario.getIdPublico(),
                 usuario.getNombreCompleto(),
                 usuario.getEmail(),
                 usuario.getFechaNacimiento(),

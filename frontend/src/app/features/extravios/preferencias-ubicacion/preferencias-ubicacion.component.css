@@ -246,6 +246,21 @@
   cursor: not-allowed;
 }
 
+.boton-omitir {
+  margin: 0 0 8px;
+  padding: 10px 16px;
+  border: 1px solid #7c6349;
+  border-radius: 8px;
+  background: #fff;
+  color: #594735;
+  cursor: pointer;
+}
+
+.boton-omitir:focus-visible {
+  outline: 3px solid #7c6349;
+  outline-offset: 2px;
+}
+
 
 /* Corrección del posicionamiento de las imágenes de Leaflet */
 :host ::ng-deep .leaflet-tile {

@@ -46,6 +46,9 @@ export class PreferenciasUbicacionComponent
   cargando = true;
   guardando = false;
   existePreferencia = false;
+  version: number | null = null;
+  conflictoVersion = false;
+  errorCarga = false;
 
   mensajeGuardado = '';
   errorGuardado = '';
@@ -85,6 +88,9 @@ export class PreferenciasUbicacionComponent
     this.latitud = Number(latitud.toFixed(6));
     this.longitud = Number(longitud.toFixed(6));
 
+    // Conservar los datos aunque el proveedor del mapa no esté disponible.
+    if (!this.mapa) return;
+
     const posicion = L.latLng(
       this.latitud,
       this.longitud
@@ -106,14 +112,32 @@ export class PreferenciasUbicacionComponent
     this.errorGuardado = '';
   }
 
-  cargarPreferencias(): void {
+  omitirUbicacion(): void {
+    if (this.guardando || this.cargando) return;
+    this.latitud = null;
+    this.longitud = null;
+    this.referencia = '';
+    this.aceptaAvisos = false;
+    this.marcador?.remove();
+    this.marcador = undefined;
+    this.mensajeGuardado = '';
+    this.errorGuardado = '';
+  }
 
+  cargarPreferencias(): void {
+    if (this.guardando) return;
     this.cargando = true;
 
     this.preferenciasService.consultar().subscribe({
       next: (preferencia: PreferenciaUbicacion) => {
 
-        this.existePreferencia = true;
+        this.existePreferencia = preferencia.configurada;
+        this.version = preferencia.version;
+        this.conflictoVersion = false;
+        this.errorCarga = false;
+        this.errorGuardado = '';
+        this.latitud = preferencia.latitud;
+        this.longitud = preferencia.longitud;
 
         this.referencia = preferencia.referencia ?? '';
         this.aceptaAvisos = preferencia.aceptaAvisos;
@@ -131,6 +155,9 @@ export class PreferenciasUbicacionComponent
             [preferencia.latitud, preferencia.longitud],
             15
           );
+        } else {
+          this.marcador?.remove();
+          this.marcador = undefined;
         }
 
         this.cargando = false;
@@ -140,11 +167,7 @@ export class PreferenciasUbicacionComponent
 
         this.cargando = false;
 
-        if (error.status === 404) {
-          this.existePreferencia = false;
-          return;
-        }
-
+        this.errorCarga = true;
         this.errorGuardado =
           'No se pudieron cargar tus preferencias. Intentá nuevamente.';
       }
@@ -213,11 +236,23 @@ export class PreferenciasUbicacionComponent
   guardarUbicacion(): void {
 
     if (
-      this.latitud === null ||
-      this.longitud === null ||
       this.guardando ||
-      this.cargando
+      this.cargando || this.conflictoVersion || this.errorCarga
     ) {
+      return;
+    }
+
+    if (this.existePreferencia && this.version === null) {
+      this.errorGuardado = 'Recargá los datos guardados antes de modificar la ubicación.';
+      return;
+    }
+
+    if ((this.latitud === null) !== (this.longitud === null)) {
+      this.errorGuardado = 'Seleccioná un punto completo o elegí continuar sin ubicación.';
+      return;
+    }
+    if (this.latitud === null && this.aceptaAvisos) {
+      this.errorGuardado = 'Para recibir avisos por cercanía primero seleccioná una ubicación.';
       return;
     }
 
@@ -233,14 +268,15 @@ export class PreferenciasUbicacionComponent
     };
 
     const solicitud = this.existePreferencia
-      ? this.preferenciasService.actualizar(datos)
+      ? this.preferenciasService.actualizar(datos, this.version!)
       : this.preferenciasService.crear(datos);
 
     solicitud.subscribe({
 
-      next: () => {
+      next: (preferencia) => {
         this.guardando = false;
         this.existePreferencia = true;
+        this.version = preferencia.version;
         this.mensajeGuardado =
           '¡Tus preferencias se guardaron correctamente!';
       },
@@ -249,8 +285,9 @@ export class PreferenciasUbicacionComponent
         this.guardando = false;
 
         if (error.status === 409) {
+          this.conflictoVersion = true;
           this.errorGuardado =
-            'Las preferencias ya existen. Recargá la página para actualizarlas.';
+            'Los datos guardados cambiaron. Tus cambios no se sobrescribieron; recargá antes de volver a editar.';
           return;
         }
 
@@ -263,7 +300,8 @@ export class PreferenciasUbicacionComponent
 
 eliminarUbicacion(): void {
 
-  if (!this.existePreferencia || this.guardando || this.cargando) {
+  if (!this.existePreferencia || this.version === null || this.guardando || this.cargando ||
+      this.conflictoVersion || this.errorCarga) {
     return;
   }
 
@@ -279,12 +317,13 @@ eliminarUbicacion(): void {
   this.mensajeGuardado = '';
   this.errorGuardado = '';
 
-  this.preferenciasService.eliminar().subscribe({
+  this.preferenciasService.eliminar(this.version).subscribe({
 
     next: () => {
 
       this.guardando = false;
       this.existePreferencia = false;
+      this.version = null;
 
       this.latitud = null;
       this.longitud = null;
@@ -298,8 +337,13 @@ eliminarUbicacion(): void {
         'Tu ubicación y tus preferencias se eliminaron correctamente.';
     },
 
-    error: () => {
+    error: (error) => {
       this.guardando = false;
+      if (error.status === 409) {
+        this.conflictoVersion = true;
+        this.errorGuardado = 'Los datos guardados cambiaron. No se eliminaron; recargá antes de continuar.';
+        return;
+      }
       this.errorGuardado =
         'No se pudieron eliminar tus preferencias. Intentá nuevamente.';
     }

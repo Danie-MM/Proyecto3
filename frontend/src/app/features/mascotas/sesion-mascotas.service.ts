@@ -21,11 +21,13 @@ export class SesionMascotasService {
   readonly contexto = new BehaviorSubject<ContextoMascotas | null>(null);
   readonly cambios = new Subject<'invalidada' | 'lista' | 'error'>();
   actualizando = false;
-  private iniciada = false;
   private lecturasIniciales = new Subscription();
   preparar() {
-    if (this.iniciada) return;
-    this.iniciada = true;
+    // Al volver desde otro módulo puede haber cambiado la cuenta: no reutilizar ámbitos anteriores.
+    this.lecturasIniciales.unsubscribe();
+    this.lecturasIniciales = new Subscription();
+    this.contexto.next(null);
+    this.estado.next(null);
     this.lecturasIniciales.add(
       this.api
         .contexto()

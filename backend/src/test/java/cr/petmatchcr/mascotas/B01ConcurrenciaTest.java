@@ -18,6 +18,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -37,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class B01ConcurrenciaTest {
     @Autowired MascotaRepository repositorio;
     @Autowired JdbcTemplate jdbc;
+    @Value("${spring.flyway.default-schema}") String esquemaPruebas;
     @Autowired PlatformTransactionManager transacciones;
 
     private UUID actor;
@@ -44,7 +46,8 @@ class B01ConcurrenciaTest {
 
     @BeforeEach
     void prepararDatosAislados() {
-        assertThat(jdbc.queryForObject("SELECT current_schema()", String.class)).isEqualTo("pruebas");
+        assertThat(jdbc.queryForObject("SELECT current_schema()", String.class))
+                .matches("pruebas_[a-z0-9_]+").isEqualTo(esquemaPruebas);
         actor = UUID.randomUUID();
         for (int i = 0; i < 3; i++) {
             UUID id = UUID.randomUUID();

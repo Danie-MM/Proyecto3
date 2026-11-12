@@ -17,10 +17,12 @@ services:
   backend:
     build: ./backend
     environment:
-      SPRING_PROFILES_ACTIVE: local
+      SPRING_PROFILES_ACTIVE: local,integracion
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/petmatchcr
       SPRING_DATASOURCE_USERNAME: petmatch_app
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:?Copiá .env.example a .env}
+      JWT_SECRET: ${JWT_SECRET:?Generá un secreto JWT en tu .env local}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?Configurá el cliente Google del equipo en .env}
     depends_on:
       db:
         condition: service_healthy

@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -58,6 +59,7 @@ class B01MascotasIntegrationTest {
     private static final String RUTA = "/api/v1/mascotas";
     @Autowired MockMvc http;
     @Autowired JdbcTemplate jdbc;
+    @Value("${spring.flyway.default-schema}") String esquemaPruebas;
     @Autowired ObjectMapper json;
     @Autowired AmbitosDePrueba ambitos;
 
@@ -705,7 +707,8 @@ class B01MascotasIntegrationTest {
     }
 
     private void comprobarEsquemaDePruebas() {
-        assertThat(jdbc.queryForObject("SELECT current_schema()", String.class)).isEqualTo("pruebas");
+        assertThat(jdbc.queryForObject("SELECT current_schema()", String.class))
+                .matches("pruebas_[a-z0-9_]+").isEqualTo(esquemaPruebas);
     }
 
     private int cantidadMascotas() {

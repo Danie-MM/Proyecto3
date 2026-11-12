@@ -5,15 +5,23 @@ import sys
 from datetime import datetime
 from pathlib import Path
 from urllib.error import HTTPError
-from urllib.request import Request, urlopen
+from urllib.request import Request, build_opener, HTTPCookieProcessor
+from http.cookiejar import CookieJar
 from uuid import UUID, uuid4
+
+
+cliente = build_opener(HTTPCookieProcessor(CookieJar()))
+token_csrf = None
 
 
 def solicitar(url, estado, cuerpo=None):
     datos = None if cuerpo is None else json.dumps(cuerpo).encode()
-    solicitud = Request(url, data=datos, headers={"Content-Type": "application/json"})
+    cabeceras = {"Content-Type": "application/json"}
+    if cuerpo is not None and token_csrf:
+        cabeceras["X-CSRF-TOKEN"] = token_csrf
+    solicitud = Request(url, data=datos, headers=cabeceras)
     try:
-        respuesta = urlopen(solicitud, timeout=15)
+        respuesta = cliente.open(solicitud, timeout=15)
     except HTTPError as error:
         respuesta = error
     with respuesta:
@@ -23,6 +31,9 @@ def solicitar(url, estado, cuerpo=None):
 
 
 def verificar(origen):
+    global token_csrf
+    csrf, _ = solicitar(origen.rstrip("/") + "/api/v1/sesion/csrf", 200)
+    token_csrf = csrf["token"]
     contrato = json.loads(Path(__file__).with_name("entorno.openapi.json").read_text(encoding="utf-8"))
     ruta = next(r for r, operaciones in contrato["paths"].items() if "post" in operaciones)
     api = origen.rstrip("/") + ruta

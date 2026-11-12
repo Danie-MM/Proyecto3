@@ -1,5 +1,6 @@
 package cr.petmatchcr.mascotas.demo;
 
+import cr.petmatchcr.acceso.api.IdentidadActual;
 import cr.petmatchcr.mascotas.api.AmbitosMascotas;
 import cr.petmatchcr.mascotas.api.IdentidadMascotas;
 import org.springframework.context.annotation.Primary;
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 @Component
 @Primary
 @Profile("local & demo-b01")
-public class ActoresDemoB01 implements AmbitosMascotas, IdentidadMascotas {
+public class ActoresDemoB01 implements AmbitosMascotas, IdentidadMascotas, IdentidadActual {
     private static final List<ActorDemo> ACTORES = List.of(
             new ActorDemo(UUID.fromString("11111111-1111-4111-8111-111111111111"), "Responsable de Luna", List.of()),
             new ActorDemo(UUID.fromString("22222222-2222-4222-8222-222222222222"), "Otro responsable", List.of()),

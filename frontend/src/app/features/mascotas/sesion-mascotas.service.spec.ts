@@ -21,6 +21,20 @@ describe('Contexto de sesión de mascotas', () => {
     http = TestBed.inject(HttpTestingController);
   });
   afterEach(() => http.verify());
+  it('descarta los ámbitos anteriores al volver al módulo con otra cuenta', () => {
+    sesion.preparar();
+    http.expectOne('/api/v1/mascotas/contexto').flush({
+      usuarioId: 'anterior', organizaciones: [{ id: 'privada', nombre: 'Organización anterior' }]
+    });
+    http.expectOne('/api/v1/demo-b01/actores').flush({}, { status: 404, statusText: 'Not Found' });
+    sesion.preparar();
+    expect(sesion.contexto.value).toBeNull();
+    expect(sesion.organizaciones).toEqual([]);
+    http.expectOne('/api/v1/mascotas/contexto').flush({ usuarioId: 'nueva', organizaciones: [] });
+    http.expectOne('/api/v1/demo-b01/actores').flush({}, { status: 404, statusText: 'Not Found' });
+    expect(sesion.contexto.value?.usuarioId).toBe('nueva');
+    expect(sesion.organizaciones).toEqual([]);
+  });
   it('usa los ámbitos de una sesión real aunque no exista la demo', () => {
     sesion.preparar();
     http
