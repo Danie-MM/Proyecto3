@@ -1,0 +1,31 @@
+/*
+ * Paleta común de PetMatchCR. Fuente: Plan general del proyecto, págs. 50–54.
+ * Un token nombra un valor visual: al cambiarlo aquí, todos los módulos
+ * mantienen la misma apariencia sin copiar colores en cada pantalla.
+ */
+:root {
+  --color-primary: #C9A27A;
+  --color-primary-hover: #7C6349;
+  --color-background: #F3E9D7;
+  --color-navigation: #D6D2CE;
+  --color-sage: #7A8F6A;
+
+  /* Normalizamos los códigos incompletos del Plan: #FFFFF y #CCCCC. */
+  --color-white: #FFFFFF;
+  --color-neutral: #CCCCCC;
+
+  /* Lectura y estados compartidos: B-01 no define una paleta independiente. */
+  --color-text: #29241F;
+  --color-text-muted: #5F554B;
+  --color-danger: #9B2C2C;
+  --color-danger-hover: #762020;
+  --color-selected: #D9E8F2;
+  --color-selected-control: #396784;
+  --color-backdrop: rgb(41 36 31 / 55%);
+
+  --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --control-height: 2.5rem;
+  --control-radius: .375rem;
+  --control-width: 20rem;
+  --space-control: .75rem;
+}

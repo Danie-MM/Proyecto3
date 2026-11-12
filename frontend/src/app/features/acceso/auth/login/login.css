@@ -1,0 +1,305 @@
+
+/*
+ * Author: Daniela Morales
+ * Version: 1.0
+ * Descriptionn: Estilos de la pantalla de login.html.
+ */
+
+:host {
+  display: block;
+  font-family: "DM Sans", Arial, sans-serif;
+  color: #40372f;
+}
+
+.login {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 680px;
+  max-width: 1120px;
+  margin: 32px auto;
+  background-color: #fff;
+  border: 1px solid #e8ddce;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.login__panel {
+  display: flex;
+  flex-direction: column;
+  padding: 36px 48px 24px;
+}
+
+.login__encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.login__marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #594735;
+  font-size: 18px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.login__marca-icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background-color: #79634b;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 17px;
+}
+
+.login__marca-icono img {
+  width: 22px;
+  height: 22px;
+}
+
+.login__etiqueta {
+  color: #8a7967;
+  font-size: 11px;
+}
+
+.login__contenido {
+  width: 100%;
+  max-width: 420px;
+  margin: auto;
+  padding: 48px 0;
+}
+
+.login__bienvenida {
+  color: #94775b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+}
+
+.login__titulo {
+  margin: 12px 0;
+  color: #40372f;
+  font-size: 38px;
+  line-height: 1.2;
+}
+
+.login__subtitulo {
+  margin-bottom: 28px;
+  color: #817467;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.login__tarjeta {
+  padding: 24px;
+  background-color: #fff;
+  border: 1px solid #e8ddce;
+  border-radius: 8px;
+}
+
+.login__tarjeta-titulo {
+  margin: 0 0 8px;
+  color: #40372f;
+  font-size: 17px;
+}
+
+.login__tarjeta-descripcion {
+  margin: 0 0 24px;
+  color: #817467;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.login__google,
+.login__google-real {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;
+}
+
+.login__google--cargando {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.login__estado {
+  margin: 12px 0 0;
+  color: #817467;
+  font-size: 12px;
+  text-align: center;
+}
+
+.login__mensaje {
+  margin-bottom: 18px;
+  padding: 12px;
+  background-color: #f4efe6;
+  border-radius: 6px;
+  color: #594735;
+  font-size: 13px;
+}
+
+.login__mensaje--error {
+  background-color: #fff0ed;
+  color: #a33f35;
+}
+
+.login__mensaje--advertencia {
+  background-color: #fff5df;
+  color: #8a642c;
+}
+
+.login__mensaje--exito {
+  background-color: #edf4e9;
+  color: #537049;
+}
+
+.login__separador {
+  height: 1px;
+  margin: 26px 0 20px;
+  background-color: #eee5d9;
+}
+
+.login__registro {
+  margin: 0;
+  color: #817467;
+  font-size: 13px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.login__registro-enlace {
+  color: #806448;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.login__registro-enlace:hover {
+  text-decoration: underline;
+}
+
+.login__pie {
+  color: #9b8d7e;
+  font-size: 11px;
+  text-align: center;
+}
+
+.login__ilustracion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  background-color: #f0e4d1;
+}
+
+.login__ilustracion-contenido {
+  width: 100%;
+  max-width: 380px;
+}
+
+.login__ilustracion-etiqueta {
+  color: #846b50;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.login__ilustracion-simbolo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  margin: 40px auto 30px;
+  background-color: #79634b;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.login__ilustracion-simbolo img {
+  width: 48px;
+  height: 48px;
+}
+
+.login__ilustracion h2 {
+  margin: 0 0 14px;
+  color: #594735;
+  font-size: 30px;
+  line-height: 1.25;
+}
+
+.login__ilustracion p {
+  color: #796b5b;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.login__beneficios {
+  display: grid;
+  gap: 12px;
+  margin-top: 36px;
+}
+
+.login__beneficios p {
+  margin: 0;
+  color: #594735;
+  font-size: 13px;
+}
+
+@media (max-width: 900px) {
+  .login {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    margin: 16px;
+  }
+
+  .login__panel {
+    padding: 28px;
+  }
+
+  .login__contenido {
+    padding: 60px 0;
+  }
+
+  .login__ilustracion {
+    padding: 36px;
+  }
+
+  .login__ilustracion-simbolo {
+    margin: 24px auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .login__panel {
+    padding: 22px;
+  }
+
+  .login__tarjeta {
+    padding: 20px;
+  }
+
+  .login__titulo {
+    font-size: 28px;
+  }
+
+  .login__etiqueta {
+    display: none;
+  }
+
+  .login__ilustracion {
+    padding: 28px;
+  }
+
+  .login__ilustracion h2 {
+    font-size: 24px;
+  }
+}

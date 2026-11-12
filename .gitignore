@@ -1,4 +1,5 @@
 .env
+/compose.override.yaml
 .env.*
 !.env.example
 **/target/
@@ -8,7 +9,14 @@
 **/coverage/
 .idea/
 .vscode/
+!frontend/.vscode/
+frontend/.vscode/*
+!frontend/.vscode/tasks.json
+!frontend/.vscode/settings.json
 *.iml
 *.log
 .DS_Store
 Thumbs.db
+
+.jwt-secret.local
+start-dev.ps1

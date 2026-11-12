@@ -1,0 +1,13 @@
+<dialog #dialogo [class]="'modal-' + tamano" [attr.aria-labelledby]="idTitulo"
+  [attr.aria-describedby]="descripcion ? idDescripcion : null" [attr.aria-busy]="ocupado"
+  (cancel)="cancelar($event)" (close)="cerrado()">
+  <header class="modal-header"><h2 [id]="idTitulo">{{ titulo }}</h2></header>
+  <div class="modal-body">
+    <p *ngIf="descripcion" [id]="idDescripcion">{{ descripcion }}</p>
+    <ng-content></ng-content>
+  </div>
+  <footer class="modal-footer">
+    <button #cancelarBoton class="btn-secondary" type="button" autofocus [disabled]="ocupado" (click)="cancelar()">Cancelar</button>
+    <ng-content select="[accionesModal]"></ng-content>
+  </footer>
+</dialog>
