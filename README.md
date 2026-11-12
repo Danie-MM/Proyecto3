@@ -6,10 +6,17 @@ Esta entrega reúne la revisión de **A + B + C** en la rama
 la revisión acordada antes de incorporarse a `main`.
 
 La verificación de esta copia completó **160 pruebas backend** sin fallos, errores
-ni omisiones y **44 pruebas frontend** con Chrome Headless nativo de Windows.
-También se comprobaron los arranques locales del backend y del frontend. El ingreso
-real con Google y el recorrido completo con cuentas del equipo siguen pendientes;
-estos resultados no significan que todo PetMatchCR esté terminado.
+ni omisiones. La última tarea frontend terminó con **49/49 pruebas aprobadas** en
+Chrome Headless nativo de Windows, incluidas cinco nuevas de redirección; el
+backend no cambió desde su verificación de 160 pruebas.
+También se comprobaron los arranques locales del backend y del frontend. Desde
+`http://localhost:4200` se completaron la selección de cuenta Google, el registro
+real en el esquema local `integracion_abc` y el inicio de sesión con rol
+`ADOPTANTE`; la aplicación mostró `/comprobar-entorno`. En navegador también se
+verificaron la redirección de `127.0.0.1:4200` a `localhost:4200`, la lista vacía
+correcta de `/mascotas` y el formulario con mapa de `/mi-ubicacion` sin errores.
+El recorrido CRUD completo de A/B/C sigue pendiente; estos resultados no
+significan que todo PetMatchCR esté terminado.
 
 ## Obtener la revisión
 
@@ -85,7 +92,7 @@ docker compose -f compose.yaml -f compose.ide.yaml up -d db
 Abrí `backend/pom.xml` en IntelliJ con JDK 21 y `frontend` en VS Code.
 En **Terminal > Ejecutar tarea**, iniciá **Backend: iniciar integracion ABC** y
 después **Frontend: iniciar local**. Entrá por
-[Iniciar sesión](http://127.0.0.1:4200/login).
+[Iniciar sesión](http://localhost:4200/login).
 Los pasos de instalación, verificación y solución de errores están en
 [Ejecutar en mi PC](docs/EJECUTAR_EN_MI_PC.md).
 
@@ -100,7 +107,7 @@ docker compose -f compose.yaml ps
 
 El `-f compose.yaml` explícito evita cargar un `compose.override.yaml` personal.
 El backend usa `local,integracion` y el esquema `integracion_abc`. Abrí
-[Iniciar sesión](http://127.0.0.1:4200/login). Para revisar fallos o detener sin
+[Iniciar sesión](http://localhost:4200/login). Para revisar fallos o detener sin
 eliminar datos:
 
 ```powershell
@@ -109,15 +116,21 @@ docker compose -f compose.yaml down
 ```
 
 No agregués `-v` al detener. Esta modalidad queda documentada para reproducción;
-las 160/44 pruebas indicadas arriba corresponden a la ejecución nativa verificada.
+las 160/49 pruebas indicadas arriba corresponden a la ejecución nativa verificada.
 
 ## Google y rutas protegidas
 
 `GOOGLE_CLIENT_ID` es un identificador público, no una contraseña, y debe coincidir
-con la constante del frontend. El responsable de la cuenta de Google debe tener
-habilitados los orígenes `http://localhost:4200` y `http://127.0.0.1:4200`.
-El preparador no cambia Google Cloud Console ni garantiza esa autorización.
-Si aparece un error de origen/cliente, coordiná esa configuración con su responsable.
+con la constante del frontend. Usá **http://localhost:4200/login**: es el origen
+aceptado por la configuración Google actual. En la comprobación visual,
+`http://127.0.0.1:4200` produjo `origin_mismatch`, mientras que `localhost` permitió
+seleccionar la cuenta, completar el registro e iniciar sesión.
+
+La aplicación redirige las visitas a `http://127.0.0.1:4200` hacia
+`http://localhost:4200` antes de iniciar Angular y Google. Conservá `localhost`
+durante la sesión; las cookies y el almacenamiento de ambos hosts son distintos.
+Esta redirección no cambia el proxy ni las direcciones de API/base. El preparador
+no modifica Google Cloud Console ni agrega autorizaciones a otros orígenes.
 
 `/mascotas`, `/mi-ubicacion` y `/comprobar-entorno` requieren autenticación.
 Empezá por `/login`; no se promete acceso por el antiguo selector de demostración.
