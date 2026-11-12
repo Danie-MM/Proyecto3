@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
@@ -20,6 +21,7 @@ import tools.jackson.databind.ObjectMapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -33,6 +35,7 @@ class EntornoPostgresTest {
     @Autowired MockMvc http;
     @Autowired JdbcTemplate jdbc;
     @Autowired ObjectMapper json;
+    @Value("${spring.flyway.default-schema}") String esquemaPruebas;
 
     record Registro(UUID id, String texto, String creadoEn) {}
 
@@ -41,14 +44,15 @@ class EntornoPostgresTest {
     void guardaYRecuperaLosLimitesEnPostgres(int longitud) throws Exception {
         String texto = "🐾".repeat(longitud);
         String solicitud = json.writeValueAsString(Map.of("texto", "  " + texto + "  "));
-        String cuerpo = http.perform(post(RUTA).contentType(MediaType.APPLICATION_JSON).content(solicitud))
+        String cuerpo = http.perform(post(RUTA).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(solicitud))
                 .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
         Registro creado = json.readValue(cuerpo, Registro.class);
         assertThat(creado.texto()).isEqualTo(texto);
         assertThat(creado.id()).isNotNull();
         assertThat(creado.creadoEn()).endsWith("Z");
         Instant.parse(creado.creadoEn());
-        assertThat(jdbc.queryForObject("select current_schema()", String.class)).isEqualTo("pruebas");
+        assertThat(jdbc.queryForObject("select current_schema()", String.class))
+                .matches("pruebas_[a-z0-9_]+").isEqualTo(esquemaPruebas);
         assertThat(jdbc.queryForObject("select texto from prueba_entorno where id = ?", String.class, creado.id()))
                 .isEqualTo(texto);
 
@@ -62,7 +66,7 @@ class EntornoPostgresTest {
             "{\"texto\":42}", "[]", "{", "{\"texto\":\"prueba\"} {}"})
     void rechazaJsonInvalidoSinGuardar(String cuerpo) throws Exception {
         Integer antes = jdbc.queryForObject("select count(*) from prueba_entorno", Integer.class);
-        http.perform(post(RUTA).contentType(MediaType.APPLICATION_JSON).content(cuerpo))
+        http.perform(post(RUTA).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(cuerpo))
                 .andExpect(status().isBadRequest()).andExpect(jsonPath("$.codigo").isString())
                 .andExpect(jsonPath("$.mensaje").isString()).andExpect(jsonPath("$.erroresCampos").isArray())
                 .andExpect(jsonPath("$.trazaId").isString());
@@ -72,7 +76,7 @@ class EntornoPostgresTest {
     @Test
     void rechazaOchentaYUnCaracteres() throws Exception {
         String cuerpo = json.writeValueAsString(Map.of("texto", "a".repeat(81)));
-        http.perform(post(RUTA).contentType(MediaType.APPLICATION_JSON).content(cuerpo))
+        http.perform(post(RUTA).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(cuerpo))
                 .andExpect(status().isBadRequest()).andExpect(jsonPath("$.erroresCampos[0].campo").value("texto"));
     }
 

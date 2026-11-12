@@ -1,0 +1,5 @@
+# Ejecutar junto con compose.yaml. No habilitar este perfil en una entrega pública.
+services:
+  backend:
+    environment:
+      SPRING_PROFILES_ACTIVE: local,demo-b01

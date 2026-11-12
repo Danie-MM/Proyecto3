@@ -1,8 +1,22 @@
-import { provideHttpClient } from '@angular/common/http';
+
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
+
 import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
+import { authInterceptor } from './app/features/acceso/auth/auth.interceptor';
+import { urlLocalCanonica } from './origen-local';
 
-bootstrapApplication(AppComponent, { providers: [provideHttpClient(), provideRouter(routes)] })
-  .catch(error => console.error(error));
+const destinoLocal = urlLocalCanonica(window.location.href);
+if (destinoLocal) {
+  // Google autoriza localhost; cambiar antes de inicializar sus botones y la sesion.
+  window.location.replace(destinoLocal);
+} else {
+  bootstrapApplication(AppComponent, {
+    providers: [
+      provideHttpClient(withInterceptors([authInterceptor])),
+      provideRouter(routes)
+    ]
+  }).catch(error => console.error(error));
+}

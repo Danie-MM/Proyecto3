@@ -1,3 +1,4 @@
+
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
@@ -22,7 +23,15 @@
             ],
             "tsConfig": "tsconfig.app.json",
             "styles": [
+              "node_modules/leaflet/dist/leaflet.css",
               "src/styles.css"
+            ],
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "public",
+                "output": "/"
+              }
             ]
           },
           "configurations": {
@@ -65,6 +74,7 @@
             ],
             "tsConfig": "tsconfig.spec.json",
             "styles": [
+              "node_modules/leaflet/dist/leaflet.css",
               "src/styles.css"
             ],
             "karmaConfig": "karma.conf.cjs"

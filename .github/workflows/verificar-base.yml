@@ -12,6 +12,13 @@ jobs:
       DB_PASSWORD: petmatch_solo_ci
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Preparar configuración de identidad para CI
+        shell: bash
+        run: |
+          secreto=$(openssl rand -base64 32)
+          echo "::add-mask::$secreto"
+          echo "JWT_SECRET=$secreto" >> "$GITHUB_ENV"
+          echo "GOOGLE_CLIENT_ID=pruebas-sin-google.apps.googleusercontent.com" >> "$GITHUB_ENV"
       - name: Construir y encender la base
         run: docker compose up --build -d --wait --wait-timeout 240
       - name: Verificar backend con Maven

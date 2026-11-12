@@ -1,40 +1,141 @@
-<header><div class="barra"><strong>PetMatch<span>CR</span></strong><span class="area">Entorno de desarrollo</span></div></header>
+
+<header>
+  <div class="barra">
+    <strong>PetMatch<span>CR</span></strong>
+
+    <span class="area">Entorno de desarrollo</span>
+
+    <div class="sesion">
+      @if (usuario(); as usuarioActual) {
+        <span class="usuario">
+          {{ usuarioActual.nombreCompleto }}
+        </span>
+
+        <span class="rol">
+          {{ usuarioActual.rol }}
+        </span>
+      }
+
+      <button
+        type="button"
+        class="cerrar-sesion"
+        (click)="cerrarSesion()"
+      >
+        Cerrar sesión
+      </button>
+    </div>
+  </div>
+</header>
+
 <main>
   <p class="seccion">PRIMERA ITERACIÓN · G-02</p>
+
   <h1>Comprobar entorno</h1>
-  <p class="intro">Guardá un mensaje ficticio y recuperalo por su ID para comprobar que la pantalla, el servidor y la base de datos se comunican.</p>
+
+  <p class="intro">
+    Guardá un mensaje ficticio y recuperalo por su ID para comprobar
+    que la pantalla, el servidor y la base de datos se comunican.
+  </p>
 
   <div class="pasos">
     <section>
       <p class="seccion">PASO 01</p>
+
       <h2>Registrar un mensaje</h2>
+
       <form (ngSubmit)="guardar()" novalidate>
         <label for="texto">Texto de prueba</label>
-        <input id="texto" name="texto" [(ngModel)]="texto" required [disabled]="ocupado" aria-describedby="ayuda-texto" placeholder="Mi entorno está listo">
-        <small id="ayuda-texto">Usá entre 1 y 80 caracteres.</small>
-        <button type="submit" [disabled]="ocupado">Guardar mensaje</button>
+
+        <input
+          id="texto"
+          name="texto"
+          [(ngModel)]="texto"
+          required
+          [disabled]="ocupado"
+          aria-describedby="ayuda-texto"
+          placeholder="Mi entorno está listo"
+        />
+
+        <small id="ayuda-texto">
+          Usá entre 1 y 80 caracteres.
+        </small>
+
+        <button type="submit" [disabled]="ocupado">
+          Guardar mensaje
+        </button>
       </form>
     </section>
+
     <section>
       <p class="seccion">PASO 02</p>
+
       <h2>Consultar por ID</h2>
+
       <form (ngSubmit)="consultar()" novalidate>
         <label for="id">ID del registro</label>
-        <input id="id" name="id" [(ngModel)]="id" required [disabled]="ocupado" autocomplete="off" spellcheck="false" aria-describedby="ayuda-id" placeholder="Identificador del mensaje">
-        <small id="ayuda-id">Se completa al guardar. Copialo para repetir la consulta después de recargar.</small>
-        <button type="submit" class="secundario" [disabled]="ocupado">Consultar mensaje</button>
+
+        <input
+          id="id"
+          name="id"
+          [(ngModel)]="id"
+          required
+          [disabled]="ocupado"
+          autocomplete="off"
+          spellcheck="false"
+          aria-describedby="ayuda-id"
+          placeholder="Identificador del mensaje"
+        />
+
+        <small id="ayuda-id">
+          Se completa al guardar. Copialo para repetir la consulta
+          después de recargar.
+        </small>
+
+        <button
+          type="submit"
+          class="secundario"
+          [disabled]="ocupado"
+        >
+          Consultar mensaje
+        </button>
       </form>
     </section>
   </div>
 
   <div aria-live="polite">
-    @if (ocupado) { <p class="aviso" role="status">Esperando al servidor…</p> }
-    @if (error) { <p class="error" role="alert">{{ error }}</p> }
+    @if (ocupado) {
+      <p class="aviso" role="status">
+        Esperando al servidor…
+      </p>
+    }
+
+    @if (error) {
+      <p class="error" role="alert">
+        {{ error }}
+      </p>
+    }
+
     @if (registro; as dato) {
       <section class="resultado">
         <h2>{{ operacion }}</h2>
-        <p class="texto">{{ dato.texto }}</p>
-        <dl><dt>ID del registro</dt><dd><code>{{ dato.id }}</code></dd><dt>Creado en</dt><dd><time [attr.datetime]="dato.creadoEn">{{ dato.creadoEn }}</time></dd></dl>
+
+        <p class="texto">
+          {{ dato.texto }}
+        </p>
+
+        <dl>
+          <dt>ID del registro</dt>
+          <dd>
+            <code>{{ dato.id }}</code>
+          </dd>
+
+          <dt>Creado en</dt>
+          <dd>
+            <time [attr.datetime]="dato.creadoEn">
+              {{ dato.creadoEn }}
+            </time>
+          </dd>
+        </dl>
       </section>
     }
   </div>

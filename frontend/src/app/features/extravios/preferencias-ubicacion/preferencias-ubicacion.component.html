@@ -1,0 +1,201 @@
+
+<section class="pagina-ubicacion">
+
+  <div class="tarjeta-ubicacion">
+
+    <!-- Encabezado -->
+    <header class="encabezado">
+      <div class="icono-encabezado">📍</div>
+
+      <div>
+        <h1>Seleccioná tu ubicación</h1>
+        <p>
+          Buscá tu comunidad o seleccioná directamente
+          un punto en el mapa.
+        </p>
+      </div>
+    </header>
+
+    <!-- Buscador -->
+    <form class="buscador" (ngSubmit)="buscarUbicacion()">
+
+      <input
+        type="text"
+        name="busqueda"
+        [(ngModel)]="busqueda"
+        placeholder="Ej. Atenas, Alajuela"
+        aria-label="Buscar comunidad"
+        maxlength="120"
+      />
+
+      <button
+        type="submit"
+        [disabled]="buscando || !busqueda.trim()"
+      >
+        {{ buscando ? 'Buscando...' : 'Buscar' }}
+      </button>
+
+    </form>
+
+    <!-- Mensaje de búsqueda -->
+    @if (mensajeBusqueda) {
+      <p class="mensaje-busqueda" role="status">
+        {{ mensajeBusqueda }}
+      </p>
+    }
+
+    <!-- Mapa -->
+    <div class="contenedor-mapa">
+      <div
+        id="mapa-ubicacion"
+        aria-label="Mapa interactivo para seleccionar ubicación"
+      ></div>
+    </div>
+
+    <!-- Estado de ubicación -->
+    <div class="estado-ubicacion">
+
+      <div class="icono-estado">📍</div>
+
+      <div class="detalle-ubicacion">
+
+        <h3>Ubicación seleccionada</h3>
+
+        @if (cargando) {
+
+          <p class="ayuda">
+            Cargando tus preferencias...
+          </p>
+
+        } @else if (latitud !== null && longitud !== null) {
+
+          <p class="confirmacion">
+            ¡Ubicación seleccionada correctamente!
+          </p>
+
+          <p class="ayuda">
+            Podés cambiarla haciendo clic en otro punto del mapa.
+          </p>
+
+        } @else {
+
+          <p class="ayuda">
+            Buscá tu comunidad y seleccioná un punto
+            exacto sobre el mapa.
+          </p>
+
+        }
+
+      </div>
+
+    </div>
+
+    <!-- Referencia de ubicación -->
+    <button type="button" class="boton-omitir" (click)="omitirUbicacion()"
+            [disabled]="cargando || guardando">
+      Continuar sin ubicación
+    </button>
+    <p class="ayuda">Podés usar tu cuenta sin compartir ubicación. Sin un punto no recibirás avisos por cercanía.</p>
+    <div style="margin-top: 22px;">
+
+      <label
+        for="referencia"
+        style="display: block; font-weight: 600; margin-bottom: 8px;"
+      >
+        Referencia de ubicación
+      </label>
+
+      <input
+        id="referencia"
+        name="referencia"
+        type="text"
+        [(ngModel)]="referencia"
+        maxlength="200"
+        placeholder="Ej. Atenas centro, cerca del parque"
+        style="width: 100%; box-sizing: border-box;
+               padding: 12px; border: 1px solid #d1d5db;
+               border-radius: 10px;"
+      />
+
+      <p class="ayuda" style="margin-top: 6px;">
+        Opcional. Podés agregar una referencia para identificar tu zona.
+      </p>
+
+    </div>
+
+    <!-- Consentimiento -->
+    <div style="margin-top: 22px;">
+
+      <label style="display: flex; gap: 10px; align-items: flex-start;">
+
+        <input
+          type="checkbox"
+          name="aceptaAvisos"
+          [(ngModel)]="aceptaAvisos"
+          style="margin-top: 4px;"
+        />
+
+        <span>
+          Acepto recibir avisos relacionados con mascotas
+          extraviadas según mi ubicación.
+        </span>
+
+      </label>
+
+      <p class="ayuda" style="margin-top: 8px;">
+        Podés cambiar esta preferencia en cualquier momento.
+        Guardar tu ubicación no implica aceptar avisos.
+      </p>
+
+    </div>
+
+    <!-- Mensajes de guardado -->
+    @if (mensajeGuardado) {
+      <p class="confirmacion" role="status"
+         style="margin-top: 18px;">
+        {{ mensajeGuardado }}
+      </p>
+    }
+
+    @if (errorGuardado) {
+      <p role="alert"
+         style="margin-top: 18px; color: #dc2626;">
+        {{ errorGuardado }}
+      </p>
+    }
+
+    @if (conflictoVersion || errorCarga) {
+      <p class="ayuda">Recargar reemplaza los cambios sin guardar con la información del servidor.</p>
+      <button type="button" class="boton-omitir" (click)="cargarPreferencias()"
+              [disabled]="cargando || guardando">Recargar datos guardados</button>
+    }
+
+    <!-- Botón de guardado -->
+    <button
+      class="boton-guardar"
+      type="button"
+      (click)="guardarUbicacion()"
+      [disabled]="cargando || guardando || conflictoVersion || errorCarga"
+    >
+      {{ guardando ? 'Guardando...' : 'Guardar ubicación' }}
+    </button>
+
+        @if (existePreferencia) {
+      <button
+        class="boton-eliminar"
+        type="button"
+        (click)="eliminarUbicacion()"
+        [disabled]="cargando || guardando || conflictoVersion || errorCarga"
+      >
+        Eliminar ubicación
+      </button>
+    }
+
+    <p class="nota-inferior">
+      Tu ubicación se utilizará para configurar avisos
+      de mascotas extraviadas según tus preferencias.
+    </p>
+
+  </div>
+
+</section>
