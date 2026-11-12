@@ -1,7 +1,14 @@
+/* Primero los valores compartidos; después, los controles que los utilizan. */
+@import './app/shared/styles/tokens.css';
+@import './app/shared/styles/components.css';
+
 * { box-sizing: border-box; }
 html { color-scheme: light; }
-body { margin: 0; background: #f6f7f3; color: #233830; font: 16px/1.55 system-ui, sans-serif; }
-button, input { font: inherit; }
+body { margin: 0; background: var(--color-white); color: var(--color-text); font: 16px/1.55 var(--font-family); }
+button, input, select, textarea { font: inherit; }
 button { cursor: pointer; }
-button:disabled { opacity: .65; cursor: wait; }
-:focus-visible { outline: 3px solid #328164; outline-offset: 3px; }
+button:disabled { cursor: not-allowed; }
+a { color: var(--color-primary-hover); text-underline-offset: .2em; }
+/* El foco visible permite recorrer la pantalla usando solo el teclado. */
+:focus-visible { outline: 3px solid var(--color-primary-hover); outline-offset: 3px; }
+::selection { background: var(--color-selected); color: var(--color-text); }

@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CsrfException;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import tools.jackson.databind.ObjectMapper;
 
@@ -22,12 +23,18 @@ class SeguridadHttp {
     @Bean
     SecurityFilterChain rutas(HttpSecurity http, Environment entorno, ObjectMapper json) {
         boolean pruebaTecnica = entorno.acceptsProfiles(Profiles.of("local", "test"));
+        boolean demoB01 = entorno.acceptsProfiles(Profiles.of("local & demo-b01"));
         var rutas = PathPatternRequestMatcher.withDefaults();
         var guardar = rutas.matcher(HttpMethod.POST, "/api/v1/pruebas-entorno");
         var consultar = rutas.matcher(HttpMethod.GET, "/api/v1/pruebas-entorno/{id}");
 
         http.authorizeHttpRequests(reglas -> {
-            reglas.requestMatchers(HttpMethod.GET, "/actuator/health").permitAll();
+            reglas.requestMatchers(HttpMethod.GET, "/actuator/health", "/api/v1/catalogos/mascotas",
+                    "/api/v1/sesion/csrf", "/api/v1/demo-b01/actores").permitAll();
+            if (demoB01) {
+                reglas.requestMatchers(HttpMethod.POST, "/api/v1/demo-b01/sesion").permitAll();
+            }
+            reglas.requestMatchers("/api/v1/mascotas", "/api/v1/mascotas/**").authenticated();
             if (pruebaTecnica) {
                 reglas.requestMatchers(guardar, consultar).permitAll();
             }
@@ -42,9 +49,11 @@ class SeguridadHttp {
                 .requestCache(AbstractHttpConfigurer::disable)
                 .exceptionHandling(errores -> errores
                         .authenticationEntryPoint((req, res, ex) -> responder(res, json, 401,
-                                "AUTENTICACION_REQUERIDA", "Esta ruta requiere autenticación."))
+                                "NO_AUTENTICADO", "Esta ruta requiere autenticación."))
                         .accessDeniedHandler((req, res, ex) -> responder(res, json, 403,
-                                "ACCESO_DENEGADO", "No tenés permiso para realizar esta operación.")));
+                                ex instanceof CsrfException ? "CSRF_INVALIDO" : "NO_AUTORIZADO",
+                                ex instanceof CsrfException ? "Actualizá la sesión antes de guardar."
+                                        : "No tenés permiso para realizar esta operación.")));
         return http.build();
     }
 

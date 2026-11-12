@@ -1,21 +1,35 @@
 package cr.petmatchcr.comun;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.sql.SQLException;
 
 @RestControllerAdvice
 class ErroresHttp {
-    private static final Logger LOG = LoggerFactory.getLogger(ErroresHttp.class);
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    ResponseEntity<ErrorApi> camposInvalidos(MethodArgumentNotValidException ex) {
+        var campos = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> new ErrorApi.Campo(error.getField(), error.getDefaultMessage())).toList();
+        return ResponseEntity.badRequest().body(ErrorApi.crear("VALIDACION", "Revisá los campos indicados.",
+                campos.toArray(ErrorApi.Campo[]::new)));
+    }
+
+    @ExceptionHandler({MissingRequestHeaderException.class, MethodArgumentTypeMismatchException.class,
+            ConstraintViolationException.class})
+    ResponseEntity<ErrorApi> parametrosInvalidos(Exception ex) {
+        return ResponseEntity.badRequest().body(ErrorApi.crear("VALIDACION",
+                "Revisá los identificadores, filtros y la clave de reintento enviados."));
+    }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     ResponseEntity<ErrorApi> formatoNoAdmitido(HttpMediaTypeNotSupportedException ex) {
@@ -32,14 +46,6 @@ class ErroresHttp {
 
     @ExceptionHandler(DataAccessException.class)
     ResponseEntity<ErrorApi> falloDeDatos(DataAccessException ex) {
-        Throwable causa = ex.getMostSpecificCause();
-        boolean desconectado = ex instanceof DataAccessResourceFailureException
-                || (causa instanceof SQLException sql && sql.getSQLState() != null
-                    && (sql.getSQLState().startsWith("08") || sql.getSQLState().startsWith("57P0")));
-        var error = desconectado
-                ? ErrorApi.crear("BD_NO_DISPONIBLE", "La base de datos no está disponible.")
-                : ErrorApi.crear("ERROR_INTERNO", "No pudimos completar la solicitud.");
-        LOG.error("Fallo de persistencia con traza {}", error.trazaId(), ex);
-        return ResponseEntity.status(desconectado ? 503 : 500).body(error);
+        return FallosPersistencia.responder(ex);
     }
 }
