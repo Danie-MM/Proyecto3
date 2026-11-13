@@ -19,7 +19,7 @@
 
 <main>
     <h2>Mascotas en adopción</h2>
-    <form (ngSubmit)="loadMascotas()" class="form-pets">
+    <form #formulario="ngForm" (ngSubmit)="loadMascotas()" class="form-pets">
 
         <label for="especie">Especie</label>
         <select id="especie" name="especie" [(ngModel)]="filtros.especie">
@@ -29,8 +29,13 @@
         </select>
 
         <label for="edad">Edad en meses</label>
-        <input id="edad" name="edad" type="number" min="0" step="1" [ngModel]="filtros.edadEstimadaMeses"
+        <input id="edad" name="edad" type="number" min="0" step="1" #edadControl="ngModel" [ngModel]="filtros.edadEstimadaMeses"
             (ngModelChange)="filtros.edadEstimadaMeses = $event ?? undefined">
+        @if (edadControl.hasError('min')) {
+        <small class="error-edad">
+            La edad en meses no puede ser negativa.
+        </small>
+        }
 
         <label for="tamano">Tamaño</label>
         <select id="tamano" name="tamano" [(ngModel)]="filtros.tamano">
@@ -48,7 +53,7 @@
             <option value="ALTA">Alta</option>
         </select>
 
-        <button type="submit" id="filter-button-search">Buscar</button>
+        <button type="submit" id="filter-button-search" [disabled]="formulario.invalid">Buscar</button>
 
         <button type="button" (click)="filtros = {}; loadMascotas()" id="filter-button-clean">
             Limpiar filtros

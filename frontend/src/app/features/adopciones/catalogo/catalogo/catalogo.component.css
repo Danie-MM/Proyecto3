@@ -186,7 +186,7 @@ footer {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-#filter-button-search:hover{
+#filter-button-search:enabled:hover{
     background-color: #19445C;
 }
 
@@ -210,4 +210,14 @@ footer {
     flex-shrink: 0;
     font-size: 16px;
     cursor: pointer;
+}
+
+.error-edad {
+    color: rgb(255, 102, 102);
+}
+
+#filter-button-search:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    transition: none;
 }
