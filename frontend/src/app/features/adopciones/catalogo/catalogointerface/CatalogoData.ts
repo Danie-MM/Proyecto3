@@ -25,7 +25,7 @@ export interface PaginaMascotasData {
 }
 
 export interface FiltrosCatalogoData {
-    // las variables que permiten los filtros; son opcionales
+    nombre?: string;
     especie?: string;
     edadEstimadaMeses?: number;
     tamano?: string;

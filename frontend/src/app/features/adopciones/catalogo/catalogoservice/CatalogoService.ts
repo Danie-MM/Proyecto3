@@ -1,30 +1,61 @@
 import { HttpClient } from '@angular/common/http'
 import { inject, Injectable } from '@angular/core'
 import { MascotaData, PaginaMascotasData, FiltrosCatalogoData } from '../catalogointerface/CatalogoData';
-import { map, Observable } from 'rxjs';
+import { map, Observable, tap, firstValueFrom } from 'rxjs';
 
 @Injectable ({
     providedIn: 'root',
 })
 export class CatalogoService {
-    // crear las funciones para consumir los endpoints del backend
 
     private http = inject(HttpClient);
 
     readonly url = "/api/v1/mascotas"
 
-    getMascotas(pagina: number = 0): Observable<MascotaData[]> {
+    totalElementos = 0;
+    limite = 20;
+
+    async getAllMascotas(): Promise<MascotaData[]> {
+    const mascotas: MascotaData[] = [];
+    let pagina = 0;
+    let totalPaginas = 1;
+
+    while (pagina < totalPaginas) {
+        const respuesta = await firstValueFrom(
+            this.http.get<PaginaMascotasData>(this.url, {
+                params: { pagina, limite: 100 }
+            })
+        );
+
+        mascotas.push(...respuesta.elementos);
+
+        totalPaginas = Math.ceil(
+            respuesta.totalElementos / respuesta.limite
+        );
+
+        pagina++;
+    }
+
+    return mascotas;
+}
+
+    getMascotas(pagina: number = 0, nombre: string = ''): Observable<MascotaData[]> {
         return this.http.get<PaginaMascotasData>(this.url, {
-            params: { pagina, limite: 20 }
+            params: { pagina, limite: 20, nombre: nombre.trim()}
         }).pipe(
+            tap(respuesta => {
+                this.totalElementos = respuesta.totalElementos;
+                this.limite = respuesta.limite;
+            }),
             map(respuesta => respuesta.elementos)
         );
     }
 
     getMascotasByFilter(
-        filtros: FiltrosCatalogoData
+        filtros: FiltrosCatalogoData,
+        pagina: number = 0
     ): Observable<MascotaData[]> {
-        return this.getAllMascotasDisponibles('DISPONIBLE').pipe(
+        return this.getAllMascotasDisponibles('DISPONIBLE', pagina, filtros.nombre).pipe(
             map(mascotas => {
                 let resultado = mascotas;
 
@@ -58,8 +89,8 @@ export class CatalogoService {
         );
     }
 
-    getAllMascotasDisponibles(disponible: string): Observable<MascotaData[]> {
-        return this.getMascotas().pipe(
+    getAllMascotasDisponibles(disponible: string, pagina: number = 0, nombre: string = ''): Observable<MascotaData[]> {
+        return this.getMascotas(pagina, nombre).pipe(
             map(mascotas => mascotas.filter(mascota => mascota.disponibilidad === disponible))
         )
     }

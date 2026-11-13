@@ -13,58 +13,65 @@ import { FormsModule } from '@angular/forms';
 })
 export class CatalogoComponent {
 
-  // consumir las funciones del service para implementarlas en el html
-
   catalogoService: CatalogoService = inject(CatalogoService);
-  catalogoList: MascotaData[] = [
-    {
-    id: 'mascota-1',
-    nombre: 'Luna',
-    edadEstimadaMeses: 12,
-    especie: 'PERRO',
-    creadoEn: '2026-11-12T12:00:00Z',
-    version: 0,
-    tamano: 'PEQUENO',
-    energia: 'ALTA',
-    responsableUsuarioId: 'usuario-prueba',
-    organizacionId: 'organizacion-prueba',
-    disponibilidad: 'DISPONIBLE',
-    activa: true,
-    comportamientos: 'Brusca pero juguetona',
-    foto: '/assets/fotos_ejemplo/luna.jpg'
-  },
-  {
-    id: 'mascota-2',
-    nombre: 'Mía',
-    edadEstimadaMeses: 24,
-    especie: 'GATO',
-    creadoEn: '2026-11-12T12:00:00Z',
-    version: 0,
-    tamano: 'MEDIANO',
-    energia: 'BAJA',
-    responsableUsuarioId: 'usuario-prueba',
-    organizacionId: 'organizacion-prueba',
-    disponibilidad: 'DISPONIBLE',
-    activa: true,
-    comportamientos: 'Calmada y bastante dócil',
-    foto: '/assets/fotos_ejemplo/mia.jpg'
-  }
-  ];
 
+  paginaActual = 0;
+  totalPaginas = 0;
+  cargando = false;
+  errorCarga = '';
+
+  allMascotas : MascotaData[] = [];
+  catalogoList: MascotaData[] = [];
+  limite = 20;
   filtros: FiltrosCatalogoData = {};
 
   private readonly changeDetectorReference = inject(ChangeDetectorRef);
 
   constructor() {
-    // this.loadMascotas();
+    this.cargarCatalogo();
+  }
+    async cargarCatalogo(): Promise<void> {
+    this.cargando = true;
+    this.errorCarga = '';
+
+    try {
+        this.allMascotas =
+            await this.catalogoService.getAllMascotas();
+
+        this.loadMascotas();
+    } catch {
+        this.errorCarga = 'No se pudo cargar el catálogo.';
+    } finally {
+        this.cargando = false;
+        this.changeDetectorReference.markForCheck();
+    }
   }
 
-  loadMascotas() {
-    this.catalogoService.getMascotasByFilter(this.filtros)
-    .subscribe(mascotas =>{
-      this.catalogoList = mascotas;
-      this.changeDetectorReference.markForCheck();
-    });
-  }
+  loadMascotas(pagina: number = 0): void {
+    const nombre = (this.filtros.nombre ?? '').trim().toLowerCase();
 
+    const resultados = this.allMascotas.filter(mascota =>
+        mascota.disponibilidad === 'DISPONIBLE' &&
+        mascota.nombre.toLowerCase().includes(nombre) &&
+        (!this.filtros.especie ||
+            mascota.especie === this.filtros.especie) &&
+        (this.filtros.edadEstimadaMeses === undefined ||
+            mascota.edadEstimadaMeses === this.filtros.edadEstimadaMeses) &&
+        (!this.filtros.tamano ||
+            mascota.tamano === this.filtros.tamano) &&
+        (!this.filtros.energia ||
+            mascota.energia === this.filtros.energia)
+    );
+
+    this.totalPaginas = Math.ceil(resultados.length / this.limite);
+
+    this.paginaActual = Math.max(
+        0,
+        Math.min(pagina, this.totalPaginas - 1)
+    );
+
+    const inicio = this.paginaActual * this.limite;
+
+    this.catalogoList = resultados.slice(inicio, inicio + this.limite);
+  }
 }

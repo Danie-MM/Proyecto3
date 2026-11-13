@@ -21,6 +21,9 @@
     <h2>Mascotas en adopción</h2>
     <form #formulario="ngForm" (ngSubmit)="loadMascotas()" class="form-pets">
 
+        <label for="nombre">Nombre</label>
+        <input id="nombre" name="nombre" type="text" placeholder="Buscar por nombre" [(ngModel)]="filtros.nombre">
+
         <label for="especie">Especie</label>
         <select id="especie" name="especie" [(ngModel)]="filtros.especie">
             <option [ngValue]="undefined">Todas</option>
@@ -53,7 +56,7 @@
             <option value="ALTA">Alta</option>
         </select>
 
-        <button type="submit" id="filter-button-search" [disabled]="formulario.invalid">Buscar</button>
+        <button type="submit" id="filter-button-search" [disabled]="formulario.invalid || cargando">Buscar</button>
 
         <button type="button" (click)="filtros = {}; loadMascotas()" id="filter-button-clean">
             Limpiar filtros
@@ -77,8 +80,28 @@
         } @empty {
         <p>¡Oh no! No hay mascotas para mostrar.</p>
         }
-
     </section>
+
+     @if (errorCarga) {
+    <p role="alert">{{ errorCarga }}</p>
+}
+
+        @if (totalPaginas > 0) {
+        <nav aria-label="Páginas del catálogo">
+            <button type="button" [disabled]="cargando || paginaActual === 0" (click)="loadMascotas(paginaActual - 1)">
+                Anterior
+            </button>
+
+            <span>
+                Página {{ paginaActual + 1 }} de {{ totalPaginas }}
+            </span>
+
+            <button type="button" [disabled]="cargando || paginaActual >= totalPaginas - 1"
+                (click)="loadMascotas(paginaActual + 1)">
+                Siguiente
+            </button>
+        </nav>
+        }
 </main>
 
 <footer>
