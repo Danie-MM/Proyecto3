@@ -1,6 +1,5 @@
 package cr.petmatchcr.mascotas.models;
 
-import com.nimbusds.jose.util.JSONArrayUtils;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,12 +7,9 @@ import org.springframework.boot.jackson.autoconfigure.JacksonProperties;
 
 import java.util.UUID;
 
-@Entity
-@Getter
-@Setter
 public class EventoSolicitudAdopcion {
 
-    @Id
+    /*@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private UUID eventoSolicitudAdopcionId;
 
@@ -49,4 +45,5 @@ public class EventoSolicitudAdopcion {
 
     @Column
     private String detalleCorreccion;
+    */
 }

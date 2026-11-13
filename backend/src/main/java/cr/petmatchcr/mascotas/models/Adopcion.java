@@ -7,12 +7,9 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Entity
-@Getter
-@Setter
 public class Adopcion {
 
-    @Id
+    /*@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private UUID adopcionId;
 
@@ -38,4 +35,5 @@ public class Adopcion {
 
     @Column(nullable = false)
     private boolean vigente;
+    */
 }

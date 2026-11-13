@@ -8,12 +8,10 @@ import org.antlr.v4.runtime.misc.NotNull;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Entity
-@Getter
-@Setter
+
 public class SolicitudAdopcion {
 
-    @Id
+    /*@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private UUID solicitudAdopcionId;
 
@@ -43,5 +41,7 @@ public class SolicitudAdopcion {
 
     @Column(length=1000)
     private String motivoUltimaDecision;
+
+     */
 
 }

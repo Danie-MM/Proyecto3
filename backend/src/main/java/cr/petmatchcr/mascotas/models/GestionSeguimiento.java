@@ -7,12 +7,9 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Entity
-@Getter
-@Setter
 public class GestionSeguimiento {
 
-    @Id
+    /*@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private UUID gestionSeguimientoId;
 
@@ -38,4 +35,6 @@ public class GestionSeguimiento {
 
     @Column
     private int consentimientoVersion;
+
+     */
 }

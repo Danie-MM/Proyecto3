@@ -17,7 +17,7 @@ import java.util.List;
 @Slf4j
 public class CatalogoController {
 
-    private final CatalogoService catalogoService;
+   /* private final CatalogoService catalogoService;
     private final CatalogoMapper catalogoMapper;
 
     public CatalogoController (CatalogoService catalogoService, CatalogoMapper catalogoMapper) {
@@ -31,4 +31,6 @@ public class CatalogoController {
         log.info("Listando todas las mascotas en el catálogo.");
         return catalogoMapper.toDTOList(catalogoService.listarMascotasDisponibles());
     }
+
+    */
 }

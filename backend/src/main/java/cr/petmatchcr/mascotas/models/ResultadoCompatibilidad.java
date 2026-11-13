@@ -7,12 +7,9 @@ import lombok.Setter;
 import java.util.List;
 import java.util.UUID;
 
-@Entity
-@Getter
-@Setter
 public class ResultadoCompatibilidad {
 
-    @Id
+    /*@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private UUID resultadoCompatibilidadId;
 
@@ -34,4 +31,6 @@ public class ResultadoCompatibilidad {
 
     @Column
     private String limitaciones;
+
+     */
 }
