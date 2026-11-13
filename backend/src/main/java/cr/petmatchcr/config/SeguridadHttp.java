@@ -19,23 +19,39 @@ import java.nio.charset.StandardCharsets;
 
 @Configuration
 class SeguridadHttp {
+
+    // NOTA: Si IntelliJ te marca un error en "http.build()", agrégale "throws Exception" al lado del nombre de este método
     @Bean
-    SecurityFilterChain rutas(HttpSecurity http, Environment entorno, ObjectMapper json) {
+    SecurityFilterChain rutas(HttpSecurity http, Environment entorno, ObjectMapper json) throws Exception {
         boolean pruebaTecnica = entorno.acceptsProfiles(Profiles.of("local", "test"));
         var rutas = PathPatternRequestMatcher.withDefaults();
         var guardar = rutas.matcher(HttpMethod.POST, "/api/v1/pruebas-entorno");
         var consultar = rutas.matcher(HttpMethod.GET, "/api/v1/pruebas-entorno/{id}");
 
+        // --- 1. Cree la ruta de tus campañas ---
+        var campanias = rutas.matcher("/api/v1/campanias/**");
+
         http.authorizeHttpRequests(reglas -> {
             reglas.requestMatchers(HttpMethod.GET, "/actuator/health").permitAll();
+
+            // --- 2. Damos permiso libre a tu módulo ---
+            reglas.requestMatchers(campanias).permitAll();
+
             if (pruebaTecnica) {
                 reglas.requestMatchers(guardar, consultar).permitAll();
             }
             reglas.anyRequest().denyAll();
         });
-        if (pruebaTecnica) {
-            http.csrf(csrf -> csrf.ignoringRequestMatchers(guardar));
-        }
+
+        // --- 3. Apagamos el bloqueo CSRF solo para tus campañas (necesario para Postman) ---
+        http.csrf(csrf -> {
+            if (pruebaTecnica) {
+                csrf.ignoringRequestMatchers(guardar, campanias);
+            } else {
+                csrf.ignoringRequestMatchers(campanias);
+            }
+        });
+
         http.formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
