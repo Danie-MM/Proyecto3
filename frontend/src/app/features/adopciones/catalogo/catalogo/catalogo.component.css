@@ -1,0 +1,223 @@
+/* debe ir conforme a los estilos que chatgpt nos generó, procurando seguir la regla 60-30-10 */
+:host {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #F5F8FC;
+    color: var(--color-text);
+}
+
+header {
+    flex-shrink: 0;
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1fr) auto auto auto minmax(0, 1fr);
+    align-items: center;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 50%);
+    gap: 48px;
+    color: #19445C;
+    padding: 20px 32px;
+    background-color: white;
+}
+
+main {
+    color: #19445C;
+    flex: 1;
+    width: calc(100% - 48px);
+    margin: 24px auto;
+    box-sizing: border-box;
+    background-color: #F5F8FC;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 50%);
+    border-radius: 10px;
+    padding-bottom: 20px;
+    padding-top: 10px;
+    text-align: center;
+}
+
+header > div:first-child {
+    justify-self: start;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+header > div:last-child {
+    justify-self: end;
+}
+
+.header-content {
+    display: inline-block;
+    position: relative;
+    text-decoration: none;
+    color: #19445C;
+    font-weight: bold;
+    padding-bottom: 4px;
+}
+
+.header-content::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #19445C;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s ease-in-out;
+}
+
+.header-content:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+}
+
+#button-cuenta {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    background-color: #245b78;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+#button-cuenta:hover {
+    background-color: #19445C;
+    color: var(--color-white);
+}
+
+main h2 {
+    margin: 0 0 10px;
+}
+
+.lista-mascota {
+    display: grid;
+    grid-template-columns:
+        repeat(auto-fit, minmax(min(100%, 230px), 230px));
+    justify-content: center;
+    align-items: start;
+    gap: 16px;
+}
+
+.tarjeta-mascota {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    border-radius: 12px;
+    background-color: var(--color-white);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 50%);
+    text-align: center;
+}
+
+.foto-mascota {
+    padding-top: 15px;
+    display: block;
+    width: 100%;
+    height: 150px;
+    object-fit: contain;
+}
+
+.datos-mascota {
+    padding: 12px;
+}
+
+.datos-mascota h3 {
+    margin: 0 0 10px;
+    font-size: 20px;
+}
+
+.datos-mascota p {
+    margin: 6px 0;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+    header {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        padding: 16px;
+        text-align: center;
+    }
+
+    header > div:first-child,
+    header > div:last-child {
+        grid-column: 1 / -1;
+    }
+}
+
+footer {
+    flex-shrink: 0;
+    background-color: white;
+}
+
+.form-pets {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 20px;
+    gap: 12px;
+    flex-wrap: wrap;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    color: #233C4B;
+}
+
+.form-pets select,
+.form-pets input {
+    height: 40px;
+    padding: 8px 12px;
+    border: 1px solid #245b78;
+    border-radius: 8px;
+    background-color: white;
+    color: #233C4B;
+    font-size: 16px;
+}
+
+#filter-button-search {
+    background-color: #245b78;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+#filter-button-search:enabled:hover{
+    background-color: #19445C;
+}
+
+#filter-button-clean {
+    background-color: #F9DED5;
+    color: #E29782;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+#filter-button-clean:hover {
+    background-color: #f7d5ca;
+}
+
+#filter-button-search,
+#filter-button-clean {
+    width: 150px;
+    height: 44px;
+    flex-shrink: 0;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.error-edad {
+    color: rgb(255, 102, 102);
+}
+
+#filter-button-search:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    transition: none;
+}

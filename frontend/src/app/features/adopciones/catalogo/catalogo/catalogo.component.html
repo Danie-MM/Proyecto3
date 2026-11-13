@@ -1,0 +1,109 @@
+<!-- crear el dashboard de catálogo; debe consumir las funciones del controller para mostrar las mascotas disponibles, así como
+ también permitir las búsqueda de mascotas por filtro -->
+
+<header>
+    <div>PetMatchCR</div>
+    <div>
+        <a class="header-content" routerLink="/catalogo">Adoptar</a>
+    </div>
+    <div>
+        <a href="" class="header-content" routerLink="/mascotas">Mis mascotas</a>
+    </div>
+    <div>
+        <a href="" class="header-content" routerLink="/comprobar-entorno">Comprobar entorno</a>
+    </div>
+    <div>
+        <Button id="button-cuenta" routerLink="/login">Cerrar sesión</Button>
+    </div>
+</header>
+
+<main>
+    <h2>Mascotas en adopción</h2>
+    <form #formulario="ngForm" (ngSubmit)="loadMascotas()" class="form-pets">
+
+        <label for="nombre">Nombre</label>
+        <input id="nombre" name="nombre" type="text" placeholder="Buscar por nombre" [(ngModel)]="filtros.nombre">
+
+        <label for="especie">Especie</label>
+        <select id="especie" name="especie" [(ngModel)]="filtros.especie">
+            <option [ngValue]="undefined">Todas</option>
+            <option value="PERRO">Perro</option>
+            <option value="GATO">Gato</option>
+        </select>
+
+        <label for="edad">Edad en meses</label>
+        <input id="edad" name="edad" type="number" min="0" step="1" #edadControl="ngModel" [ngModel]="filtros.edadEstimadaMeses"
+            (ngModelChange)="filtros.edadEstimadaMeses = $event ?? undefined">
+        @if (edadControl.hasError('min')) {
+        <small class="error-edad">
+            La edad en meses no puede ser negativa.
+        </small>
+        }
+
+        <label for="tamano">Tamaño</label>
+        <select id="tamano" name="tamano" [(ngModel)]="filtros.tamano">
+            <option [ngValue]="undefined">Todos</option>
+            <option value="PEQUENO">Pequeño</option>
+            <option value="MEDIANO">Mediano</option>
+            <option value="GRANDE">Grande</option>
+        </select>
+
+        <label for="energia">Energía</label>
+        <select id="energia" name="energia" [(ngModel)]="filtros.energia">
+            <option [ngValue]="undefined">Todas</option>
+            <option value="BAJA">Baja</option>
+            <option value="MEDIA">Media</option>
+            <option value="ALTA">Alta</option>
+        </select>
+
+        <button type="submit" id="filter-button-search" [disabled]="formulario.invalid || cargando">Buscar</button>
+
+        <button type="button" (click)="filtros = {}; loadMascotas()" id="filter-button-clean">
+            Limpiar filtros
+        </button>
+
+    </form>
+    <section class="lista-mascota">
+        @for (mascota of catalogoList; track mascota.id) {
+        <article class="tarjeta-mascota">
+            <img [src]="mascota.foto" [alt]="'Foto de' + mascota.nombre" class="foto-mascota">
+
+            <div class="datos-mascota">
+                <h3>{{ mascota.nombre }}</h3>
+                <p>Especie: {{ mascota.especie }}</p>
+                <p>Edad estimada en meses: {{ mascota.edadEstimadaMeses }}</p>
+                <p>Tamaño: {{ mascota.tamano }}</p>
+                <p>Energía: {{ mascota.energia }}</p>
+                <p>Comportamiento: {{ mascota.comportamientos }}</p>
+            </div>
+        </article>
+        } @empty {
+        <p>¡Oh no! No hay mascotas para mostrar.</p>
+        }
+    </section>
+
+     @if (errorCarga) {
+    <p role="alert">{{ errorCarga }}</p>
+}
+
+        @if (totalPaginas > 0) {
+        <nav aria-label="Páginas del catálogo">
+            <button type="button" [disabled]="cargando || paginaActual === 0" (click)="loadMascotas(paginaActual - 1)">
+                Anterior
+            </button>
+
+            <span>
+                Página {{ paginaActual + 1 }} de {{ totalPaginas }}
+            </span>
+
+            <button type="button" [disabled]="cargando || paginaActual >= totalPaginas - 1"
+                (click)="loadMascotas(paginaActual + 1)">
+                Siguiente
+            </button>
+        </nav>
+        }
+</main>
+
+<footer>
+
+</footer>

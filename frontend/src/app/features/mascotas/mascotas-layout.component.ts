@@ -15,7 +15,7 @@ import { SesionMascotasService } from './sesion-mascotas.service';
       <div class="ancho barra">
         <a class="marca" routerLink="/mascotas">PetMatch<span>CR</span></a>
         <nav aria-label="Navegación principal">
-          <a routerLink="/mascotas">Mis mascotas</a><a routerLink="/comprobar-entorno">Entorno</a>
+          <a routerLink="/mascotas">Mis mascotas</a><a routerLink="/comprobar-entorno">Entorno</a> <a routerLink="/catalogo">Catálogo</a>
         </nav>
       </div>
     </header>
