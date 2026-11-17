@@ -42,6 +42,7 @@ export class PreferenciasUbicacionComponent
   busqueda = '';
   buscando = false;
   mensajeBusqueda = '';
+  tipoMensajeBusqueda: 'info' | 'advertencia' | 'error' = 'info';
 
   cargando = true;
   guardando = false;
@@ -99,13 +100,13 @@ export class PreferenciasUbicacionComponent
     if (this.marcador) {
       this.marcador.setLatLng(posicion);
     } else {
-      this.marcador = L.circleMarker(posicion, {
-        radius: 9,
-        color: '#ffffff',
-        weight: 3,
-        fillColor: '#7c3aed',
-        fillOpacity: 1
-      }).addTo(this.mapa!);
+    this.marcador = L.circleMarker(posicion, {
+      radius: 9,
+      color: '#FFFFFF',
+      weight: 3,
+      fillColor: '#245B78',
+      fillOpacity: 1
+    }).addTo(this.mapa!);
     }
 
     this.mensajeGuardado = '';
@@ -174,6 +175,7 @@ export class PreferenciasUbicacionComponent
     });
   }
 
+
   buscarUbicacion(): void {
 
     const lugar = this.busqueda.trim();
@@ -184,6 +186,7 @@ export class PreferenciasUbicacionComponent
 
     this.buscando = true;
     this.mensajeBusqueda = '';
+    this.tipoMensajeBusqueda = 'info';
 
     const parametros = {
       q: lugar,
@@ -206,6 +209,7 @@ export class PreferenciasUbicacionComponent
         this.buscando = false;
 
         if (resultados.length === 0) {
+          this.tipoMensajeBusqueda = 'advertencia';
           this.mensajeBusqueda =
             'No encontramos esa ubicación en Costa Rica.';
           return;
@@ -220,6 +224,7 @@ export class PreferenciasUbicacionComponent
           { duration: 1.5 }
         );
 
+        this.tipoMensajeBusqueda = 'info';
         this.mensajeBusqueda =
           `Mapa centrado en ${resultados[0].display_name}. ` +
           'Seleccioná el punto exacto.';
@@ -227,6 +232,7 @@ export class PreferenciasUbicacionComponent
 
       error: () => {
         this.buscando = false;
+        this.tipoMensajeBusqueda = 'error';
         this.mensajeBusqueda =
           'No se pudo realizar la búsqueda. Intentá nuevamente.';
       }

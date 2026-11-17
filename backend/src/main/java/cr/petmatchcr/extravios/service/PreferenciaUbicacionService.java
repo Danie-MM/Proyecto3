@@ -105,15 +105,28 @@ public class PreferenciaUbicacionService {
 
     private void validarDatos(GuardarPreferenciaUbicacionDTO dto) {
         if (dto == null || dto.aceptaAvisos() == null) {
-            throw error(400, "VALIDACION", "Indicá expresamente si aceptás recibir avisos.");
+            throw error(400, "VALIDACION",
+                    "Indicá expresamente si aceptás recibir avisos.");
         }
+
         if ((dto.latitud() == null) != (dto.longitud() == null)) {
-            throw error(400, "VALIDACION", "La latitud y longitud deben indicarse juntas.");
+            throw error(400, "VALIDACION",
+                    "La latitud y longitud deben indicarse juntas.");
         }
+
+        // No permite aceptar avisos sin una ubicación configurada.
+        if (Boolean.TRUE.equals(dto.aceptaAvisos())
+                && (dto.latitud() == null || dto.longitud() == null)) {
+            throw error(400, "VALIDACION",
+                    "Debés configurar una ubicación para recibir avisos.");
+        }
+
         validarCoordenada(dto.latitud(), 90, "latitud");
         validarCoordenada(dto.longitud(), 180, "longitud");
+
         if (dto.referencia() != null && dto.referencia().length() > 200) {
-            throw error(400, "VALIDACION", "La referencia no puede superar 200 caracteres.");
+            throw error(400, "VALIDACION",
+                    "La referencia no puede superar 200 caracteres.");
         }
     }
 

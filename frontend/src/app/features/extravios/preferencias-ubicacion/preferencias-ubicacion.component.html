@@ -5,7 +5,22 @@
 
     <!-- Encabezado -->
     <header class="encabezado">
-      <div class="icono-encabezado">📍</div>
+      <div class="icono-encabezado">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+      </div>
 
       <div>
         <h1>Seleccioná tu ubicación</h1>
@@ -39,11 +54,15 @@
 
     <!-- Mensaje de búsqueda -->
     @if (mensajeBusqueda) {
-      <p class="mensaje-busqueda" role="status">
+      <p
+        class="mensaje-busqueda"
+        [class.busqueda-advertencia]="tipoMensajeBusqueda === 'advertencia'"
+        [class.busqueda-error]="tipoMensajeBusqueda === 'error'"
+        role="status"
+      >
         {{ mensajeBusqueda }}
       </p>
     }
-
     <!-- Mapa -->
     <div class="contenedor-mapa">
       <div
@@ -55,7 +74,22 @@
     <!-- Estado de ubicación -->
     <div class="estado-ubicacion">
 
-      <div class="icono-estado">📍</div>
+      <div class="icono-estado">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+      </div>
 
       <div class="detalle-ubicacion">
 
@@ -90,17 +124,27 @@
 
     </div>
 
-    <!-- Referencia de ubicación -->
-    <button type="button" class="boton-omitir" (click)="omitirUbicacion()"
-            [disabled]="cargando || guardando">
+    <!-- Omitir ubicación -->
+    <button
+      type="button"
+      class="boton-omitir"
+      (click)="omitirUbicacion()"
+      [disabled]="cargando || guardando"
+    >
       Continuar sin ubicación
     </button>
-    <p class="ayuda">Podés usar tu cuenta sin compartir ubicación. Sin un punto no recibirás avisos por cercanía.</p>
-    <div style="margin-top: 22px;">
+
+    <p class="ayuda">
+      Podés usar tu cuenta sin compartir ubicación.
+      Sin un punto no recibirás avisos por cercanía.
+    </p>
+
+    <!-- Referencia de ubicación -->
+    <div class="seccion-referencia">
 
       <label
         for="referencia"
-        style="display: block; font-weight: 600; margin-bottom: 8px;"
+        class="etiqueta-referencia"
       >
         Referencia de ubicación
       </label>
@@ -109,30 +153,27 @@
         id="referencia"
         name="referencia"
         type="text"
+        class="campo-referencia"
         [(ngModel)]="referencia"
         maxlength="200"
         placeholder="Ej. Atenas centro, cerca del parque"
-        style="width: 100%; box-sizing: border-box;
-               padding: 12px; border: 1px solid #d1d5db;
-               border-radius: 10px;"
       />
 
-      <p class="ayuda" style="margin-top: 6px;">
+      <p class="ayuda">
         Opcional. Podés agregar una referencia para identificar tu zona.
       </p>
 
     </div>
 
     <!-- Consentimiento -->
-    <div style="margin-top: 22px;">
+    <div class="seccion-consentimiento">
 
-      <label style="display: flex; gap: 10px; align-items: flex-start;">
+      <label class="etiqueta-consentimiento">
 
         <input
           type="checkbox"
           name="aceptaAvisos"
           [(ngModel)]="aceptaAvisos"
-          style="margin-top: 4px;"
         />
 
         <span>
@@ -142,7 +183,7 @@
 
       </label>
 
-      <p class="ayuda" style="margin-top: 8px;">
+      <p class="ayuda">
         Podés cambiar esta preferencia en cualquier momento.
         Guardar tu ubicación no implica aceptar avisos.
       </p>
@@ -151,23 +192,33 @@
 
     <!-- Mensajes de guardado -->
     @if (mensajeGuardado) {
-      <p class="confirmacion" role="status"
-         style="margin-top: 18px;">
+      <p class="mensaje-exito" role="status">
         {{ mensajeGuardado }}
       </p>
     }
 
     @if (errorGuardado) {
-      <p role="alert"
-         style="margin-top: 18px; color: #dc2626;">
+      <p class="mensaje-error" role="alert">
         {{ errorGuardado }}
       </p>
     }
 
     @if (conflictoVersion || errorCarga) {
-      <p class="ayuda">Recargar reemplaza los cambios sin guardar con la información del servidor.</p>
-      <button type="button" class="boton-omitir" (click)="cargarPreferencias()"
-              [disabled]="cargando || guardando">Recargar datos guardados</button>
+
+      <p class="mensaje-advertencia">
+        Recargar reemplaza los cambios sin guardar
+        con la información del servidor.
+      </p>
+
+      <button
+        type="button"
+        class="boton-omitir"
+        (click)="cargarPreferencias()"
+        [disabled]="cargando || guardando"
+      >
+        Recargar datos guardados
+      </button>
+
     }
 
     <!-- Botón de guardado -->
@@ -180,7 +231,8 @@
       {{ guardando ? 'Guardando...' : 'Guardar ubicación' }}
     </button>
 
-        @if (existePreferencia) {
+    <!-- Botón eliminar -->
+    @if (existePreferencia) {
       <button
         class="boton-eliminar"
         type="button"

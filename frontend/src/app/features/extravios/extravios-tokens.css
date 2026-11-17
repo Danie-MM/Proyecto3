@@ -1,0 +1,27 @@
+/* Paleta Azul y Coral - Módulo de Extravíos */
+:host {
+  --c-primary: #245B78;
+  --c-primary-hover: #19445C;
+  --c-white: #FFFFFF;
+
+  --c-secondary: #F9DED5;
+  --c-secondary-text: #8B3E2F;
+
+  --c-background: #F5F8FC;
+  --c-text: #233C4B;
+  --c-border: #CCD8E2;
+  --c-accent: #E29782;
+
+  /* Estados */
+  --c-success-bg: #E8F4EC;
+  --c-success-text: #216E45;
+
+  --c-warning-bg: #FFF4D6;
+  --c-warning-text: #825600;
+
+  --c-error-bg: #FDECE9;
+  --c-error-text: #B42318;
+
+  --c-disabled-bg: #E5E7EB;
+  --c-disabled-text: #5B616B;
+}

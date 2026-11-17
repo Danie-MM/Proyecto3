@@ -1,10 +1,13 @@
 
+@import '../extravios-tokens.css';
+
 /* Página principal */
 .pagina-ubicacion {
   min-height: 100vh;
   padding: 40px 20px;
-  background: #f8fafc;
-  font-family: Arial, sans-serif;
+  background: var(--c-background);
+  color: var(--c-text);
+  font-family: var(--font-family, Arial, sans-serif);
   box-sizing: border-box;
 }
 
@@ -13,10 +16,10 @@
   max-width: 850px;
   margin: 0 auto;
   padding: 28px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: var(--c-white);
+  border: 1px solid var(--c-border);
   border-radius: 18px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 6px 24px rgb(35 60 75 / 6%);
   box-sizing: border-box;
 }
 
@@ -35,21 +38,21 @@
   width: 44px;
   height: 44px;
   flex-shrink: 0;
-  background: #f3e8ff;
+  background: var(--c-secondary);
   border-radius: 12px;
   font-size: 22px;
 }
 
 .encabezado h1 {
   margin: 0 0 8px;
-  color: #1f2937;
+  color: var(--c-text);
   font-size: 25px;
   font-weight: 700;
 }
 
 .encabezado p {
   margin: 0;
-  color: #6b7280;
+  color: var(--c-text);
   font-size: 14px;
   line-height: 1.6;
 }
@@ -65,47 +68,64 @@
   flex: 1;
   min-width: 0;
   padding: 13px 18px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 30px;
+  border-radius: 12px;
+}
+
+/* Campos de texto */
+.buscador input,
+.campo-referencia {
+  background: var(--c-white);
+  color: var(--c-text);
+  border: 1px solid var(--c-border);
   outline: none;
+  font: inherit;
   font-size: 14px;
   transition: border-color 0.2s;
 }
 
-.buscador input:focus {
-  border-color: #8b5cf6;
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+.buscador input:focus,
+.campo-referencia:focus {
+  border-color: var(--c-primary);
+  box-shadow: 0 0 0 3px rgb(36 91 120 / 12%);
+}
+
+/* Botones */
+.buscador button,
+.boton-guardar,
+.boton-eliminar,
+.boton-omitir {
+  border: none;
+  border-radius: 12px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.buscador button,
+.boton-guardar {
+  background: var(--c-primary);
+  color: var(--c-white);
 }
 
 .buscador button {
   padding: 12px 25px;
-  background: #7c3aed;
-  border: none;
-  border-radius: 30px;
-  color: white;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
 }
 
-.buscador button:hover:not(:disabled) {
-  background: #6d28d9;
-}
-
-.buscador button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.buscador button:hover:not(:disabled),
+.boton-guardar:hover:not(:disabled) {
+  background: var(--c-primary-hover);
 }
 
 /* Resultado de búsqueda */
 .mensaje-busqueda {
   margin: 0 0 14px;
   padding: 10px 14px;
-  background: #f5f3ff;
+  background: var(--c-background);
+  border: 1px solid var(--c-border);
   border-radius: 8px;
-  color: #5b21b6;
+  color: var(--c-primary);
   font-size: 13px;
   line-height: 1.5;
 }
@@ -114,10 +134,11 @@
 .contenedor-mapa {
   position: relative;
   width: 100%;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--c-border);
   border-radius: 14px;
   overflow: hidden;
-  background: #f1f5f9;
+  background: var(--c-background);
+  box-sizing: border-box;
 }
 
 #mapa-ubicacion {
@@ -133,6 +154,10 @@
   gap: 12px;
   margin-top: 20px;
   margin-bottom: 22px;
+  padding: 16px;
+  background: var(--c-background);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
 }
 
 .icono-estado {
@@ -146,49 +171,160 @@
 
 .detalle-ubicacion h3 {
   margin: 0 0 6px;
-  color: #1f2937;
+  color: var(--c-text);
   font-size: 15px;
   font-weight: 600;
 }
 
+/* Mensajes */
 .confirmacion {
   margin: 0 0 5px;
-  color: #15803d;
+  color: var(--c-success-text);
   font-size: 13px;
   font-weight: 600;
 }
 
 .ayuda {
   margin: 0;
-  color: #6b7280;
+  color: var(--c-text);
   font-size: 12px;
   line-height: 1.5;
+}
+
+.mensaje-exito,
+.mensaje-error,
+.mensaje-advertencia {
+  margin: 18px 0;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.mensaje-exito {
+  background: var(--c-success-bg);
+  color: var(--c-success-text);
+}
+
+.mensaje-error {
+  background: var(--c-error-bg);
+  color: var(--c-error-text);
+}
+
+.mensaje-advertencia {
+  background: var(--c-warning-bg);
+  color: var(--c-warning-text);
+}
+
+/* Referencia de ubicación */
+.seccion-referencia {
+  margin-top: 22px;
+}
+
+.etiqueta-referencia {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--c-text);
+}
+
+.campo-referencia {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+.seccion-referencia .ayuda {
+  margin-top: 6px;
+}
+
+/* Consentimiento */
+.seccion-consentimiento {
+  margin: 22px 0;
+  padding: 16px;
+  background: var(--c-background);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+}
+
+.etiqueta-consentimiento {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.etiqueta-consentimiento input {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin: 2px 0 0;
+  accent-color: var(--c-primary);
+  cursor: pointer;
+}
+
+.seccion-consentimiento .ayuda {
+  margin-top: 8px;
 }
 
 /* Botón guardar */
 .boton-guardar {
   display: block;
   width: 100%;
+  margin-top: 18px;
   padding: 14px;
-  background: #7c3aed;
-  border: none;
-  border-radius: 30px;
-  color: white;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
 }
 
-.boton-guardar:disabled {
-  background: #e5e7eb;
-  color: #9ca3af;
+/* Botón eliminar */
+.boton-eliminar {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 13px;
+  background: var(--c-error-text);
+  color: var(--c-white);
+}
+
+.boton-eliminar:hover:not(:disabled) {
+  filter: brightness(0.85);
+}
+
+/* Botones secundarios */
+.boton-omitir {
+  margin: 0 0 8px;
+  padding: 10px 16px;
+  background: var(--c-secondary);
+  color: var(--c-secondary-text);
+}
+
+.boton-omitir:hover:not(:disabled) {
+  filter: brightness(0.95);
+}
+
+/* Botones deshabilitados */
+.buscador button:disabled,
+.boton-guardar:disabled,
+.boton-eliminar:disabled,
+.boton-omitir:disabled {
+  background: var(--c-disabled-bg);
+  color: var(--c-disabled-text);
+  opacity: 1;
   cursor: not-allowed;
+}
+
+/* Accesibilidad */
+button:focus-visible,
+input[type="checkbox"]:focus-visible {
+  outline: 3px solid var(--c-primary);
+  outline-offset: 3px;
 }
 
 /* Nota inferior */
 .nota-inferior {
   margin: 14px 0 0;
-  color: #9ca3af;
+  color: var(--c-text);
   font-size: 12px;
   text-align: center;
   line-height: 1.5;
@@ -222,47 +358,26 @@
   }
 }
 
-.boton-eliminar {
-  display: block;
-  width: 100%;
-  margin-top: 12px;
-  padding: 13px;
-  border: 1px solid #dc2626;
-  border-radius: 12px;
-  background-color: #ffffff;
-  color: #dc2626;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.boton-eliminar:hover:not(:disabled) {
-  background-color: #fef2f2;
-}
-
-.boton-eliminar:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.boton-omitir {
-  margin: 0 0 8px;
-  padding: 10px 16px;
-  border: 1px solid #7c6349;
-  border-radius: 8px;
-  background: #fff;
-  color: #594735;
-  cursor: pointer;
-}
-
-.boton-omitir:focus-visible {
-  outline: 3px solid #7c6349;
-  outline-offset: 2px;
-}
-
-
-/* Corrección del posicionamiento de las imágenes de Leaflet */
+/* Corrección del posicionamiento de Leaflet */
 :host ::ng-deep .leaflet-tile {
   position: absolute;
+}
+
+/* Iconos de ubicación */
+.icono-encabezado,
+.icono-estado {
+  color: var(--c-primary);
+}
+
+/* Estados de búsqueda */
+.mensaje-busqueda.busqueda-advertencia {
+  background: var(--c-warning-bg);
+  color: var(--c-warning-text);
+  border-color: transparent;
+}
+
+.mensaje-busqueda.busqueda-error {
+  background: var(--c-error-bg);
+  color: var(--c-error-text);
+  border-color: transparent;
 }
