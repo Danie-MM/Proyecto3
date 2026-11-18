@@ -20,11 +20,11 @@ import java.util.UUID;
 
 /**
  * Permite ensayar B sin sustituir el trabajo de A. Solo existe con local + demo-b01.
- * El navegador elige entre cuatro actores ficticios conocidos; no envía un dueño en el perfil.
+ * El navegador elige entre actores ficticios conocidos; no envía un dueño en el perfil.
  * Esta sesión de demostración NO acredita integración con registro/ingreso/roles reales.
  */
 @RestController
-@Profile("local & demo-b01")
+@Profile("local & demo-b01 & !integracion")
 @RequestMapping("/api/v1/demo-b01")
 public class DemoB01Controller {
     private final ActoresDemoB01 actores;

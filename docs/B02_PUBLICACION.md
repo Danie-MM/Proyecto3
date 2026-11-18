@@ -6,7 +6,7 @@ El perfil privado de **Mis mascotas → Ver perfil** contiene la sección **Publ
 
 ### Demostración con Nube
 
-1. Levantá PostgreSQL como indica `EJECUTAR_EN_MI_PC.md`. En IntelliJ detené el backend que esté usando el puerto 8083 y ejecutá **PetMatchCR B demo**. Esta configuración activa `local,demo-b01` y usa el esquema separado `demo_b01`.
+1. Levantá PostgreSQL como indica `EJECUTAR_EN_MI_PC.md`. En IntelliJ detené el backend que esté usando el puerto 8083 y ejecutá **PetMatchCR B demo**. Esta configuración activa `local,demo-b01` y usa el esquema separado `pruebas_demo_natan_b0203_manual`, preparado para esta revisión.
 2. Desde la carpeta `frontend` de esa misma copia, iniciá Angular con la tarea **Frontend: iniciar local** de VS Code. Abrí una ventana privada, sin sesión Google, en `http://localhost:4200/mascotas`.
 3. En **Usuario de prueba**, elegí **Representante del Refugio A**. En **Mis mascotas**, abrí **Ver perfil** de **Nube**. Su identificador ficticio es `10000000-0000-4000-8000-000000000003`. En **Publicación y fotografía**, seleccioná una imagen JPEG o PNG y pulsá **Guardar fotografía**. Si Nube ya tenía una foto de una práctica anterior, el botón dice **Reemplazar fotografía**.
 4. Pulsá **Publicar mascota**. En otra pestaña abrí el [perfil público de Nube](http://localhost:4200/api/v1/mascotas/10000000-0000-4000-8000-000000000003/publica) y luego su [fotografía pública](http://localhost:4200/api/v1/mascotas/10000000-0000-4000-8000-000000000003/foto/publica). El perfil debe identificar a **Refugio A (demo)** y la foto debe abrir sin credenciales. Si ya estaba publicada, podés comenzar por **Ocultar del catálogo** y volver a publicarla.

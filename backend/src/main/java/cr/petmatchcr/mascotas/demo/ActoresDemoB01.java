@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 /** Identidades ficticias EXCLUSIVAS de la demostración. A proveerá usuarios y permisos reales. */
 @Component
 @Primary
-@Profile("local & demo-b01")
+@Profile("local & demo-b01 & !integracion")
 public class ActoresDemoB01 implements AmbitosMascotas, IdentidadMascotas, IdentidadActual {
     private static final List<ActorDemo> ACTORES = List.of(
             new ActorDemo(UUID.fromString("11111111-1111-4111-8111-111111111111"), "Responsable de Luna", List.of()),
@@ -26,7 +26,8 @@ public class ActoresDemoB01 implements AmbitosMascotas, IdentidadMascotas, Ident
             new ActorDemo(UUID.fromString("33333333-3333-4333-8333-333333333333"), "Representante del Refugio A",
                     List.of(new OrganizacionDemo(UUID.fromString("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"), "Refugio A (demo)"))),
             new ActorDemo(UUID.fromString("44444444-4444-4444-8444-444444444444"), "Representante del Refugio B",
-                    List.of(new OrganizacionDemo(UUID.fromString("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"), "Refugio B (demo)")))
+                    List.of(new OrganizacionDemo(UUID.fromString("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"), "Refugio B (demo)"))),
+            new ActorDemo(AccesoClinicoDemo.VETERINARIO, "Veterinario de prueba", List.of())
     );
 
     public List<ActorDemo> listar() { return ACTORES; }
