@@ -8,9 +8,15 @@ El perfil privado de **Mis mascotas → Ver perfil** contiene la sección **Publ
 
 1. Levantá PostgreSQL como indica `EJECUTAR_EN_MI_PC.md`. En IntelliJ detené el backend que esté usando el puerto 8083 y ejecutá **PetMatchCR B demo**. Esta configuración activa `local,demo-b01` y usa el esquema separado `pruebas_demo_natan_b0203_manual`, preparado para esta revisión.
 2. Desde la carpeta `frontend` de esa misma copia, iniciá Angular con la tarea **Frontend: iniciar local** de VS Code. Abrí una ventana privada, sin sesión Google, en `http://localhost:4200/mascotas`.
-3. En **Usuario de prueba**, elegí **Representante del Refugio A**. En **Mis mascotas**, abrí **Ver perfil** de **Nube**. Su identificador ficticio es `10000000-0000-4000-8000-000000000003`. En **Publicación y fotografía**, seleccioná una imagen JPEG o PNG y pulsá **Guardar fotografía**. Si Nube ya tenía una foto de una práctica anterior, el botón dice **Reemplazar fotografía**.
+3. En **Usuario de prueba**, elegí **Representante del Refugio A**. En **Mis mascotas**, abrí **Ver perfil** de **Nube**. Su identificador ficticio es `10000000-0000-4000-8000-000000000003`. En la primera carga de la demo, Nube, Luna, Sol, Coco, Milo y Kira reciben una fotografía cada uno. Para ver varias tarjetas juntas, elegí **Responsable de Luna**. Esa persona tiene a Luna, Milo y Kira. Podés ver la de Nube y elegir un JPEG o PNG para **Reemplazar fotografía**. Si retiraste la foto en una práctica anterior, el botón dice **Guardar fotografía**. El servidor conserva ese retiro y los reemplazos al reiniciar.
 4. Pulsá **Publicar mascota**. En otra pestaña abrí el [perfil público de Nube](http://localhost:4200/api/v1/mascotas/10000000-0000-4000-8000-000000000003/publica) y luego su [fotografía pública](http://localhost:4200/api/v1/mascotas/10000000-0000-4000-8000-000000000003/foto/publica). El perfil debe identificar a **Refugio A (demo)** y la foto debe abrir sin credenciales. Si ya estaba publicada, podés comenzar por **Ocultar del catálogo** y volver a publicarla.
 5. Volvé al perfil privado, pulsá **Ocultar del catálogo** y recargá las dos URLs públicas. Ambas deben devolver 404. Desde **Ver perfil**, la fotografía privada continúa disponible hasta que pulsés **Retirar fotografía**.
+
+En el esquema manual de esta revisión ya se había ensayado el retiro de la foto de Nube. Para cargar su imagen de ejemplo en ese perfil se usa **Guardar fotografía** con `backend/src/main/resources/mascotas-demo/nube.jpg`, igual que con cualquier otra foto. En una base de demostración recién creada, las seis mascotas reciben sus fotos automáticamente.
+
+La foto de Luna muestra a Chelsea, fotografiada por Stefan van der Walt y publicada con licencia CC0. La copia JPEG conserva las dimensiones originales de 451 × 300 píxeles. [Archivo original](https://github.com/scikit-image/scikit-image/blob/v0.23.2/skimage/data/chelsea.png) · [Autor y licencia en scikit-image](https://scikit-image.org/docs/0.23.x/api/skimage.data.html#skimage.data.chelsea)
+
+Nube y Milo usan la foto de gato del recurso existente `frontend/public/assets/fotos_ejemplo/mia.jpg`. Sol, Coco y Kira usan la foto de perro de `frontend/public/assets/fotos_ejemplo/luna.jpg`.
 
 Estos actores solo existen en la demostración local. Con **PetMatchCR B local** se usa la identidad real del bloque A y el esquema de integración del equipo.
 

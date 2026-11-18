@@ -8,14 +8,14 @@ Al revisar GitHub, `main` ya incorporaba el catálogo de Ricardo mediante el PR 
 
 | Comprobación | Resultado observado |
 | --- | --- |
-| Suite completa backend desde IntelliJ, con JDK 21 y PostgreSQL 15.19 | 187 pruebas aprobadas, 0 fallos. |
+| Suite completa backend desde IntelliJ, con JDK 21 y PostgreSQL 15.19 | 192 pruebas aprobadas, 0 fallos. |
 | B-02 en una revisión que contiene únicamente ese ticket, Maven Wrapper y JDK 21 | 12 pruebas de validación de fotografías, servicio, seguridad HTTP y organización demostrativa aprobadas. |
 | Empaquetado backend con Maven Wrapper y JDK 21 | `mvnw.cmd -o -B -ntp -DskipTests package` completó `BUILD SUCCESS`. Las pruebas completas se ejecutaron por separado desde IntelliJ. |
-| Suite Angular original, compilada con AOT y ejecutada con Jasmine en Chromium Edge WebView2 | 66 pruebas aprobadas, 0 pendientes. |
+| Suite Angular original, compilada con AOT y ejecutada con Jasmine en Chromium Edge WebView2 | 69 pruebas aprobadas, 0 pendientes. |
 | Compilación Angular de producción | Completada. Advertencia existente de dependencia CommonJS de Leaflet en C. |
 | API local arrancada desde IntelliJ con JDK 21 | `GET http://127.0.0.1:8083/actuator/health` devolvió `UP` desde el navegador del equipo. |
 | Angular iniciado como aplicación Node.js de IntelliJ | `http://localhost:4200/mascotas` mostró la pantalla y el selector de actores en el navegador integrado de VS Code. |
-| B-02 desde la pantalla del representante | Nube se publicó y guardó una foto PNG que persistió al recargar. Un JPEG de contenido falso mostró el rechazo y conservó la miniatura anterior. Se comprobó el ocultamiento y el retiro de foto. Nube quedó oculta y sin foto al terminar. |
+| B-02 desde la pantalla del representante | Nube se publicó y guardó una foto PNG que persistió al recargar. Un JPEG de contenido falso mostró el rechazo y conservó la miniatura anterior. Se comprobó el ocultamiento y el retiro de foto. El retiro se comprobó antes de cargar las fotografías de muestra de la revisión visual. |
 | B-03 desde las pantallas del responsable y el veterinario | Se registró «Antirrábica de prueba QA», con fecha 17/11/2026. Persistió una sola vez al recargar y el detalle mostró el origen del responsable. El veterinario con lectura pudo consultar y recibió un rechazo al intentar registrar. Tras la revocación, su siguiente consulta quedó bloqueada y se ocultó la información clínica. |
 
 Las pruebas de PostgreSQL incluyen cuatro casos de publicación y fotografía, cinco casos clínicos y el recorrido demostrativo que concede un permiso, registra una vacuna y lo revoca. Se verifican reenvíos, conflictos de versión, autorización vigente, pérdida de visibilidad y reversión de la transacción si falla el almacenamiento o la auditoría. Los datos usados son ficticios.
@@ -44,3 +44,13 @@ Se eligió un esquema nuevo porque el esquema anterior `demo_b01` contenía una 
 El clon original conservó su rama `fix/integracion-abc`, commit `14da960`, la migración de comportamientos y la prueba local sin seguimiento. Los cambios implementados se encuentran en la copia abierta en ambos editores.
 
 Al terminar quedó abierto `http://localhost:4200/mascotas` en VS Code con el actor ficticio **Responsable de Luna**. IntelliJ mantiene las configuraciones locales **PetMatchCR B demo** y **Angular B local** ejecutándose en 8083 y 4200. PostgreSQL continúa disponible en Docker en 55432. La vacuna de prueba se conserva y el permiso clínico de ensayo quedó revocado.
+
+## Paleta y datos para la revisión visual
+
+Todo el bloque B usa azul y coral en navegación, listado, formularios, detalle, publicación, expediente y diálogo de desactivación. La paleta principal es #245B78, hover #19445C, fondo #F5F8FC, texto #233C4B, secundario #F9DED5 y acento #E29782. Las miniaturas consultan la API privada y liberan su imagen al cambiar de sesión.
+
+La demostración incluye Luna, Milo, Kira, Sol, Nube y Coco, con fotografías incluidas en el proyecto. El responsable de Luna ve tres tarjetas con imágenes diferentes. Se añaden seis vacunas de ejemplo y se conserva la vacuna QA y el historial de permisos que ya existía. Las cargas sucesivas conservan las fotos que se reemplazan o retiran y los permisos revocados. Las fuentes están en `docs/FOTOS_DEMO.md`.
+
+La revisión posterior amplió la suite de 187 a 192 casos backend y de 66 a 69 casos Angular. Los casos nuevos comprueban las miniaturas, el perfil de activación, la carga inicial y la conservación de los datos al reiniciar. Los pools de las dos clases de pruebas de demo de B se limitan a dos conexiones para permitir que la suite completa conviva dentro del límite de PostgreSQL.
+
+La comprobación final de la carga confirmó por la API privada las seis fotografías y su coincidencia SHA-256 con los recursos correctos de gatos y perros. Luna conserva cuatro registros clínicos contando la vacuna QA previa. La paleta y las tres tarjetas se observaron en la ventana real. Después del cambio de entorno, el controlador de ventanas dejó de iniciar por una ruta Linux inválida en Windows. Se completaron las cargas pendientes mediante los endpoints normales de B, con sesión, CSRF, versión e idempotencia. La recarga visual final de esa ventana quedó pendiente del controlador.

@@ -19,6 +19,10 @@ record FotografiaVerificada(String mime, byte[] contenido) {
         } catch (IOException ex) {
             throw new ErrorMascota(400, "ARCHIVO_ILEGIBLE", "No pudimos leer el archivo.");
         }
+        return leer(bytes);
+    }
+
+    static FotografiaVerificada leer(byte[] bytes) {
         if (bytes.length > LIMITE) throw demasiadoGrande();
         // El nombre y el Content-Type vienen del navegador. El lector identifica y
         // decodifica la imagen; se submuestrea para acotar la memoria de salida.
