@@ -39,7 +39,7 @@ import { SesionMascotasService } from './sesion-mascotas.service';
         <p *ngIf="cambiando" role="status">Cambiando sesión…</p>
         <p *ngIf="error" role="alert">{{ error }}</p>
       </aside>
-      <router-outlet />
+      <router-outlet *ngIf="!sesion.estado.value || sesion.estado.value.actorActualId" />
     </main>`,
 })
 export class MascotasLayoutComponent implements OnInit {

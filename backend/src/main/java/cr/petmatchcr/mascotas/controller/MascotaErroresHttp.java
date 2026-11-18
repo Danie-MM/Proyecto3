@@ -3,6 +3,7 @@ package cr.petmatchcr.mascotas.controller;
 import cr.petmatchcr.comun.ErrorApi;
 import cr.petmatchcr.comun.FallosPersistencia;
 import cr.petmatchcr.mascotas.demo.DemoB01Controller;
+import cr.petmatchcr.mascotas.publicacion.PublicacionController;
 import cr.petmatchcr.mascotas.service.ErrorMascota;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataAccessException;
@@ -14,7 +15,7 @@ import java.sql.SQLException;
 
 /** Los errores de negocio de B se traducen aquí; común conserva el manejo de infraestructura. */
 @Order(-1)
-@RestControllerAdvice(assignableTypes = {MascotaController.class, DemoB01Controller.class})
+@RestControllerAdvice(assignableTypes = {MascotaController.class, DemoB01Controller.class, PublicacionController.class})
 public class MascotaErroresHttp {
     @ExceptionHandler(ErrorMascota.class)
     ResponseEntity<ErrorApi> negocio(ErrorMascota ex) {

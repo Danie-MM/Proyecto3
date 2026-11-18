@@ -56,9 +56,13 @@ public class ActoresDemoB01 implements AmbitosMascotas, IdentidadMascotas, Ident
 
     @Override
     public String nombreOrganizacion(UUID organizacionId) {
+        return nombreOrganizacionActiva(organizacionId).orElseGet(() -> AmbitosMascotas.super.nombreOrganizacion(organizacionId));
+    }
+
+    @Override
+    public Optional<String> nombreOrganizacionActiva(UUID organizacionId) {
         return ACTORES.stream().flatMap(actor -> actor.organizaciones().stream())
-                .filter(org -> org.id().equals(organizacionId)).map(OrganizacionDemo::nombre).findFirst()
-                .orElseGet(() -> AmbitosMascotas.super.nombreOrganizacion(organizacionId));
+                .filter(org -> org.id().equals(organizacionId)).map(OrganizacionDemo::nombre).findFirst();
     }
 
     public record ActorDemo(UUID id, String nombre, List<OrganizacionDemo> organizaciones) {}

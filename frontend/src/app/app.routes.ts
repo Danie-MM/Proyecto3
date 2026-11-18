@@ -5,6 +5,7 @@ import { Login } from './features/acceso/auth/login/login';
 import { Registro } from './features/acceso/auth/registro/registro';
 import { ComprobarEntornoComponent } from './features/entorno/comprobar-entorno.component';
 import { authGuard } from './features/acceso/auth/guards/auth.guard';
+import { entradaMascotasGuard } from './features/mascotas/entrada-mascotas.guard';
 import { CatalogoComponent } from './features/adopciones/catalogo/catalogo/catalogo.component';
 
 export const routes: Routes = [
@@ -28,7 +29,7 @@ export const routes: Routes = [
   },
   {
     path: 'mascotas',
-    canActivate: [authGuard],
+    canActivate: [entradaMascotasGuard],
     loadComponent: () => import('./features/mascotas/mascotas-layout.component')
       .then(modulo => modulo.MascotasLayoutComponent),
     children: [

@@ -53,7 +53,7 @@ export class MascotasApiService {
   }
 
   // CSRF se obtiene para cada escritura: nunca reutilizamos un token de otra sesión.
-  private escribir<T>(
+  escribir<T>(
     metodo: 'POST' | 'PUT',
     ruta: string,
     body: unknown,
