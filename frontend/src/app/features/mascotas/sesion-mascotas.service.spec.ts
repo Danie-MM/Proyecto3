@@ -26,12 +26,12 @@ describe('Contexto de sesión de mascotas', () => {
     http.expectOne('/api/v1/mascotas/contexto').flush({
       usuarioId: 'anterior', organizaciones: [{ id: 'privada', nombre: 'Organización anterior' }]
     });
-    http.expectOne('/api/v1/demo-b01/actores').flush({}, { status: 404, statusText: 'Not Found' });
+    http.expectNone('/api/v1/demo-b01/actores');
     sesion.preparar();
     expect(sesion.contexto.value).toBeNull();
     expect(sesion.organizaciones).toEqual([]);
     http.expectOne('/api/v1/mascotas/contexto').flush({ usuarioId: 'nueva', organizaciones: [] });
-    http.expectOne('/api/v1/demo-b01/actores').flush({}, { status: 404, statusText: 'Not Found' });
+    http.expectNone('/api/v1/demo-b01/actores');
     expect(sesion.contexto.value?.usuarioId).toBe('nueva');
     expect(sesion.organizaciones).toEqual([]);
   });
@@ -43,12 +43,13 @@ describe('Contexto de sesión de mascotas', () => {
         usuarioId: 'real',
         organizaciones: [{ id: 'org-real', nombre: 'Organización autorizada' }],
       });
-    http.expectOne('/api/v1/demo-b01/actores').flush({}, { status: 404, statusText: 'Not Found' });
+    http.expectNone('/api/v1/demo-b01/actores');
     expect(sesion.estado.value).toBeNull();
     expect(sesion.contexto.value?.usuarioId).toBe('real');
     expect(sesion.organizaciones.map((org) => org.id)).toEqual(['org-real']);
   });
   it('invalida inmediatamente tras el POST aunque el GET posterior falle', () => {
+    sesion.demoDeEntrada = demo;
     sesion.preparar();
     http
       .expectOne('/api/v1/mascotas/contexto')
@@ -56,7 +57,7 @@ describe('Contexto de sesión de mascotas', () => {
         usuarioId: 'uno',
         organizaciones: [{ id: 'privada', nombre: 'Organización anterior' }],
       });
-    http.expectOne('/api/v1/demo-b01/actores').flush(demo);
+    http.expectNone('/api/v1/demo-b01/actores');
     const cambios: string[] = [];
     sesion.cambios.subscribe((estado) => cambios.push(estado));
     let fallo = false;

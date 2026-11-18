@@ -13,7 +13,7 @@ import static org.mockito.Mockito.*;
 class OrganizacionesDemoPublicacionTest {
     @Test
     void elRepresentantePuedePublicarANubeConElPadronRealDeLaDemo() {
-        var actores = new ActoresDemoB01();
+        var actores = new ActoresDemoB01(Optional::empty);
         var representante = actores.listar().stream().filter(a -> a.nombre().equals("Representante del Refugio A"))
                 .findFirst().orElseThrow();
         var refugio = representante.organizaciones().getFirst();

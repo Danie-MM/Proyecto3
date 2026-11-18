@@ -3,7 +3,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { finalize, Observable } from 'rxjs';
 
 import { AuthService } from '../acceso/auth/services/auth.service';
@@ -23,7 +22,6 @@ import {
 export class ComprobarEntornoComponent {
   private readonly api = inject(EntornoApiService);
   private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly usuario = this.authService.usuarioEnSesion;
@@ -35,11 +33,6 @@ export class ComprobarEntornoComponent {
   error = '';
   operacion = '';
   registro: RegistroEntorno | null = null;
-
-  cerrarSesion(): void {
-    this.authService.cerrarSesion();
-    this.router.navigateByUrl('/login', { replaceUrl: true });
-  }
 
   guardar(): void {
     if (this.ocupado) {
@@ -96,7 +89,7 @@ export class ComprobarEntornoComponent {
       error: (fallo: unknown) => {
         if (fallo instanceof HttpErrorResponse) {
           if (fallo.status === 401) {
-            this.cerrarSesion();
+            this.error = 'La solicitud necesita una sesión activa. Volvé a ingresar o elegí el usuario de demostración.';
             return;
           }
 

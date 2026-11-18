@@ -14,7 +14,7 @@ import org.springframework.core.env.Profiles;
 class B03PerfilDemoTest {
     @Test
     void conservaLosCuatroActoresYAgregaElVeterinarioDeLaDemo() {
-        var actores = new ActoresDemoB01().listar();
+        var actores = new ActoresDemoB01(java.util.Optional::empty).listar();
         assertThat(actores).extracting(ActoresDemoB01.ActorDemo::nombre).containsExactly(
                 "Responsable de Luna","Otro responsable","Representante del Refugio A",
                 "Representante del Refugio B","Veterinario de prueba");

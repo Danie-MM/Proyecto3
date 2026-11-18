@@ -3,29 +3,31 @@ import { Routes } from '@angular/router';
 
 import { Login } from './features/acceso/auth/login/login';
 import { Registro } from './features/acceso/auth/registro/registro';
+import { loggedInGuard } from './features/acceso/auth/guards/logged-in.guard';
 import { ComprobarEntornoComponent } from './features/entorno/comprobar-entorno.component';
-import { authGuard } from './features/acceso/auth/guards/auth.guard';
-import { entradaMascotasGuard } from './features/mascotas/entrada-mascotas.guard';
+import { entradaMascotasGuard, entradaModulosGuard } from './features/mascotas/entrada-mascotas.guard';
 import { CatalogoComponent } from './features/adopciones/catalogo/catalogo/catalogo.component';
 
 export const routes: Routes = [
   {
     path: 'login',
-    component: Login
+    component: Login,
+    canActivate: [loggedInGuard]
   },
   {
     path: 'registro',
-    component: Registro
+    component: Registro,
+    canActivate: [loggedInGuard]
   },
   {
     path: 'comprobar-entorno',
     component: ComprobarEntornoComponent,
-    canActivate: [authGuard]
+    canActivate: [entradaModulosGuard]
   },
   {
     path: 'catalogo',
     component: CatalogoComponent,
-    canActivate: [authGuard]
+    canActivate: [entradaModulosGuard]
   },
   {
     path: 'mascotas',
@@ -58,7 +60,7 @@ export const routes: Routes = [
   {
     path: 'mi-ubicacion',
     title: 'Mi ubicación | PetMatchCR',
-    canActivate: [authGuard],
+    canActivate: [entradaModulosGuard],
     loadComponent: () => import('./features/extravios/preferencias-ubicacion/preferencias-ubicacion.component')
       .then(modulo => modulo.PreferenciasUbicacionComponent)
   },

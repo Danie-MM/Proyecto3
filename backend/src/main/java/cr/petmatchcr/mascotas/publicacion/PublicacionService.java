@@ -4,16 +4,21 @@ import cr.petmatchcr.mascotas.api.AmbitosMascotas;
 import cr.petmatchcr.mascotas.api.MascotasParaAdopciones;
 import cr.petmatchcr.mascotas.dto.MascotaPrivadaRespuesta;
 import cr.petmatchcr.mascotas.dto.MascotaPublicaRespuesta;
+import cr.petmatchcr.mascotas.dto.FiltrosCatalogoPublico;
+import cr.petmatchcr.mascotas.dto.PaginaMascotasPublicas;
 import cr.petmatchcr.mascotas.service.ContextoMascotas;
 import cr.petmatchcr.mascotas.service.ErrorMascota;
 import cr.petmatchcr.mascotas.service.MascotaService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -62,10 +67,36 @@ public class PublicacionService implements MascotasParaAdopciones {
     public boolean esPublicable(UUID mascota) { return perfilPublico(mascota).isPresent(); }
 
     private Optional<MascotaPublicaRespuesta> perfilPublico(UUID mascota) {
-        return repo.publicable(mascota).flatMap(p -> ambitos.nombreOrganizacionActiva(p.organizacion()).map(nombre ->
-                new MascotaPublicaRespuesta(p.id(), p.nombre(), p.especie(), p.edad(), p.tamano(), p.energia(),
-                        p.etiquetas(), p.foto() ? url(mascota) + "/publica" : null,
-                        new MascotaPublicaRespuesta.Organizacion(p.organizacion(), nombre), "DISPONIBLE")));
+        return repo.publicable(mascota).flatMap(p -> ambitos.nombreOrganizacionActiva(p.organizacion())
+                .map(nombre -> respuestaPublica(p, nombre)));
+    }
+
+    private MascotaPublicaRespuesta respuestaPublica(PublicacionRepository.Perfil p, String organizacion) {
+        return new MascotaPublicaRespuesta(p.id(), p.nombre(), p.especie(), p.edad(), p.tamano(), p.energia(),
+                p.etiquetas(), p.foto() ? url(p.id()) + "/publica" : null,
+                new MascotaPublicaRespuesta.Organizacion(p.organizacion(), organizacion), "DISPONIBLE");
+    }
+
+    @Override
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
+    public PaginaMascotasPublicas consultarCatalogo(FiltrosCatalogoPublico filtros, int pagina, int limite) {
+        if (pagina < 0 || limite < 1 || limite > 100) {
+            throw new ErrorMascota(400, "VALIDACION", "La página inicia en 0 y el límite debe estar entre 1 y 100.");
+        }
+        if (!repo.etiquetasActivas(filtros.comportamientoIds())) {
+            throw new ErrorMascota(400, "VALIDACION", "Elegí comportamientos vigentes del catálogo.");
+        }
+        var organizaciones = new HashMap<UUID, String>();
+        for (UUID candidata : repo.organizacionesCandidatas()) {
+            ambitos.nombreOrganizacionActiva(candidata).ifPresent(nombre -> organizaciones.put(candidata, nombre));
+        }
+        long total = organizaciones.isEmpty() ? 0 : repo.contar(filtros, organizaciones.keySet());
+        if ((long) pagina * limite >= total) {
+            return new PaginaMascotasPublicas(List.of(), pagina, limite, total);
+        }
+        var elementos = repo.pagina(filtros, organizaciones.keySet(), pagina, limite).stream()
+                .map(p -> respuestaPublica(p, organizaciones.get(p.organizacion()))).toList();
+        return new PaginaMascotasPublicas(elementos, pagina, limite, total);
     }
 
     @Transactional

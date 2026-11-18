@@ -5,7 +5,7 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, DefaultUrlSerializer, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AuthService } from '../acceso/auth/services/auth.service';
-import { entradaMascotasGuard, permiteDemoLocal } from './entrada-mascotas.guard';
+import { entradaMascotasGuard, entradaModulosGuard, permiteDemoLocal } from './entrada-mascotas.guard';
 import { SesionMascotasService } from './sesion-mascotas.service';
 
 describe('Entrada de mascotas para usuarios reales o la demostración local', () => {
@@ -39,9 +39,25 @@ describe('Entrada de mascotas para usuarios reales o la demostración local', ()
 
   it('acepta la sesión real con el guard normal y no consulta actores', () => {
     token = 'token-existente';
+    sesion.estado.next(demo);
     expect(entrar()).toBe(true);
     expect(sesion.demoDeEntrada).toBeNull();
+    expect(sesion.estado.value).toBeNull();
+    sesion.preparar();
+    http.expectOne('/api/v1/mascotas/contexto').flush({ usuarioId: 'real', organizaciones: [] });
     http.expectNone(() => true);
+  });
+
+  it('solo permite entrar a otros módulos con la cookie de un actor confirmado', () => {
+    const entrarUbicacion = () => TestBed.runInInjectionContext(() => entradaModulosGuard(
+      {} as ActivatedRouteSnapshot, { url: '/mi-ubicacion' } as RouterStateSnapshot,
+    ) as Observable<boolean | UrlTree>);
+    let resultado: boolean | UrlTree | undefined;
+    for (const actorActualId of [null, 'desconocido', 'actor']) {
+      entrarUbicacion().subscribe(res => resultado = res);
+      http.expectOne('/api/v1/demo-b01/actores').flush({ ...demo, actorActualId });
+      expect(resultado).toBe(actorActualId === 'actor' ? true : login);
+    }
   });
 
   it('mantiene el login fuera de loopback y en producción', () => {

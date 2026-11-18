@@ -5,24 +5,30 @@ import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 
 import { AuthService } from './services/auth.service';
+import { urlIngreso } from './destino-tras-ingreso';
 
 /**
  * @author Gabriel Barquero González
  * @version 1.0
  * @description  Encargado de agregar el token JWT a los request al backend.
- *  Controla los errores de auth y  cierra la sesión cuando el servidor responde con un estado HTTP 401
+ *  Cierra la sesión si el servidor rechaza el token vigente en una solicitud autenticada.
  */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const router = inject(Router);
   const token = authService.obtenerToken();
-  const esApi = req.url.startsWith('/api/');
-  const esAuth = req.url.startsWith('/api/auth/');
-  const esCsrf = req.method === 'GET' && req.url === '/api/v1/sesion/csrf';
+  const ruta = req.url.split(/[?#]/, 1)[0];
+  const esApi = ruta.startsWith('/api/');
+  const esLogout = req.method === 'POST' && ruta === '/api/auth/logout';
+  const esLecturaPublica = req.method === 'GET' && (
+    ruta === '/api/v1/sesion/csrf' || ruta === '/api/v1/catalogos/mascotas' ||
+    ruta === '/api/v1/catalogo/mascotas' || /^\/api\/v1\/mascotas\/[^/]+\/(foto\/)?publica$/.test(ruta)
+  );
+  const usaBearer = token && esApi && (!ruta.startsWith('/api/auth/') || esLogout) &&
+    !ruta.startsWith('/api/v1/demo-b01/') && !esLecturaPublica;
   let solicitud = req;
 
-  // Obtener CSRF debe permitir reingresar aunque el navegador conserve un JWT vencido.
-  if (token && esApi && !esAuth && !esCsrf) {
+  if (usaBearer) {
     solicitud = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`
@@ -32,9 +38,14 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(solicitud).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && esApi && !esAuth) {
+      // Un 401 público o tardío de una cuenta anterior no invalida la sesión actual.
+      if (error.status === 401 && usaBearer &&
+          solicitud.headers.get('Authorization') === `Bearer ${token}` &&
+          authService.obtenerToken() === token) {
         authService.cerrarSesion();
-        void router.navigateByUrl('/login', { replaceUrl: true });
+        if (!esLogout && !/^\/(login|registro)(?:[/?#;]|$)/.test(router.url)) {
+          void router.navigateByUrl(urlIngreso(router, router.url), { replaceUrl: true });
+        }
       }
 
       return throwError(() => error);

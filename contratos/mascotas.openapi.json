@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "PetMatchCR · Mascotas, publicación y expediente clínico",
-    "version": "0.4.0",
+    "version": "0.5.0",
     "description": "Contrato del bloque B para perfil privado, publicación, fotografía, vacunas y permisos clínicos. La integración con A aporta la identidad, la organización activa, el rol veterinario y la auditoría."
   },
   "servers": [
@@ -1836,6 +1836,155 @@
           }
         }
       }
+    },
+    "/api/v1/catalogo/mascotas": {
+      "get": {
+        "operationId": "listarCatalogoPublicoAdopciones",
+        "tags": [
+          "Publicación y fotografía"
+        ],
+        "security": [],
+        "summary": "Listar los perros y gatos disponibles para adopción.",
+        "description": "Combina filtros únicamente sobre perfiles publicables de organizaciones vigentes. El total corresponde a los mismos filtros y permisos que la página, ordenada por nombre y UUID.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "pagina",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647,
+              "default": 0
+            },
+            "description": "Índice de página desde cero."
+          },
+          {
+            "in": "query",
+            "name": "limite",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "description": "Perfiles por página."
+          },
+          {
+            "in": "query",
+            "name": "nombre",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Coincidencia parcial, sin distinguir mayúsculas."
+          },
+          {
+            "in": "query",
+            "name": "especie",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PERRO",
+                "GATO"
+              ]
+            },
+            "description": "Especie pública."
+          },
+          {
+            "in": "query",
+            "name": "edadMinimaMeses",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            },
+            "description": "Edad mínima incluida."
+          },
+          {
+            "in": "query",
+            "name": "edadMaximaMeses",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            },
+            "description": "Edad máxima incluida."
+          },
+          {
+            "in": "query",
+            "name": "tamanos",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "PEQUENO",
+                  "MEDIANO",
+                  "GRANDE"
+                ]
+              }
+            },
+            "description": "Se admite cualquiera de los tamaños indicados."
+          },
+          {
+            "in": "query",
+            "name": "energias",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "BAJA",
+                  "MEDIA",
+                  "ALTA"
+                ]
+              }
+            },
+            "description": "Se admite cualquiera de las energías indicadas."
+          },
+          {
+            "in": "query",
+            "name": "comportamientoIds",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "description": "Al menos una etiqueta seleccionada. Todas las etiquetas solicitadas deben estar activas."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Página de perfiles públicos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginaMascotasPublicas"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "500": {
+            "$ref": "#/components/responses/FalloInterno"
+          },
+          "503": {
+            "$ref": "#/components/responses/DependenciaNoDisponible"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2998,6 +3147,37 @@
           "limite",
           "totalElementos"
         ]
+      },
+      "PaginaMascotasPublicas": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "elementos",
+          "pagina",
+          "limite",
+          "totalElementos"
+        ],
+        "properties": {
+          "elementos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MascotaPublicaRespuesta"
+            }
+          },
+          "pagina": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "limite": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "totalElementos": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
       }
     },
     "responses": {
@@ -3129,7 +3309,8 @@
     "interfaz": "cr.petmatchcr.mascotas.api.MascotasParaAdopciones",
     "operaciones": [
       "consultarPerfilPublico(UUID mascotaId)",
-      "esPublicable(UUID mascotaId)"
+      "esPublicable(UUID mascotaId)",
+      "consultarCatalogo(FiltrosCatalogoPublico filtros, int pagina, int limite)"
     ],
     "respuesta": {
       "$ref": "#/components/schemas/MascotaPublicaRespuesta"

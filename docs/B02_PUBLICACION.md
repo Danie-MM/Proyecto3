@@ -39,6 +39,8 @@ En una mascota particular, el control de publicación indica que se necesita una
 
 Un consumidor Java puede inyectar `MascotasParaAdopciones`. Para comprobar la disponibilidad actual llama a `esPublicable(mascotaId)`. Para renderizar un perfil llama a `consultarPerfilPublico(mascotaId)` y maneja que la disponibilidad haya cambiado. La proyección incluye la organización pública y la URL pública opcional de foto. En HTTP las lecturas son `GET /api/v1/mascotas/{mascotaId}/publica` y `GET /api/v1/mascotas/{mascotaId}/foto/publica`. La lista privada de B-01 mantiene su propia autorización.
 
+El catálogo Angular de D consume `GET /api/v1/catalogo/mascotas`. Por ejemplo, `?especie=GATO&edadMinimaMeses=12&edadMaximaMeses=12&pagina=0&limite=20` devuelve la primera página de gatos de un año. Cada elemento usa la misma proyección que el detalle público. El total y la página se calculan después de aplicar los filtros y verificar la vigencia de las organizaciones. La foto pública vuelve a comprobar la publicación en cada solicitud.
+
 La publicación necesita que A exponga la organización activa, su nombre y los ámbitos vigentes del usuario. `AmbitosMascotas` permite esa integración. Sin el padrón real el servicio deniega la publicación. Las pruebas de integración de B aportan una organización ficticia y simulan su pérdida de vigencia.
 
 ## Evidencia reproducible

@@ -1,6 +1,7 @@
 package cr.petmatchcr.mascotas.publicacion;
 
 import cr.petmatchcr.mascotas.dto.MascotaPublicaRespuesta;
+import cr.petmatchcr.mascotas.dto.FiltrosCatalogoPublico;
 import cr.petmatchcr.mascotas.service.ContextoMascotas.Actor;
 import cr.petmatchcr.mascotas.service.ErrorMascota;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -11,6 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.Set;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 @Repository
 class PublicacionRepository {
@@ -39,18 +43,58 @@ class PublicacionRepository {
     }
 
     Optional<Perfil> publicable(UUID id) {
-        return jdbc.query("""
-                SELECT * FROM ret_id_mascota_publicable_pr(?)
-                """, (r,n) -> {
-                    UUID[] ids = (UUID[]) r.getArray("comportamiento_ids").getArray();
-                    String[] nombres = (String[]) r.getArray("comportamiento_nombres").getArray();
-                    var etiquetas = new ArrayList<MascotaPublicaRespuesta.Etiqueta>();
-                    for (int i = 0; i < ids.length; i++)
-                        etiquetas.add(new MascotaPublicaRespuesta.Etiqueta(ids[i], nombres[i]));
-                    return new Perfil(id, r.getString("nombre"), r.getString("especie"),
-                            r.getInt("edad_estimada_meses"), r.getString("tamano"), r.getString("energia"),
-                            r.getObject("organizacion_id", UUID.class), r.getBoolean("foto"), etiquetas);
-                }, id).stream().findFirst();
+        return jdbc.query("SELECT * FROM ret_id_mascota_publicable_pr(?)", this::leerPerfil, id).stream().findFirst();
+    }
+
+    private Perfil leerPerfil(ResultSet r, int indice) throws SQLException {
+        UUID[] ids = (UUID[]) r.getArray("comportamiento_ids").getArray();
+        String[] nombres = (String[]) r.getArray("comportamiento_nombres").getArray();
+        var etiquetas = new ArrayList<MascotaPublicaRespuesta.Etiqueta>();
+        for (int i = 0; i < ids.length; i++) {
+            etiquetas.add(new MascotaPublicaRespuesta.Etiqueta(ids[i], nombres[i]));
+        }
+        return new Perfil(r.getObject("id", UUID.class), r.getString("nombre"), r.getString("especie"),
+                r.getInt("edad_estimada_meses"), r.getString("tamano"), r.getString("energia"),
+                r.getObject("organizacion_id", UUID.class), r.getBoolean("foto"), etiquetas);
+    }
+
+    List<UUID> organizacionesCandidatas() {
+        return jdbc.queryForList("""
+                SELECT DISTINCT organizacion_id FROM mascota_perfil_publicable_v WHERE especie IN ('PERRO','GATO')
+                """, UUID.class);
+    }
+
+    boolean etiquetasActivas(Set<UUID> ids) {
+        return ids.isEmpty() || jdbc.queryForObject("""
+                SELECT count(*) FROM ret_all_etiqueta_comportamiento_pr() WHERE activa AND id = ANY(?)
+                """, Long.class, new SqlArrayValue("uuid", ids.toArray())) == ids.size();
+    }
+
+    private static final String CATALOGO = " FROM ret_all_mascota_catalogo_pr(?,?,?,?,?,?,?,?)";
+
+    private List<Object> parametrosCatalogo(FiltrosCatalogoPublico f, Set<UUID> organizaciones) {
+        var args = new ArrayList<Object>();
+        args.add(new SqlArrayValue("uuid", organizaciones.toArray()));
+        args.add(f.nombre());
+        args.add(f.especie());
+        args.add(f.edadMinimaMeses());
+        args.add(f.edadMaximaMeses());
+        args.add(new SqlArrayValue("text", f.tamanos().toArray()));
+        args.add(new SqlArrayValue("text", f.energias().toArray()));
+        args.add(new SqlArrayValue("uuid", f.comportamientoIds().toArray()));
+        return args;
+    }
+
+    long contar(FiltrosCatalogoPublico f, Set<UUID> organizaciones) {
+        return jdbc.queryForObject("SELECT count(*)" + CATALOGO, Long.class, parametrosCatalogo(f, organizaciones).toArray());
+    }
+
+    List<Perfil> pagina(FiltrosCatalogoPublico f, Set<UUID> organizaciones, int pagina, int limite) {
+        var args = parametrosCatalogo(f, organizaciones);
+        args.add(limite);
+        args.add((long) pagina * limite);
+        return jdbc.query("SELECT *" + CATALOGO + " ORDER BY lower(nombre),id LIMIT ? OFFSET ?",
+                this::leerPerfil, args.toArray());
     }
 
     Foto fotoPrivada(UUID mascota, Actor actor) {

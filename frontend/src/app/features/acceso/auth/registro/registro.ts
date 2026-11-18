@@ -2,7 +2,7 @@
 import { AfterViewInit, Component, DestroyRef, ElementRef, ViewChild, inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   AbstractControl,
   NonNullableFormBuilder,
@@ -12,6 +12,7 @@ import {
 } from '@angular/forms';
 
 import { AuthService } from '../services/auth.service';
+import { destinoTrasIngreso } from '../destino-tras-ingreso';
 import { GoogleAuthService } from '../services/google-auth.service';
 import { RegistroRequest } from '../models/registro-request';
 
@@ -35,6 +36,7 @@ export class Registro implements AfterViewInit {
   private readonly authService = inject(AuthService);
   private readonly googleAuthService = inject(GoogleAuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
 
   @ViewChild('botonGoogle')
@@ -173,7 +175,8 @@ export class Registro implements AfterViewInit {
 
           this.mensaje = `Cuenta creada. Bienvenido a PetMatchCR, ${respuesta.usuario.nombreCompleto}.`;
 
-          this.router.navigateByUrl('/comprobar-entorno');
+          void this.router.navigateByUrl(destinoTrasIngreso(this.route.snapshot.queryParamMap.get('returnUrl')),
+            { replaceUrl: true });
         },
 
         error: (error: HttpErrorResponse) => {

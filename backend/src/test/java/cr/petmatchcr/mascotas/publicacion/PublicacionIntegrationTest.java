@@ -86,6 +86,48 @@ class PublicacionIntegrationTest {
     }
 
     @Test
+    @org.springframework.transaction.annotation.Transactional
+    void catalogoPublicoFiltraAntesDePaginarYUsaLaMismaProyeccionQueElDetalle() throws Exception {
+        String catalogo = "/api/v1/catalogo/mascotas";
+        String prefijo = "Catálogo " + UUID.randomUUID();
+        UUID etiqueta = UUID.randomUUID();
+        UUID otraEtiqueta = UUID.randomUUID();
+        jdbc.update("INSERT INTO etiqueta_comportamiento(id,nombre) VALUES (?, 'Tranquila'), (?, 'Juguetona')",
+                etiqueta, otraEtiqueta);
+        UUID primera = UUID.randomUUID(), segunda = UUID.randomUUID();
+        for (int i = 0; i < 5; i++) {
+            UUID id = i == 3 ? primera : i == 4 ? segunda : UUID.randomUUID();
+            jdbc.update("""
+                INSERT INTO mascota(id,nombre,especie,edad_estimada_meses,tamano,energia,responsable_usuario_id,
+                                    organizacion_id,disponibilidad,activa)
+                VALUES (?,?,'GATO',?,'MEDIANO','BAJA',?,?,?,?)
+                """, id, prefijo + i, i == 2 ? 3 : 12, actor, i == 0 ? UUID.randomUUID() : org,
+                    i == 1 ? "NO_DISPONIBLE" : "DISPONIBLE", true);
+            jdbc.update("INSERT INTO mascota_comportamiento(mascota_id,etiqueta_id) VALUES (?,?)",
+                    id, i == 4 ? otraEtiqueta : etiqueta);
+        }
+        var pagina = get(catalogo).param("nombre", prefijo).param("especie","GATO")
+                .param("edadMinimaMeses","12").param("edadMaximaMeses","12")
+                .param("tamanos","PEQUENO","MEDIANO").param("energias","BAJA")
+                .param("comportamientoIds", etiqueta.toString(), otraEtiqueta.toString()).param("limite","1");
+        http.perform(pagina).andExpect(status().isOk()).andExpect(jsonPath("$.totalElementos").value(2))
+                .andExpect(jsonPath("$.elementos.length()").value(1))
+                .andExpect(jsonPath("$.elementos[0].id").value(primera.toString()))
+                .andExpect(jsonPath("$.elementos[0].organizacion.id").value(org.toString()))
+                .andExpect(jsonPath("$.elementos[0].responsableUsuarioId").doesNotExist())
+                .andExpect(jsonPath("$.elementos[0].expediente").doesNotExist());
+        http.perform(pagina.param("pagina","1")).andExpect(jsonPath("$.elementos[0].id").value(segunda.toString()))
+                .andExpect(jsonPath("$.totalElementos").value(2));
+        http.perform(get(catalogo).param("nombre",prefijo).param("pagina","99"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.elementos").isEmpty())
+                .andExpect(jsonPath("$.totalElementos").value(3));
+        http.perform(get(catalogo).param("edadMinimaMeses","2").param("edadMaximaMeses","1"))
+                .andExpect(status().isBadRequest());
+        http.perform(get(catalogo).param("comportamientoIds",UUID.randomUUID().toString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void noPublicaParticularNiReabreAdoptada() throws Exception {
         jdbc.update("UPDATE mascota SET organizacion_id=NULL WHERE id=?",mascota);
         disponibilidad(0,"DISPONIBLE").andExpect(status().isConflict());

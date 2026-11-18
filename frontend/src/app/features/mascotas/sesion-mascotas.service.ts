@@ -38,12 +38,6 @@ export class SesionMascotasService {
         .pipe(catchError(() => of(null)))
         .subscribe((contexto) => this.contexto.next(contexto)),
     );
-    if (!demo) this.lecturasIniciales.add(
-      this.api
-        .demo()
-        .pipe(catchError(() => of(null)))
-        .subscribe((demo) => this.estado.next(demo)),
-    );
   }
   seleccionar(actorId: string) {
     let cambioConfirmado = false;

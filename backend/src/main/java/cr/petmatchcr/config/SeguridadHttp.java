@@ -69,7 +69,7 @@ class SeguridadHttp {
 
                     auth.requestMatchers(HttpMethod.GET, "/actuator/health").permitAll();
                     auth.requestMatchers(HttpMethod.GET, "/api/v1/sesion/csrf").permitAll();
-                    auth.requestMatchers(HttpMethod.GET, "/api/v1/catalogos/mascotas").permitAll();
+                    auth.requestMatchers(HttpMethod.GET, "/api/v1/catalogos/mascotas", "/api/v1/catalogo/mascotas").permitAll();
                     auth.requestMatchers(HttpMethod.GET, "/api/v1/mascotas/{mascotaId}/publica",
                             "/api/v1/mascotas/{mascotaId}/foto/publica").permitAll();
                     auth.requestMatchers(HttpMethod.POST,

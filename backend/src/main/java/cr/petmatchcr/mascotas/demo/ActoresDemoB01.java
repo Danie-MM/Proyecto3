@@ -3,11 +3,13 @@ package cr.petmatchcr.mascotas.demo;
 import cr.petmatchcr.acceso.api.IdentidadActual;
 import cr.petmatchcr.mascotas.api.AmbitosMascotas;
 import cr.petmatchcr.mascotas.api.IdentidadMascotas;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +22,12 @@ import java.util.stream.Collectors;
 @Primary
 @Profile("local & demo-b01 & !integracion")
 public class ActoresDemoB01 implements AmbitosMascotas, IdentidadMascotas, IdentidadActual {
+    private final IdentidadActual cuentasDeA;
+
+    public ActoresDemoB01(@Qualifier("identidadActualAutenticada") IdentidadActual cuentasDeA) {
+        this.cuentasDeA = cuentasDeA;
+    }
+
     private static final List<ActorDemo> ACTORES = List.of(
             new ActorDemo(UUID.fromString("11111111-1111-4111-8111-111111111111"), "Responsable de Luna", List.of()),
             new ActorDemo(UUID.fromString("22222222-2222-4222-8222-222222222222"), "Otro responsable", List.of()),
@@ -34,15 +42,17 @@ public class ActoresDemoB01 implements AmbitosMascotas, IdentidadMascotas, Ident
 
     public boolean existe(UUID actorId) { return ACTORES.stream().anyMatch(actor -> actor.id().equals(actorId)); }
 
-    /** Solo reconoce los actores ficticios que esta demostración permite seleccionar. */
+    /** El JWT validado usa la cuenta vigente de A. El selector local usa su propia sesión. */
     @Override
     public Optional<UUID> usuarioActual() {
         var autenticacion = SecurityContextHolder.getContext().getAuthentication();
         if (autenticacion == null || !autenticacion.isAuthenticated()
                 || autenticacion instanceof AnonymousAuthenticationToken) return Optional.empty();
+        if (autenticacion.getPrincipal() instanceof UserDetails) return cuentasDeA.usuarioActual();
+        if (!(autenticacion.getPrincipal() instanceof String actorDemo)) return Optional.empty();
         try {
-            var id = UUID.fromString(autenticacion.getName());
-            return existe(id) && id.toString().equalsIgnoreCase(autenticacion.getName())
+            var id = UUID.fromString(actorDemo);
+            return existe(id) && id.toString().equalsIgnoreCase(actorDemo)
                     ? Optional.of(id) : Optional.empty();
         } catch (IllegalArgumentException ex) {
             return Optional.empty();

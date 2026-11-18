@@ -1,25 +1,10 @@
 <!-- crear el dashboard de catálogo; debe consumir las funciones del controller para mostrar las mascotas disponibles, así como
  también permitir las búsqueda de mascotas por filtro -->
 
-<header>
-    <div>PetMatchCR</div>
-    <div>
-        <a class="header-content" routerLink="/catalogo">Adoptar</a>
-    </div>
-    <div>
-        <a href="" class="header-content" routerLink="/mascotas">Mis mascotas</a>
-    </div>
-    <div>
-        <a href="" class="header-content" routerLink="/comprobar-entorno">Comprobar entorno</a>
-    </div>
-    <div>
-        <Button id="button-cuenta" routerLink="/login">Cerrar sesión</Button>
-    </div>
-</header>
 
 <main>
     <h2>Mascotas en adopción</h2>
-    <form #formulario="ngForm" (ngSubmit)="loadMascotas()" class="form-pets">
+    <form #formulario="ngForm" (ngSubmit)="buscar()" class="form-pets">
 
         <label for="nombre">Nombre</label>
         <input id="nombre" name="nombre" type="text" placeholder="Buscar por nombre" [(ngModel)]="filtros.nombre">
@@ -58,7 +43,7 @@
 
         <button type="submit" id="filter-button-search" [disabled]="formulario.invalid || cargando">Buscar</button>
 
-        <button type="button" (click)="filtros = {}; loadMascotas()" id="filter-button-clean">
+        <button type="button" (click)="filtros = {}; buscar()" id="filter-button-clean">
             Limpiar filtros
         </button>
 
@@ -66,7 +51,9 @@
     <section class="lista-mascota">
         @for (mascota of catalogoList; track mascota.id) {
         <article class="tarjeta-mascota">
-            <img [src]="mascota.foto" [alt]="'Foto de' + mascota.nombre" class="foto-mascota">
+            @if (mascota.fotoUrl) {
+            <img [src]="mascota.fotoUrl" [alt]="'Foto de ' + mascota.nombre" class="foto-mascota">
+            }
 
             <div class="datos-mascota">
                 <h3>{{ mascota.nombre }}</h3>
@@ -74,11 +61,19 @@
                 <p>Edad estimada en meses: {{ mascota.edadEstimadaMeses }}</p>
                 <p>Tamaño: {{ mascota.tamano }}</p>
                 <p>Energía: {{ mascota.energia }}</p>
-                <p>Comportamiento: {{ mascota.comportamientos }}</p>
+                @if (mascota.comportamientos.length) {
+                <p>Comportamiento: @for (etiqueta of mascota.comportamientos; track etiqueta.id; let ultima = $last) {
+                    {{ etiqueta.nombre }}{{ ultima ? '' : ', ' }}
+                }</p>
+                }
             </div>
         </article>
         } @empty {
-        <p>¡Oh no! No hay mascotas para mostrar.</p>
+            @if (cargando) {
+            <p role="status">Cargando mascotas…</p>
+            } @else if (!errorCarga) {
+            <p>No hay mascotas para mostrar.</p>
+            }
         }
     </section>
 
@@ -88,7 +83,7 @@
 
         @if (totalPaginas > 0) {
         <nav aria-label="Páginas del catálogo">
-            <button type="button" [disabled]="cargando || paginaActual === 0" (click)="loadMascotas(paginaActual - 1)">
+            <button type="button" [disabled]="cargando || paginaActual === 0" (click)="cargarPagina(paginaActual - 1)">
                 Anterior
             </button>
 
@@ -97,7 +92,7 @@
             </span>
 
             <button type="button" [disabled]="cargando || paginaActual >= totalPaginas - 1"
-                (click)="loadMascotas(paginaActual + 1)">
+                (click)="cargarPagina(paginaActual + 1)">
                 Siguiente
             </button>
         </nav>
