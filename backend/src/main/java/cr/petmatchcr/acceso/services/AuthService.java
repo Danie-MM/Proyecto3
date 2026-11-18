@@ -208,10 +208,11 @@ public class AuthService {
         Optional<Usuario> usuarioEncontrado =
                 usuarioRepository.findByEmail(datosGoogle.getEmail());
 
+
         if (usuarioEncontrado.isEmpty()) {
-            return crearRespuestaError(404,
-                    "No se encontró ningún usuario con ese correo electrónico.");
+            return crearRespuestaError(401, "No se pudo autenticar la cuenta.");
         }
+
 
         Usuario usuario = usuarioEncontrado.get();
 

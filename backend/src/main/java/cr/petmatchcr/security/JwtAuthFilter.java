@@ -19,7 +19,7 @@ import tools.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-/** Valida cada Bearer contra una cuenta activa, sin reutilizar una sesión si el token falla. */
+/** Valida cada Bearer contra una cuenta activa, sin reutilizar una sesi├│n si el token falla. */
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
@@ -38,19 +38,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null) {
-            // El perfil demo-b01 usa su sesión explícita; las llamadas reales envían JWT.
+            // El perfil demo-b01 usa su sesi├│n expl├¡cita; las llamadas reales env├¡an JWT.
             filterChain.doFilter(request, response);
             return;
         }
 
-        // Un Bearer presente siempre prevalece sobre la autenticación de una sesión anterior.
+        // Un Bearer presente siempre prevalece sobre la autenticaci├│n de una sesi├│n anterior.
         SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext());
         if (!authHeader.regionMatches(true, 0, "Bearer ", 0, 7)) {
             rechazar(response);
             return;
         }
         String token = authHeader.substring(7).trim();
-        if (token.isEmpty() || !jwtService.esValido(token)) {
+        if (token.isEmpty() || !jwtService.validarSesion(token)) {
             rechazar(response);
             return;
         }
@@ -76,7 +76,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        // No se guarda el JWT como autenticación permanente de la sesión de CSRF.
+        // No se guarda el JWT como autenticaci├│n permanente de la sesi├│n de CSRF.
         filterChain.doFilter(request, response);
     }
 
@@ -86,6 +86,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.getWriter().write(objectMapper.writeValueAsString(ErrorApi.crear(
-                "AUTENTICACION_REQUERIDA", "La sesión no es válida. Iniciá sesión de nuevo.")));
+                "AUTENTICACION_REQUERIDA", "La sesi├│n no es v├ílida. Inici├í sesi├│n de nuevo.")));
     }
 }

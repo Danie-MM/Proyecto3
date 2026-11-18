@@ -31,6 +31,12 @@ public class JwtService {
     @Value("${jwt.expiration}")
     private long expiration;
 
+    private final SesionService sesionService;
+
+    public JwtService(SesionService sesionService) {
+        this.sesionService = sesionService;
+    }
+
     /**
      * Genera un token JWT con el correo y rol del usuario.
      *
@@ -38,11 +44,15 @@ public class JwtService {
      * recibe rol Rol del usuario.
      * devuelve Token JWT generado.
      */
+
     public String generarToken(String email, String rol) {
         Date fechaEmision = new Date();
         Date fechaExpiracion = new Date(fechaEmision.getTime() + expiration);
 
+        String idSesion = sesionService.crear(email, fechaExpiracion.toInstant());
+
         return Jwts.builder()
+                .id(idSesion)
                 .subject(email)
                 .claim("rol", rol)
                 .issuedAt(fechaEmision)
@@ -50,6 +60,7 @@ public class JwtService {
                 .signWith(obtenerClaveFirma())
                 .compact();
     }
+
 
     /**
      * Obtiene email guardado en el token.
@@ -76,6 +87,52 @@ public class JwtService {
             return false;
         }
     }
+
+
+    /**
+     * Verifica que el token sea válido y la sesión siga activa.
+     */
+    public boolean validarSesion(String token) {
+        try {
+            if (!esValido(token)) {
+                return false;
+            }
+
+            Claims datosToken = obtenerClaims(token);
+
+            String idSesion = datosToken.getId();
+            String email = datosToken.getSubject();
+
+            if (idSesion == null || email == null) {
+                return false;
+            }
+
+            return sesionService.validarYActualizar(idSesion, email);
+
+        } catch (Exception e) {
+            log.warn("No se pudo validar la sesión: {}", e.getMessage());
+            return false;
+        }
+    }
+
+
+    /**
+     * Revoca la sesión cuando el usuario cierra sesión.
+     */
+    public void revocar(String token) {
+        Claims datosToken = obtenerClaims(token);
+
+        String idSesion = datosToken.getId();
+        String email = datosToken.getSubject();
+
+        if (idSesion == null || email == null) {
+            throw new IllegalArgumentException("La sesión no es válida.");
+        }
+
+        sesionService.revocar(idSesion, email);
+    }
+
+
 
     private SecretKey obtenerClaveFirma() {
         byte[] claveBytes = Decoders.BASE64.decode(secret);
