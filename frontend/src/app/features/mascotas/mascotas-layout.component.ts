@@ -10,23 +10,20 @@ import { SesionMascotasService } from './sesion-mascotas.service';
   selector: 'app-mascotas-layout',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, RouterOutlet],
+  host: { class: 'modulo-mascotas' },
   styleUrl: './mascotas.css',
   template: `<header class="cabecera navbar-top">
       <div class="ancho barra">
-        <a class="marca" routerLink="/mascotas">PetMatch<span>CR</span></a>
+        <a class="marca" routerLink="/mascotas"><span class="huella" aria-hidden="true"></span>PetMatchCR</a>
         <nav aria-label="Navegación principal">
-          <a routerLink="/mascotas">Mis mascotas</a><a routerLink="/comprobar-entorno">Entorno</a> <a routerLink="/catalogo">Catálogo</a>
+          <a routerLink="/mascotas" aria-current="page">Mis mascotas</a><a routerLink="/comprobar-entorno">Entorno</a> <a routerLink="/catalogo">Catálogo</a>
         </nav>
       </div>
     </header>
     <main class="ancho">
       <aside class="demo" *ngIf="sesion.estado | async as demo">
-        <strong>Demostración local: usuarios ficticios</strong>
-        <p>
-          Este selector permite comprobar permisos. La sesión real del equipo pertenece al bloque A.
-        </p>
-        <label for="actor-demo">Usuario de prueba</label
-        ><select
+        <label for="actor-demo">Usuario de demostración</label>
+        <select
           class="select-single"
           id="actor-demo"
           [ngModel]="demo.actorActualId ?? ''"

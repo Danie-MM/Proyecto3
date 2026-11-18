@@ -4,14 +4,74 @@
   --color-background: #f5f8fc;
   --color-text: #233c4b;
   --color-navigation: #f9ded5;
-  --acento: #e29782;
+  --color-acento: #e29782;
+  --color-white: #fff;
+  --color-text-muted: #516775;
+  --color-neutral: #d8e0e6;
+  --color-sage: #216e45;
+  --color-danger: #a92c25;
+  --color-danger-hover: #86231e;
+  --color-selected: #e0edf4;
+  --color-selected-control: var(--color-primary);
+  --color-backdrop: rgb(25 68 92 / 45%);
+  --borde-b: #ccd9e1;
+  --control-radius: .65rem;
+  --control-height: 2.65rem;
+  display: block;
   color: var(--color-text);
 }
-.btn-primary { color: white; }
-.tarjeta.card-basic { background: white; border-color: #c7d6df; }
-.btn-secondary:hover:not(:disabled) { background: var(--acento); }
-.foto-mascota { display: block; max-width: 100%; max-height: 18rem; border-radius: .5rem; }
-input[type=file] { max-width: 100%; }
+:host(.modulo-mascotas) {
+  min-height: 100vh;
+  background: var(--color-background);
+}
+.btn-primary {
+  color: var(--color-white);
+  background: var(--color-primary);
+}
+.btn-secondary {
+  color: #793c2d;
+  background: var(--color-navigation);
+}
+.btn-secondary:hover:not(:disabled) {
+  background: #f0c6b9;
+}
+.btn-link { color: var(--color-primary); }
+.tarjeta.card-basic {
+  background: var(--color-white);
+  border: 1px solid var(--borde-b);
+  border-radius: 1rem;
+}
+.input-text-basic, .input-text-area, .select-single {
+  color: var(--color-text);
+  border-color: #99afbd;
+}
+.input-text-basic:focus, .input-text-area:focus, .select-single:focus {
+  border-color: var(--color-primary);
+}
 .input-text-area { width: 100%; min-height: 5rem; height: 6rem; }
-.registros { list-style: none; margin: 1rem 0; padding: 0; }
-.registros li { border-bottom: 1px solid #c7d6df; padding: .75rem 0; }
+.error {
+  background: #fdece9;
+  border-left: 4px solid var(--color-danger);
+  color: #8a2420;
+}
+.aviso {
+  border-left: 4px solid var(--color-primary);
+  background: #e8f1f6;
+}
+.exito {
+  border-left: 4px solid var(--color-sage);
+  background: #e8f4ec;
+  color: #1b613d;
+}
+.estado, .etiqueta {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: .2rem .65rem;
+  font-size: .8rem;
+  font-weight: 650;
+  border-radius: 100px;
+}
+.estado { color: #216e45; background: #e8f4ec; }
+.estado.inactiva { color: #495d6b; background: #ebf0f3; }
+.etiqueta { color: var(--color-primary-hover); background: #e5eff4; }

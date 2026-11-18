@@ -14,7 +14,7 @@ import { PublicacionMascotaApi } from './publicacion-mascota.api';
   selector: 'app-publicacion-mascota',
   imports: [CommonModule],
   templateUrl: './publicacion-mascota.component.html',
-  styleUrls: ['../mascotas.css', '../bloque-b.css'],
+  styleUrl: '../mascotas.css',
 })
 export class PublicacionMascotaComponent implements OnChanges, OnDestroy {
   @Input({ required: true }) mascota!: Mascota;

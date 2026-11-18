@@ -18,7 +18,7 @@ const fechaCostaRica = new Intl.DateTimeFormat('sv-SE', {
   selector: 'app-expediente-mascota',
   imports: [CommonModule, FormsModule],
   templateUrl: './expediente-mascota.component.html',
-  styleUrls: ['../mascotas.css', '../bloque-b.css'],
+  styleUrl: '../mascotas.css',
 })
 export class ExpedienteMascotaComponent implements OnChanges {
   @Input({ required: true }) mascotaId = '';

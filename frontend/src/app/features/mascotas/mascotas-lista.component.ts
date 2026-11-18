@@ -3,6 +3,7 @@ import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ExpedienteMascotaComponent } from './clinica/expediente-mascota.component';
+import { FotoTarjetaComponent } from './publicacion/foto-tarjeta.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription, finalize } from 'rxjs';
 import { MascotasApiService, mensajeError } from './mascotas-api.service';
@@ -12,15 +13,15 @@ import { SesionMascotasService } from './sesion-mascotas.service';
 @Component({
   standalone: true,
   selector: 'app-mascotas-lista',
-  imports: [CommonModule, FormsModule, RouterLink, ExpedienteMascotaComponent],
+  imports: [CommonModule, FormsModule, RouterLink, ExpedienteMascotaComponent, FotoTarjetaComponent],
   styleUrl: './mascotas.css',
-  template: `<div class="titulo" *ngIf="!expedienteId">
-      <div>
-        <p class="eyebrow">PERFILES PRIVADOS</p>
+  template: `<div class="portada" *ngIf="!expedienteId">
+      <div class="portada-contenido">
         <h1>Mis mascotas</h1>
-        <p>Consultá y mantené los datos de las mascotas que tenés a cargo.</p>
+        <p>Gestioná sus perfiles, fotografías y vacunas.</p>
+        <a class="btn-primary" routerLink="nueva">Registrar mascota</a>
       </div>
-      <a class="btn-primary" routerLink="nueva">Registrar mascota</a>
+      <app-foto-tarjeta *ngIf="mascotaDePortada as mascota" class="portada-foto" [mascota]="mascota" />
     </div>
     <ng-container *ngIf="expedienteId; else inventario">
       <a class="btn-link" [routerLink]="[]" [queryParams]="{}">Volver a mis mascotas</a>
@@ -29,7 +30,7 @@ import { SesionMascotasService } from './sesion-mascotas.service';
       <app-expediente-mascota [mascotaId]="expedienteId" [gestionaPermisos]="gestionaPermisos" />
     </ng-container>
     <ng-template #inventario>
-    <section class="card-basic tarjeta filtros" aria-label="Filtrar mascotas">
+    <section class="filtros filtros-lista" aria-label="Filtrar mascotas">
       <div>
         <label for="activas">Estado</label>
         <select class="select-single" id="activas" [(ngModel)]="filtro" (ngModelChange)="cargar(0)">
@@ -68,25 +69,26 @@ import { SesionMascotasService } from './sesion-mascotas.service';
       </section>
       <div class="rejilla">
         <article class="card-basic tarjeta mascota" *ngFor="let m of datos.elementos">
-          <div class="linea">
-            <span class="etiqueta">{{ texto(m.especie) }}</span
-            ><span class="estado" [class.inactiva]="!m.activa">{{
-              m.activa ? 'Activa' : 'Desactivada'
-            }}</span>
+          <app-foto-tarjeta class="foto-tarjeta" [mascota]="m" />
+          <div class="resumen-mascota">
+            <div class="linea">
+              <h2><a [routerLink]="[m.id]">{{ m.nombre }}</a></h2>
+              <span class="estado" [class.inactiva]="!m.activa || m.disponibilidad === 'NO_DISPONIBLE'">
+                {{ m.activa ? texto(m.disponibilidad) : 'Desactivada' }}
+              </span>
+            </div>
+            <p>{{ texto(m.especie) }} · {{ m.edadEstimadaMeses }} meses · {{ texto(m.tamano) }}</p>
+            <p class="muted">Energía {{ texto(m.energia).toLowerCase() }}</p>
+            <div class="acciones-tarjeta">
+              <a class="btn-primary" [routerLink]="[m.id]">Ver perfil</a>
+              <a class="btn-link" [routerLink]="[]" [queryParams]="{ expediente: m.id, gestionar: '1' }">
+                Abrir expediente
+              </a>
+            </div>
           </div>
-          <h2>
-            <a [routerLink]="[m.id]">{{ m.nombre }}</a>
-          </h2>
-          <p>Edad estimada: {{ m.edadEstimadaMeses }} meses</p>
-          <p>{{ texto(m.tamano) }} · Energía {{ texto(m.energia).toLowerCase() }}</p>
-          <p class="muted">{{ texto(m.disponibilidad) }}</p>
-          <a [routerLink]="[m.id]">Ver perfil →</a>
-          <a class="btn-link" [routerLink]="[]" [queryParams]="{ expediente: m.id, gestionar: '1' }">
-            Abrir expediente
-          </a>
         </article>
       </div>
-      <nav class="paginacion" aria-label="Páginas de mascotas">
+      <nav class="paginacion" *ngIf="datos.totalElementos > datos.limite" aria-label="Páginas de mascotas">
         <button class="btn-secondary" (click)="cargar(pagina - 1)" [disabled]="pagina === 0">
           Anterior
         </button>
@@ -100,7 +102,7 @@ import { SesionMascotasService } from './sesion-mascotas.service';
         </button>
       </nav>
     </ng-container>
-    <section class="card-basic tarjeta" aria-labelledby="acceso-veterinario">
+    <section class="card-basic tarjeta acceso-clinico" aria-labelledby="acceso-veterinario">
       <h2 id="acceso-veterinario">Acceso veterinario</h2>
       <form #acceso="ngForm" (ngSubmit)="abrirExpediente()" class="filtros">
         <div>
@@ -133,6 +135,9 @@ export class MascotasListaComponent implements OnInit {
   cargando = false;
   error = '';
   private solicitud?: Subscription;
+  get mascotaDePortada() {
+    return this.resultado?.elementos.find(mascota => mascota.fotoUrl);
+  }
   get nombreExpediente(): string | undefined {
     return this.resultado?.elementos.find(mascota => mascota.id === this.expedienteId)?.nombre;
   }
