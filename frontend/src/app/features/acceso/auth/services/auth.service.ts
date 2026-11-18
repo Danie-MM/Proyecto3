@@ -1,6 +1,6 @@
 
 import { inject, Injectable, signal } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, finalize, map } from 'rxjs';
 import { EscriturasHttpService } from '../../../../shared/escrituras-http.service';
 
 import { RegistroRequest } from '../models/registro-request';
@@ -118,6 +118,22 @@ export class AuthService {
   }
 
   
+  /** Revoca la sesión en el servidor antes de limpiar los datos locales. */
+  cerrarSesionEnServidor(): Observable<void> {
+    if (!this.obtenerToken()) {
+      this.cerrarSesion();
+      return new Observable<void>(suscriptor => {
+        suscriptor.next();
+        suscriptor.complete();
+      });
+    }
+
+    return this.escrituras.enviar<void>('POST', `${this.baseUrl}/logout`).pipe(
+      map(() => undefined),
+      finalize(() => this.cerrarSesion())
+    );
+  }
+
   /** Cierra sesión del usuario y elimina el token*/
   cerrarSesion(): void {
     localStorage.removeItem(AuthService.TOKEN_KEY);

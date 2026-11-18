@@ -2,7 +2,7 @@
 import { AfterViewInit, Component, DestroyRef, ElementRef, ViewChild, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../services/auth.service';
 import { GoogleAuthService } from '../services/google-auth.service';
@@ -24,6 +24,7 @@ export class Login implements AfterViewInit {
   private readonly authService = inject(AuthService);
   private readonly googleAuthService = inject(GoogleAuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
 
   @ViewChild('botonGoogle')

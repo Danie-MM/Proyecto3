@@ -18,11 +18,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const token = authService.obtenerToken();
   const esApi = req.url.startsWith('/api/');
   const esAuth = req.url.startsWith('/api/auth/');
+  const esLogout = req.url === '/api/auth/logout';
   const esCsrf = req.method === 'GET' && req.url === '/api/v1/sesion/csrf';
   let solicitud = req;
 
   // Obtener CSRF debe permitir reingresar aunque el navegador conserve un JWT vencido.
-  if (token && esApi && !esAuth && !esCsrf) {
+  if (token && esApi && (!esAuth || esLogout) && !esCsrf) {
     solicitud = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`
@@ -32,7 +33,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(solicitud).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && esApi && !esAuth) {
+      if (error.status === 401 && esApi && (!esAuth || esLogout)) {
         authService.cerrarSesion();
         void router.navigateByUrl('/login', { replaceUrl: true });
       }
