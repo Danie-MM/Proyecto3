@@ -1,0 +1,506 @@
+<main class="extravios-contenedor">
+
+  <header class="encabezado">
+    <span class="etiqueta-modulo">Mascotas extraviadas</span>
+
+    <h1>Publicar un reporte de extravío</h1>
+
+    <p>
+      Compartí la información de tu mascota extraviada
+      para facilitar su búsqueda.
+    </p>
+  </header>
+
+
+    <!-- Resultado de la publicación -->
+    <section
+      *ngIf="reportePublicado as reporte"
+      class="tarjeta resultado-publicacion"
+      [class.reporte-existente]="reporteExistente"
+      role="status"
+    >
+
+      <h2>
+        {{ reporteExistente
+          ? 'Tu mascota ya tiene un reporte activo'
+          : '¡Tu reporte se publicó correctamente!' }}
+      </h2>
+
+      <p *ngIf="!reporteExistente">
+        El reporte de extravío de tu mascota quedó registrado
+        correctamente en PetMatchCR.
+      </p>
+
+      <p *ngIf="reporteExistente">
+        No se creó un nuevo reporte ni se modificaron los datos
+        del reporte existente. A continuación, se muestra
+        la información del reporte original.
+      </p>
+
+    <div class="resumen-reporte">
+
+      <div>
+        <strong>Mascota:</strong>
+        {{ mascotaSeleccionada?.nombre }}
+      </div>
+
+      <div>
+        <strong>Identificador del reporte:</strong>&nbsp;
+        <span class="identificador">{{ reporte.id }}</span>
+      </div>
+
+      <div>
+        <strong>Estado:</strong>
+        {{ reporte.estado }}
+      </div>
+
+      <div>
+        <strong>Fecha del extravío:</strong>
+        {{ reporte.fechaExtravio | date:'dd/MM/yyyy HH:mm' }}
+      </div>
+
+      <div>
+        <strong>Radio de avisos:</strong>
+        {{ reporte.radioMetros / 1000 }} km
+      </div>
+
+    </div>
+
+    <p class="texto-ayuda">
+      Conservá el identificador para futuras consultas.
+    </p>
+
+    <button
+      type="button"
+      class="boton-primario"
+      (click)="nuevoReporte()"
+    >
+      Publicar otro reporte
+    </button>
+
+  </section>
+
+  <!-- Formulario de publicación -->
+  <form
+    [hidden]="reportePublicado !== null"
+    (ngSubmit)="abrirConfirmacion()"
+    novalidate
+  >
+
+    <!-- Sección 1: Mascota -->
+    <section class="tarjeta">
+
+      <h2>1. Seleccioná tu mascota</h2>
+
+      <p class="texto-ayuda">
+        Solo podés reportar mascotas activas
+        de las cuales sos responsable.
+      </p>
+
+      <p *ngIf="cargandoMascotas" role="status">
+        Cargando tus mascotas...
+      </p>
+
+      <div
+        *ngIf="errorMascotas"
+        class="mensaje mensaje-error"
+        role="alert"
+      >
+        <p>{{ errorMascotas }}</p>
+
+        <button
+          type="button"
+          class="boton-secundario"
+          (click)="cargarMascotas()"
+        >
+          Reintentar
+        </button>
+      </div>
+
+      <div
+        *ngIf="!cargandoMascotas &&
+                !errorMascotas &&
+                mascotas.length === 0"
+        class="mensaje mensaje-advertencia"
+      >
+        No tenés mascotas activas disponibles para reportar.
+        Primero debés registrar una mascota.
+      </div>
+
+      <div
+        *ngIf="!cargandoMascotas && mascotas.length > 0"
+        class="campo"
+      >
+        <label for="mascota">Mascota *</label>
+
+        <select
+          id="mascota"
+          name="mascota"
+          [(ngModel)]="mascotaId"
+          [disabled]="publicando"
+          required
+        >
+          <option value="">Seleccioná una mascota</option>
+
+          <option
+            *ngFor="let mascota of mascotas"
+            [value]="mascota.id"
+          >
+            {{ mascota.nombre }} -
+            {{ mascota.especie === 'PERRO' ? 'Perro' :
+               mascota.especie === 'GATO' ? 'Gato' :
+               mascota.especie }}
+          </option>
+
+        </select>
+      </div>
+
+      <div
+        *ngIf="mascotaSeleccionada as mascota"
+        class="mascota-seleccionada"
+      >
+
+        <img
+          *ngIf="mascota.fotoUrl"
+          [src]="mascota.fotoUrl"
+          [alt]="'Fotografía de ' + mascota.nombre"
+          class="foto-mascota"
+        >
+
+        <div>
+          <strong>{{ mascota.nombre }}</strong>
+
+          <p>
+            {{ mascota.especie === 'PERRO' ? 'Perro' :
+               mascota.especie === 'GATO' ? 'Gato' :
+               mascota.especie }}
+          </p>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- Sección 2: Fecha y ubicación -->
+    <section class="tarjeta">
+
+      <h2>2. Fecha y ubicación del extravío</h2>
+
+      <div class="campo">
+
+        <label for="fechaExtravio">
+          Fecha y hora del extravío *
+        </label>
+
+        <input
+          id="fechaExtravio"
+          name="fechaExtravio"
+          type="datetime-local"
+          [(ngModel)]="fechaExtravio"
+          [max]="fechaMaxima"
+          [disabled]="publicando"
+          required
+        >
+
+        <small>
+          Indicá cuándo fue vista tu mascota por última vez.
+        </small>
+
+      </div>
+
+      <div class="campo">
+
+        <label for="busqueda">
+          Buscar una ubicación
+        </label>
+
+        <div class="grupo-busqueda">
+
+          <input
+            id="busqueda"
+            name="busqueda"
+            type="text"
+            [(ngModel)]="busqueda"
+            placeholder="Ejemplo: San Pedro, Montes de Oca"
+            [disabled]="publicando || buscando"
+            (keydown.enter)="$event.preventDefault(); buscarUbicacion()"
+          >
+
+          <button
+            type="button"
+            class="boton-secundario"
+            (click)="buscarUbicacion()"
+            [disabled]="publicando || buscando || !busqueda.trim()"
+          >
+            {{ buscando ? 'Buscando...' : 'Buscar' }}
+          </button>
+
+        </div>
+
+      </div>
+
+      <div
+        *ngIf="mensajeBusqueda"
+        class="mensaje"
+        [ngClass]="'mensaje-' + tipoMensajeBusqueda"
+        role="status"
+      >
+        {{ mensajeBusqueda }}
+      </div>
+
+      <p class="texto-ayuda">
+        Seleccioná en el mapa el último lugar conocido
+        donde estuvo tu mascota.
+      </p>
+
+      <div
+        id="mapa-extravio"
+        class="mapa-extravio"
+        aria-label="Mapa para seleccionar el lugar del extravío"
+      ></div>
+
+      <div
+        *ngIf="latitud !== null && longitud !== null"
+        class="coordenadas"
+        role="status"
+      >
+        <strong>Ubicación seleccionada</strong>
+
+        <span>Latitud: {{ latitud }}</span>
+        <span>Longitud: {{ longitud }}</span>
+      </div>
+
+      <p
+        *ngIf="latitud === null || longitud === null"
+        class="texto-ayuda"
+      >
+        Todavía no has seleccionado una ubicación.
+      </p>
+
+    </section>
+
+    <!-- Sección 3: Descripción -->
+    <section class="tarjeta">
+
+      <h2>3. Descripción del extravío</h2>
+
+      <div class="campo">
+
+        <label for="descripcion">
+          ¿Qué ocurrió? *
+        </label>
+
+        <textarea
+          id="descripcion"
+          name="descripcion"
+          [(ngModel)]="descripcion"
+          rows="5"
+          minlength="10"
+          maxlength="1000"
+          [disabled]="publicando"
+          placeholder="Describí cómo se extravió tu mascota, características particulares o información que pueda ayudar a encontrarla."
+          required
+        ></textarea>
+
+        <div class="detalle-campo">
+
+          <small>
+            Entre 10 y 1000 caracteres.
+            Evitá incluir información personal innecesaria.
+          </small>
+
+          <small class="contador">
+            {{ descripcion.length }}/1000
+          </small>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- Sección 4: Contacto -->
+    <section class="tarjeta">
+
+      <h2>4. Información de contacto</h2>
+
+      <p class="texto-ayuda">
+        Indicá cómo pueden contactarte las personas
+        que tengan información sobre tu mascota.
+      </p>
+
+      <div class="campo">
+
+        <label for="tipoContacto">
+          Medio de contacto *
+        </label>
+
+        <select
+          id="tipoContacto"
+          name="tipoContacto"
+          [(ngModel)]="tipoContacto"
+          (ngModelChange)="contacto = ''; autorizaContacto = false"
+          [disabled]="publicando"
+          required
+        >
+          <option value="CORREO">Correo electrónico</option>
+          <option value="TELEFONO">Teléfono</option>
+        </select>
+
+      </div>
+
+      <div class="campo">
+
+        <label for="contacto">
+          {{ tipoContacto === 'CORREO'
+             ? 'Correo electrónico'
+             : 'Número de teléfono' }} *
+        </label>
+
+        <input
+          id="contacto"
+          name="contacto"
+          [type]="tipoContacto === 'CORREO' ? 'email' : 'tel'"
+          [(ngModel)]="contacto"
+          [placeholder]="tipoContacto === 'CORREO'
+            ? 'correo@ejemplo.com'
+            : '+50688888888'"
+          maxlength="254"
+          [disabled]="publicando"
+          required
+        >
+
+        <small *ngIf="tipoContacto === 'TELEFONO'">
+          Utilizá el formato internacional,
+          incluyendo el código del país.
+        </small>
+
+      </div>
+
+      <div class="aviso-privacidad">
+
+        <strong>Autorización de contacto</strong>
+
+        <p>
+          El medio de contacto indicado podrá ser visible
+          para las personas que consulten el reporte
+          mientras se encuentre activo.
+        </p>
+
+        <label class="campo-consentimiento">
+
+          <input
+            type="checkbox"
+            name="autorizaContacto"
+            [(ngModel)]="autorizaContacto"
+            [disabled]="publicando"
+            required
+          >
+
+          <span>
+            Autorizo expresamente la publicación del medio
+            de contacto indicado para facilitar la búsqueda
+            de mi mascota.
+          </span>
+
+        </label>
+
+      </div>
+
+    </section>
+
+    <!-- Sección 5: Publicación -->
+    <section class="tarjeta acciones-publicacion">
+
+      <div
+        *ngIf="errorPublicacion"
+        class="mensaje mensaje-error"
+        role="alert"
+      >
+        {{ errorPublicacion }}
+      </div>
+
+      <p class="texto-ayuda">
+        Los campos marcados con * son obligatorios.
+        Podrás revisar la información antes de publicarla.
+      </p>
+
+      <button
+        type="submit"
+        class="boton-primario"
+        [disabled]="publicando ||
+                    cargandoMascotas ||
+                    !!errorMascotas ||
+                    mascotas.length === 0"
+      >
+        Revisar y publicar reporte
+      </button>
+
+    </section>
+
+  </form>
+
+  <!-- Modal compartido de confirmación -->
+  <app-confirmacion-modal
+    [abierta]="modalAbierto"
+    titulo="Confirmar publicación del extravío"
+    descripcion="Revisá los datos antes de publicar el reporte de tu mascota."
+    tamano="md"
+    [ocupado]="publicando"
+    (cancelada)="cancelarConfirmacion()"
+  >
+
+    <div class="resumen-confirmacion">
+
+      <p>
+        <strong>Mascota:</strong>
+        {{ mascotaSeleccionada?.nombre }}
+      </p>
+
+      <p>
+        <strong>Fecha del extravío:</strong>
+        {{ fechaExtravio | date:'dd/MM/yyyy HH:mm' }}
+      </p>
+
+      <p>
+        <strong>Ubicación:</strong>
+        {{ latitud }}, {{ longitud }}
+      </p>
+
+      <p>
+        <strong>Descripción:</strong>
+        {{ descripcion }}
+      </p>
+
+      <p>
+        <strong>Medio de contacto:</strong>
+        {{ tipoContacto === 'CORREO'
+           ? 'Correo electrónico'
+           : 'Teléfono' }}
+      </p>
+
+      <p>
+        <strong>Contacto:</strong>
+        {{ contacto }}
+      </p>
+
+      <div class="mensaje mensaje-advertencia">
+        Al confirmar, se registrará el reporte y se autorizará
+        la publicación del contacto indicado.
+      </div>
+
+    </div>
+
+    <button
+      accionesModal
+      type="button"
+      class="boton-primario"
+      [disabled]="publicando"
+      (click)="confirmarPublicacion()"
+    >
+      {{ publicando ? 'Publicando...' : 'Confirmar publicación' }}
+    </button>
+
+  </app-confirmacion-modal>
+
+</main>

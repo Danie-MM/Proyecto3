@@ -1,0 +1,461 @@
+
+@import '../extravios-tokens.css';
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #F5F8FC;
+  color: #233C4B;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Contenedor principal */
+
+.extravios-contenedor {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 20px 48px;
+}
+
+.encabezado {
+  margin-bottom: 28px;
+}
+
+.etiqueta-modulo {
+  display: inline-block;
+  padding: 6px 12px;
+  margin-bottom: 12px;
+  border-radius: 20px;
+  background: #F9DED5;
+  color: #8B3E2F;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.encabezado h1 {
+  margin: 0 0 12px;
+  color: #245B78;
+  font-size: 30px;
+  line-height: 1.3;
+}
+
+.encabezado p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Formulario */
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+form[hidden] {
+  display: none;
+}
+
+/* Tarjetas */
+
+.tarjeta {
+  padding: 24px;
+  background: #FFFFFF;
+  border: 1px solid #CCD8E2;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(35, 60, 75, 0.05);
+}
+
+.tarjeta h2 {
+  margin: 0 0 16px;
+  color: #245B78;
+  font-size: 20px;
+  line-height: 1.4;
+}
+
+.texto-ayuda {
+  margin: 8px 0 16px;
+  color: #526775;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Campos del formulario */
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.campo:last-child {
+  margin-bottom: 0;
+}
+
+.campo label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.campo input,
+.campo select,
+.campo textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid #CCD8E2;
+  border-radius: 8px;
+  background: #FFFFFF;
+  color: #233C4B;
+  font-family: inherit;
+  font-size: 15px;
+  transition: border-color 0.2s,
+              box-shadow 0.2s;
+}
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+  outline: none;
+  border-color: #245B78;
+  box-shadow: 0 0 0 3px rgba(36, 91, 120, 0.12);
+}
+
+.campo textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.campo small {
+  color: #526775;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.campo input:disabled,
+.campo select:disabled,
+.campo textarea:disabled {
+  background: #F5F8FC;
+  cursor: not-allowed;
+}
+
+.detalle-campo {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.contador {
+  white-space: nowrap;
+}
+
+/* Mascota seleccionada */
+
+.mascota-seleccionada {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: #F5F8FC;
+  border: 1px solid #CCD8E2;
+  border-radius: 10px;
+}
+
+.mascota-seleccionada strong {
+  color: #245B78;
+  font-size: 17px;
+}
+
+.mascota-seleccionada p {
+  margin: 4px 0 0;
+  font-size: 14px;
+}
+
+.foto-mascota {
+  width: 72px;
+  height: 72px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+/* Búsqueda de ubicación */
+
+.grupo-busqueda {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.grupo-busqueda input {
+  flex: 1;
+}
+
+.grupo-busqueda button {
+  flex-shrink: 0;
+}
+
+/* Mapa Leaflet */
+
+.mapa-extravio {
+  width: 100%;
+  height: 380px;
+  border: 1px solid #CCD8E2;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #E5E7EB;
+  z-index: 0;
+}
+
+/* Mantiene el comportamiento aplicado en C-01. */
+
+:host ::ng-deep .leaflet-tile {
+  position: absolute;
+}
+
+.coordenadas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+  margin-top: 14px;
+  padding: 12px 16px;
+  background: #E8F4EC;
+  color: #216E45;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.coordenadas strong {
+  width: 100%;
+}
+
+/* Privacidad y consentimiento */
+
+.aviso-privacidad {
+  padding: 18px;
+  background: #F5F8FC;
+  border: 1px solid #CCD8E2;
+  border-radius: 10px;
+}
+
+.aviso-privacidad strong {
+  color: #245B78;
+}
+
+.aviso-privacidad p {
+  margin: 10px 0 16px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.campo-consentimiento {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.campo-consentimiento input {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin: 3px 0 0;
+  accent-color: #245B78;
+  cursor: pointer;
+}
+
+/* Mensajes */
+
+.mensaje {
+  padding: 14px 16px;
+  margin: 12px 0;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.mensaje p {
+  margin: 0 0 12px;
+}
+
+.mensaje-info {
+  background: #F5F8FC;
+  color: #245B78;
+  border: 1px solid #CCD8E2;
+}
+
+.mensaje-advertencia {
+  background: #FFF4D6;
+  color: #825600;
+}
+
+.mensaje-error {
+  background: #FDECE9;
+  color: #B42318;
+}
+
+/* Botones */
+
+.boton-primario,
+.boton-secundario {
+  padding: 12px 20px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.boton-primario {
+  background: #245B78;
+  color: #FFFFFF;
+}
+
+.boton-primario:hover:not(:disabled) {
+  background: #19445C;
+}
+
+.boton-secundario {
+  background: #F9DED5;
+  color: #8B3E2F;
+}
+
+.boton-secundario:hover:not(:disabled) {
+  background: #F3C9BC;
+}
+
+.boton-primario:focus-visible,
+.boton-secundario:focus-visible {
+  outline: 3px solid #E29782;
+  outline-offset: 3px;
+}
+
+.boton-primario:disabled,
+.boton-secundario:disabled {
+  background: #E5E7EB;
+  color: #5B616B;
+  cursor: not-allowed;
+}
+
+.acciones-publicacion {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Confirmación de publicación */
+
+.resumen-confirmacion {
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.resumen-confirmacion p {
+  margin: 0 0 12px;
+  white-space: pre-wrap;
+}
+
+.resumen-confirmacion strong {
+  color: #245B78;
+}
+
+/* Resultado de la publicación */
+
+.resultado-publicacion {
+  border-color: #216E45;
+  background: #E8F4EC;
+}
+
+.resultado-publicacion h2 {
+  color: #216E45;
+}
+
+.resultado-publicacion p {
+  line-height: 1.6;
+}
+
+.resumen-reporte {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 20px 0;
+  padding: 18px;
+  border: 1px solid #CCD8E2;
+  border-radius: 10px;
+  background: #FFFFFF;
+  font-size: 14px;
+}
+
+.identificador {
+  overflow-wrap: anywhere;
+}
+
+/* Diseño responsive */
+
+@media (max-width: 600px) {
+
+  .extravios-contenedor {
+    padding: 20px 12px 32px;
+  }
+
+  .encabezado h1 {
+    font-size: 24px;
+  }
+
+  .tarjeta {
+    padding: 18px;
+  }
+
+  .tarjeta h2 {
+    font-size: 18px;
+  }
+
+  .grupo-busqueda {
+    flex-direction: column;
+  }
+
+  .mapa-extravio {
+    height: 300px;
+  }
+
+  .detalle-campo {
+    gap: 8px;
+  }
+
+  .acciones-publicacion .boton-primario,
+  .resultado-publicacion .boton-primario {
+    width: 100%;
+  }
+
+  .coordenadas {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}
+
+
+/* Resultado cuando la mascota ya tiene un reporte activo. */
+.resultado-publicacion.reporte-existente {
+  background-color: #FFF4D6;
+  border-color: #825600;
+}
+
+.resultado-publicacion.reporte-existente h2 {
+  color: #825600;
+}
+
+.resultado-publicacion.reporte-existente p {
+  color: #825600;
+}

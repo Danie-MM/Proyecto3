@@ -62,6 +62,14 @@ export const routes: Routes = [
       .then(modulo => modulo.PreferenciasUbicacionComponent)
   },
   {
+    path: 'publicar-extravio',
+    title: 'Publicar extravío | PetMatchCR',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/extravios/publicar-extravio/publicar-extravio.component')
+        .then(modulo => modulo.PublicarExtravioComponent)
+  },
+  {
     path: '',
     pathMatch: 'full',
     redirectTo: 'login'

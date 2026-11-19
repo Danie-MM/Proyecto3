@@ -12,6 +12,7 @@ import { AuthService } from './features/acceso/auth/services/auth.service';
         <a routerLink="/mascotas" routerLinkActive="actual">Mis mascotas</a>
         <a routerLink="/catalogo" routerLinkActive="actual">Catálogo</a>
         <a routerLink="/mi-ubicacion" routerLinkActive="actual">Mi ubicación</a>
+        <a routerLink="/publicar-extravio" routerLinkActive="actual">Publicar extravío</a>
         <a routerLink="/comprobar-entorno" routerLinkActive="actual">Comprobar entorno</a>
 
       </nav>
