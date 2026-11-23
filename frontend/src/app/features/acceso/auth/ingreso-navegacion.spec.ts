@@ -1,9 +1,13 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { Subject, of, throwError } from 'rxjs';
+import { routes } from '../../../app.routes';
+import { CatalogoComponent } from '../../adopciones/catalogo/catalogo/catalogo.component';
 import { Login } from './login/login';
 import { Registro } from './registro/registro';
 import { AuthService } from './services/auth.service';
@@ -11,6 +15,18 @@ import { GoogleAuthService } from './services/google-auth.service';
 
 @Component({ standalone: true, template: '' })
 class DestinoDePrueba {}
+
+it('muestra el catálogo público a un visitante sin consultar la sesión demo', async () => {
+  TestBed.configureTestingModule({
+    providers: [provideRouter(routes), provideHttpClient(), provideHttpClientTesting()],
+  });
+  const harness = await RouterTestingHarness.create();
+  await harness.navigateByUrl('/catalogo', CatalogoComponent);
+  const http = TestBed.inject(HttpTestingController);
+  http.expectOne(req => req.url === '/api/v1/catalogo/mascotas')
+    .flush({ elementos: [], limite: 20, pagina: 0, totalElementos: 0 });
+  http.verify();
+});
 
 describe('Navegación entre ingreso, registro y módulo solicitado', () => {
   const sesion = { token: 'prueba', usuario: {

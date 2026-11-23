@@ -26,8 +26,7 @@ export const routes: Routes = [
   },
   {
     path: 'catalogo',
-    component: CatalogoComponent,
-    canActivate: [entradaModulosGuard]
+    component: CatalogoComponent
   },
   {
     path: 'mascotas',
