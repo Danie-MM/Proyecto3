@@ -23,10 +23,12 @@ La nueva migración de B es `V16__catalogo_mascotas_publicas.sql`. Las ramas pen
 - En la aplicación activa, `/actuator/health` devolvió `UP`, la página de ingreso devolvió 200, el catálogo por el proxy frontend devolvió 200 y la ubicación con sesión demo devolvió 200.
 - Se publicaron únicamente Nube y Coco de la demostración local para mostrar dos resultados con fotos en el catálogo. La consulta pública devuelve esos dos perfiles.
 
-## Cuenta y comprobación en Chrome
+## Comprobación en Chrome
 
-Se comprobó que la cuenta indicada por Natanael existe y está activa en ambos esquemas locales consultados. La sesión Google muestra las mascotas asociadas a esa cuenta. Las identidades y datos ficticios conservan su propia asignación.
+El servidor confirmó el ingreso con Google de una cuenta de prueba activa y la consulta de las mascotas asociadas. Las identidades ficticias conservan su propia asignación.
 
-La comprobación final en el Chrome del usuario quedó pendiente. El controlador de ventanas no pudo arrancar y el adaptador nativo devolvió `failed to launch codex app-server: program not found`. El backend se actualizó desde el ejecutor local con el JAR verificado y la misma configuración de demo. El identificador del proceso activo se registra fuera del repositorio en `work/backend-login-activo.pid`. El ingreso Google requiere la interacción del titular de la cuenta.
+La comprobación visual final de navegación en el Chrome del usuario quedó pendiente. El controlador de ventanas no pudo arrancar y el adaptador nativo devolvió `failed to launch codex app-server: program not found`. El backend se actualizó desde el ejecutor local con el JAR verificado y la misma configuración de demo. El identificador del proceso activo se registra fuera del repositorio en `work/backend-login-activo.pid`. El ingreso real confirmado por el servidor no demuestra por sí solo la navegación visual en Chrome.
+
+La revisión final comprobó que el backend seguía en estado `UP`, las cinco rutas de entrada de Angular respondían 200 y el catálogo público por el proxy seguía devolviendo los dos perfiles de demostración. La revisión del código de identidad, guards, interceptor y catálogo no encontró nuevos defectos críticos.
 
 La ruta de ingreso es `http://localhost:4200/login`. Tras Google se debe conservar el menú y permitir cambiar entre los cuatro módulos. Una vuelta solicitada desde otra pantalla conserva su ruta, filtros y fragmento.
