@@ -22,7 +22,11 @@ jobs:
       - name: Construir y encender la base
         run: docker compose up --build -d --wait --wait-timeout 240
       - name: Verificar backend con Maven
-        run: docker compose exec -T backend ./mvnw -B -ntp verify
+        run: |
+          docker compose exec -T \
+            -e SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE=4 \
+            -e SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE=0 \
+            backend sh -c 'unset SPRING_PROFILES_ACTIVE; exec ./mvnw -B -ntp verify'
       - name: Probar frontend
         run: docker compose exec -T frontend npm run test:ci
       - name: Verificar alta y consulta a través de Angular
