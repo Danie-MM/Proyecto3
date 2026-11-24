@@ -44,6 +44,14 @@ export class PreferenciasUbicacionComponent
   mensajeBusqueda = '';
   tipoMensajeBusqueda: 'info' | 'advertencia' | 'error' = 'info';
 
+  // Geolocalización automática
+  localizando = false;
+  mensajeGeolocalizacion = '';
+
+  tipoMensajeGeolocalizacion:'info' | 'exito' | 'advertencia' | 'error' = 'info';
+
+  private componenteDestruido = false;
+
   cargando = true;
   guardando = false;
   existePreferencia = false;
@@ -67,12 +75,22 @@ export class PreferenciasUbicacionComponent
       }
     ).addTo(this.mapa);
 
+
     this.mapa.on('click', (evento: L.LeafletMouseEvent) => {
+
+      if (this.localizando || this.cargando || this.guardando) {
+        return;
+      }
+
+      this.mensajeGeolocalizacion = '';
+
       this.seleccionarUbicacion(
         evento.latlng.lat,
         evento.latlng.lng
       );
     });
+
+
 
     setTimeout(() => {
       this.mapa?.invalidateSize();
@@ -113,8 +131,11 @@ export class PreferenciasUbicacionComponent
     this.errorGuardado = '';
   }
 
+
   omitirUbicacion(): void {
-    if (this.guardando || this.cargando) return;
+    if (this.guardando || this.cargando || this.localizando) return;
+    this.mensajeGeolocalizacion = '';
+
     this.latitud = null;
     this.longitud = null;
     this.referencia = '';
@@ -126,7 +147,8 @@ export class PreferenciasUbicacionComponent
   }
 
   cargarPreferencias(): void {
-    if (this.guardando) return;
+    if (this.guardando || this.localizando) return;
+    this.mensajeGeolocalizacion = '';
     this.cargando = true;
 
     this.preferenciasService.consultar().subscribe({
@@ -180,11 +202,18 @@ export class PreferenciasUbicacionComponent
 
     const lugar = this.busqueda.trim();
 
-    if (!lugar || this.buscando) {
+    if (
+      !lugar ||
+      this.buscando ||
+      this.localizando ||
+      this.cargando ||
+      this.guardando
+    ) {
       return;
     }
 
     this.buscando = true;
+    this.mensajeGeolocalizacion = '';
     this.mensajeBusqueda = '';
     this.tipoMensajeBusqueda = 'info';
 
@@ -239,11 +268,107 @@ export class PreferenciasUbicacionComponent
     });
   }
 
+
+  /** Obtiene la ubicación actual con autorización del usuario. */
+  usarUbicacionActual(): void {
+
+    if (
+      this.localizando ||
+      this.buscando ||
+      this.cargando ||
+      this.guardando
+    ) {
+      return;
+    }
+
+    this.mensajeGeolocalizacion = '';
+    this.tipoMensajeGeolocalizacion = 'info';
+
+    if (!navigator.geolocation) {
+      this.tipoMensajeGeolocalizacion = 'advertencia';
+      this.mensajeGeolocalizacion =
+        'Tu navegador no permite obtener la ubicación. Podés seleccionarla manualmente.';
+      return;
+    }
+
+    this.localizando = true;
+    this.mensajeBusqueda = '';
+
+    this.mensajeGeolocalizacion =
+      'Obteniendo tu ubicación actual...';
+
+    navigator.geolocation.getCurrentPosition(
+
+      (posicion) => {
+
+        if (this.componenteDestruido) return;
+
+        this.localizando = false;
+
+        const latitud = posicion.coords.latitude;
+        const longitud = posicion.coords.longitude;
+
+        this.seleccionarUbicacion(latitud, longitud);
+
+        this.mapa?.setView(
+          [latitud, longitud],
+          16
+        );
+
+        this.tipoMensajeGeolocalizacion = 'exito';
+
+        this.mensajeGeolocalizacion =
+          '¡Ubicación actual obtenida correctamente! Revisá el punto antes de guardar.';
+      },
+
+      (error) => {
+
+        if (this.componenteDestruido) return;
+
+        this.localizando = false;
+        this.tipoMensajeGeolocalizacion = 'advertencia';
+
+        switch (error.code) {
+
+          case 1:
+            this.mensajeGeolocalizacion =
+              'No autorizaste el acceso a tu ubicación. Podés seleccionarla manualmente.';
+            break;
+
+          case 2:
+            this.mensajeGeolocalizacion =
+              'No pudimos determinar tu ubicación actual. Intentá nuevamente o seleccioná un punto en el mapa.';
+            break;
+
+          case 3:
+            this.mensajeGeolocalizacion =
+              'Se agotó el tiempo de espera. Intentá nuevamente.';
+            break;
+
+          default:
+            this.mensajeGeolocalizacion =
+              'No se pudo obtener tu ubicación actual.';
+        }
+      },
+
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0
+      }
+    );
+  }
+
+
+
   guardarUbicacion(): void {
 
     if (
       this.guardando ||
-      this.cargando || this.conflictoVersion || this.errorCarga
+      this.cargando ||
+      this.localizando ||
+      this.conflictoVersion ||
+      this.errorCarga
     ) {
       return;
     }
@@ -306,11 +431,17 @@ export class PreferenciasUbicacionComponent
 
 eliminarUbicacion(): void {
 
-  if (!this.existePreferencia || this.version === null || this.guardando || this.cargando ||
-      this.conflictoVersion || this.errorCarga) {
+  if (
+    !this.existePreferencia ||
+    this.version === null ||
+    this.guardando ||
+    this.cargando ||
+    this.localizando ||
+    this.conflictoVersion ||
+    this.errorCarga
+  ) {
     return;
   }
-
   const confirmar = window.confirm(
     '¿Estás seguro de que querés eliminar tu ubicación y tus preferencias de avisos?'
   );
@@ -335,6 +466,7 @@ eliminarUbicacion(): void {
       this.longitud = null;
       this.referencia = '';
       this.aceptaAvisos = false;
+      this.mensajeGeolocalizacion = '';
 
       this.marcador?.remove();
       this.marcador = undefined;
@@ -358,6 +490,11 @@ eliminarUbicacion(): void {
 
 
   ngOnDestroy(): void {
+
+    this.componenteDestruido = true;
+
     this.mapa?.remove();
+    this.mapa = undefined;
+    this.marcador = undefined;
   }
 }

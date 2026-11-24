@@ -381,3 +381,73 @@ input[type="checkbox"]:focus-visible {
   color: var(--c-error-text);
   border-color: transparent;
 }
+
+
+/* Botón de geolocalización automática */
+.boton-geolocalizacion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 12px 16px;
+  background: var(--c-secondary);
+  color: var(--c-secondary-text);
+  border: none;
+  border-radius: 12px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  box-sizing: border-box;
+}
+
+.boton-geolocalizacion svg {
+  flex-shrink: 0;
+}
+
+.boton-geolocalizacion:hover:not(:disabled) {
+  filter: brightness(0.95);
+}
+
+.boton-geolocalizacion:disabled {
+  background: var(--c-disabled-bg);
+  color: var(--c-disabled-text);
+  opacity: 1;
+  cursor: not-allowed;
+}
+
+/* Mensajes de geolocalización */
+.mensaje-geolocalizacion {
+  margin: 0 0 14px;
+  padding: 10px 14px;
+  background: var(--c-background);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  color: var(--c-primary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Geolocalización exitosa */
+.mensaje-geolocalizacion.geolocalizacion-exito {
+  background: var(--c-success-bg);
+  color: var(--c-success-text);
+  border-color: transparent;
+}
+
+/* Advertencias de geolocalización */
+.mensaje-geolocalizacion.geolocalizacion-advertencia {
+  background: var(--c-warning-bg);
+  color: var(--c-warning-text);
+  border-color: transparent;
+}
+
+/* Errores de geolocalización */
+.mensaje-geolocalizacion.geolocalizacion-error {
+  background: var(--c-error-bg);
+  color: var(--c-error-text);
+  border-color: transparent;
+}

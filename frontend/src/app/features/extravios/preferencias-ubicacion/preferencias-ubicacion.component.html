@@ -25,8 +25,8 @@
       <div>
         <h1>Seleccioná tu ubicación</h1>
         <p>
-          Buscá tu comunidad o seleccioná directamente
-          un punto en el mapa.
+          Usá tu ubicación actual, buscá tu comunidad o
+          seleccioná directamente un punto en el mapa.
         </p>
       </div>
     </header>
@@ -45,12 +45,52 @@
 
       <button
         type="submit"
-        [disabled]="buscando || !busqueda.trim()"
+        [disabled]="buscando || localizando || cargando || guardando || !busqueda.trim()"
       >
         {{ buscando ? 'Buscando...' : 'Buscar' }}
       </button>
 
     </form>
+
+    <!-- Geolocalización automática -->
+    <button
+      type="button"
+      class="boton-geolocalizacion"
+      (click)="usarUbicacionActual()"
+      [disabled]="localizando || buscando || cargando || guardando"
+    >
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="12" r="7"/>
+        <circle cx="12" cy="12" r="2"/>
+        <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+      </svg>
+
+      {{ localizando ? 'Obteniendo ubicación...' : 'Usar mi ubicación actual' }}
+
+    </button>
+
+    <!-- Mensaje de geolocalización -->
+    @if (mensajeGeolocalizacion) {
+      <p
+        class="mensaje-geolocalizacion"
+        [class.geolocalizacion-exito]="tipoMensajeGeolocalizacion === 'exito'"
+        [class.geolocalizacion-advertencia]="tipoMensajeGeolocalizacion === 'advertencia'"
+        [class.geolocalizacion-error]="tipoMensajeGeolocalizacion === 'error'"
+        role="status"
+      >
+        {{ mensajeGeolocalizacion }}
+      </p>
+    }
 
     <!-- Mensaje de búsqueda -->
     @if (mensajeBusqueda) {
@@ -63,6 +103,7 @@
         {{ mensajeBusqueda }}
       </p>
     }
+
     <!-- Mapa -->
     <div class="contenedor-mapa">
       <div
@@ -101,6 +142,12 @@
             Cargando tus preferencias...
           </p>
 
+        } @else if (localizando) {
+
+          <p class="ayuda">
+            Obteniendo tu ubicación actual...
+          </p>
+
         } @else if (latitud !== null && longitud !== null) {
 
           <p class="confirmacion">
@@ -129,7 +176,7 @@
       type="button"
       class="boton-omitir"
       (click)="omitirUbicacion()"
-      [disabled]="cargando || guardando"
+      [disabled]="cargando || guardando || localizando"
     >
       Continuar sin ubicación
     </button>
@@ -214,7 +261,7 @@
         type="button"
         class="boton-omitir"
         (click)="cargarPreferencias()"
-        [disabled]="cargando || guardando"
+        [disabled]="cargando || guardando || localizando"
       >
         Recargar datos guardados
       </button>
@@ -226,7 +273,7 @@
       class="boton-guardar"
       type="button"
       (click)="guardarUbicacion()"
-      [disabled]="cargando || guardando || conflictoVersion || errorCarga"
+      [disabled]="cargando || guardando || localizando || conflictoVersion || errorCarga"
     >
       {{ guardando ? 'Guardando...' : 'Guardar ubicación' }}
     </button>
@@ -237,7 +284,7 @@
         class="boton-eliminar"
         type="button"
         (click)="eliminarUbicacion()"
-        [disabled]="cargando || guardando || conflictoVersion || errorCarga"
+        [disabled]="cargando || guardando || localizando || conflictoVersion || errorCarga"
       >
         Eliminar ubicación
       </button>
