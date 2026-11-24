@@ -60,13 +60,20 @@ public class MascotaRepository {
 
     // Una mascota ajena y una inexistente producen el mismo Optional vacío.
     public Optional<Mascota> consultar(UUID id, UUID actorId, Set<UUID> organizaciones) {
-        return jdbc.query("SELECT * FROM ret_id_mascota_autorizada_pr(?, ?, ?)", this::mapear,
+        return jdbc.query("""
+                SELECT m.*, EXISTS (SELECT 1 FROM archivo_mascota a WHERE a.mascota_id=m.id AND a.activa) AS tiene_foto
+                FROM ret_id_mascota_autorizada_pr(?, ?, ?) m
+                """, this::mapear,
                 id, actorId, arreglo(organizaciones)).stream().findFirst();
     }
 
     public List<Mascota> listar(UUID actorId, Set<UUID> organizaciones, UUID organizacionId,
                                Boolean activas, int pagina, int limite) {
-        return jdbc.query("SELECT * FROM ret_all_mascota_pr(?, ?, ?, ?, ?, ?)", this::mapear,
+        return jdbc.query("""
+                SELECT m.*, EXISTS (SELECT 1 FROM archivo_mascota a WHERE a.mascota_id=m.id AND a.activa) AS tiene_foto
+                FROM ret_all_mascota_pr(?, ?, ?, ?, ?, ?) m
+                ORDER BY m.creado_en DESC, m.id
+                """, this::mapear,
                 actorId, arreglo(organizaciones), organizacionId, activas, pagina, limite);
     }
 
@@ -118,6 +125,6 @@ public class MascotaRepository {
                 fila.getInt("version"), fila.getString("nombre"), especie, fila.getInt("edad_estimada_meses"),
                 fila.getString("tamano"), fila.getString("energia"),
                 fila.getObject("responsable_usuario_id", UUID.class), fila.getObject("organizacion_id", UUID.class),
-                fila.getString("disponibilidad"), fila.getBoolean("activa"), etiquetas);
+                fila.getString("disponibilidad"), fila.getBoolean("activa"), etiquetas, fila.getBoolean("tiene_foto"));
     }
 }

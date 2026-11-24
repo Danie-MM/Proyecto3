@@ -3,12 +3,14 @@ package cr.petmatchcr.acceso;
 import cr.petmatchcr.acceso.entities.Usuario;
 import cr.petmatchcr.acceso.repositories.UsuarioRepository;
 import cr.petmatchcr.acceso.services.IdentidadActualAutenticada;
+import cr.petmatchcr.mascotas.demo.ActoresDemoB01;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -59,8 +61,30 @@ class IdentidadActualAutenticadaTest {
         verifyNoInteractions(usuarios);
     }
 
-    private void autenticar(String nombre) {
+    @Test
+    void enDemoElPrincipalDeASeResuelveContraLaCuentaActivaYNoComoActorFicticio() {
+        var demo = new ActoresDemoB01(identidad);
+        var cuenta = new Usuario();
+        cuenta.setEmail("propietaria@example.test");
+        when(usuarios.findByEmailAndActivoTrue(cuenta.getEmail())).thenReturn(Optional.of(cuenta), Optional.empty());
+        autenticar(User.withUsername(cuenta.getEmail()).password("prueba").roles("ADOPTANTE").build());
+        assertThat(demo.usuarioActual()).contains(cuenta.getIdPublico());
+        assertThat(demo.usuarioActual()).isEmpty();
+
+        String actor = "33333333-3333-4333-8333-333333333333";
+        autenticar(User.withUsername(actor).password("prueba").roles("ADOPTANTE").build());
+        assertThat(demo.usuarioActual()).isEmpty();
+        autenticar(actor);
+        assertThat(demo.usuarioActual()).contains(UUID.fromString(actor));
+        autenticar(cuenta.getEmail());
+        assertThat(demo.usuarioActual()).isEmpty();
+        verify(usuarios, times(2)).findByEmailAndActivoTrue(cuenta.getEmail());
+        verify(usuarios).findByEmailAndActivoTrue(actor);
+        verifyNoMoreInteractions(usuarios);
+    }
+
+    private void autenticar(Object principal) {
         SecurityContextHolder.getContext().setAuthentication(
-                UsernamePasswordAuthenticationToken.authenticated(nombre, null, List.of()));
+                UsernamePasswordAuthenticationToken.authenticated(principal, null, List.of()));
     }
 }

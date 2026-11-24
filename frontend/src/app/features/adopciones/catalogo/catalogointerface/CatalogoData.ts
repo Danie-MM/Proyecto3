@@ -1,19 +1,14 @@
 export interface MascotaData {
-    // el contrato de mascotas
     id: string;
     nombre: string;
     edadEstimadaMeses: number;
     especie: string;
-    creadoEn: string;
-    version: number;
     tamano: string;
     energia: string;
-    responsableUsuarioId: string;
-    organizacionId: string;
-    disponibilidad: string;
-    activa: boolean;
-    comportamientos: string;
-    foto: string;
+    disponibilidad: 'DISPONIBLE';
+    organizacion: { id: string; nombre: string };
+    comportamientos: { id: string; nombre: string }[];
+    fotoUrl: string | null;
 }
 
 export interface PaginaMascotasData {

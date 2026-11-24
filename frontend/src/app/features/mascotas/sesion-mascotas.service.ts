@@ -21,24 +21,22 @@ export class SesionMascotasService {
   readonly contexto = new BehaviorSubject<ContextoMascotas | null>(null);
   readonly cambios = new Subject<'invalidada' | 'lista' | 'error'>();
   actualizando = false;
+  demoDeEntrada: SesionDemo | null = null;
   private lecturasIniciales = new Subscription();
   preparar() {
     // Al volver desde otro módulo puede haber cambiado la cuenta: no reutilizar ámbitos anteriores.
     this.lecturasIniciales.unsubscribe();
     this.lecturasIniciales = new Subscription();
     this.contexto.next(null);
-    this.estado.next(null);
+    const demo = this.demoDeEntrada;
+    this.demoDeEntrada = null;
+    this.estado.next(demo);
+    if (demo && !demo.actorActualId) return;
     this.lecturasIniciales.add(
       this.api
         .contexto()
         .pipe(catchError(() => of(null)))
         .subscribe((contexto) => this.contexto.next(contexto)),
-    );
-    this.lecturasIniciales.add(
-      this.api
-        .demo()
-        .pipe(catchError(() => of(null)))
-        .subscribe((demo) => this.estado.next(demo)),
     );
   }
   seleccionar(actorId: string) {

@@ -60,6 +60,7 @@
       Volver a consultar
     </button>
   </section>
+  <app-publicacion-mascota [mascota]="m" (actualizada)="mascota = $event" (recargar)="cargar()" />
   <section *ngIf="m.activa" class="tarjeta card-basic baja">
     <h2>Desactivar el perfil</h2>
     <p>

@@ -11,6 +11,12 @@ import java.util.UUID;
 public interface AmbitosMascotas {
     Set<UUID> organizacionesAdministrables(UUID usuarioId);
 
+    /** Nombre de una organización actualmente activa según A, también para lecturas anónimas.
+     * Sin padrón integrado, ninguna organización se considera publicable. */
+    default java.util.Optional<String> nombreOrganizacionActiva(UUID organizacionId) {
+        return java.util.Optional.empty();
+    }
+
     /** A puede aportar el nombre visible. La autorización siempre usa organizacionesAdministrables. */
     default String nombreOrganizacion(UUID organizacionId) { return "Organización " + organizacionId; }
 }

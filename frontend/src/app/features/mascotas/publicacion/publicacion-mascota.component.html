@@ -1,0 +1,43 @@
+<section class="tarjeta card-basic" aria-labelledby="publicacion-titulo">
+  <h2 id="publicacion-titulo">Publicación y fotografía</h2>
+  <p *ngIf="!mascota.organizacionId && mascota.activa" class="aviso">
+    Para publicar, la mascota debe estar a cargo de una organización activa.
+  </p>
+  <div class="acciones" *ngIf="mascota.activa && mascota.disponibilidad !== 'ADOPTADA'">
+    <button type="button" *ngIf="mascota.disponibilidad === 'DISPONIBLE'; else publicar"
+      class="btn-secondary" [disabled]="ocupado || conflicto" (click)="disponibilidad('NO_DISPONIBLE')">
+      Ocultar del catálogo
+    </button>
+    <ng-template #publicar>
+      <button type="button" class="btn-primary" [disabled]="ocupado || conflicto || !mascota.organizacionId"
+        (click)="disponibilidad('DISPONIBLE')">Publicar mascota</button>
+    </ng-template>
+  </div>
+
+  <h3>Fotografía de {{ mascota.nombre }}</h3>
+  <p *ngIf="cargandoFoto" role="status">Cargando fotografía.</p>
+  <img *ngIf="vistaFoto" class="foto-mascota" [src]="vistaFoto" [alt]="'Fotografía de ' + mascota.nombre">
+  <p *ngIf="!mascota.fotoUrl">Sin fotografía.</p>
+  <div *ngIf="errorFoto" class="error" role="alert">
+    {{ errorFoto }}
+    <button class="btn-link" type="button" (click)="leerFoto()">Volver a cargar foto</button>
+  </div>
+  <div *ngIf="mascota.activa">
+    <label for="foto-mascota">Elegir fotografía</label>
+    <input #campo id="foto-mascota" type="file" accept="image/jpeg,image/png"
+      aria-describedby="foto-formatos" [disabled]="ocupado || conflicto" (change)="elegir(campo)">
+    <small id="foto-formatos">JPEG o PNG de hasta 5 MB.</small>
+    <div class="acciones">
+      <button type="button" class="btn-primary" [disabled]="!archivo || ocupado || conflicto"
+        (click)="subir(campo)">{{ mascota.fotoUrl ? 'Reemplazar fotografía' : 'Guardar fotografía' }}</button>
+      <button type="button" *ngIf="mascota.fotoUrl" class="btn-secondary"
+        [disabled]="ocupado || conflicto" (click)="retirar(campo)">Retirar fotografía</button>
+    </div>
+  </div>
+  <p *ngIf="ocupado" class="aviso" role="status">Guardando cambios.</p>
+  <p *ngIf="aviso" class="exito" role="status">{{ aviso }}</p>
+  <div *ngIf="error" class="error" role="alert">
+    {{ error }}
+    <button *ngIf="conflicto" type="button" class="btn-link" (click)="recargar.emit()">Recargar perfil</button>
+  </div>
+</section>

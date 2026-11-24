@@ -1,48 +1,48 @@
-import { HttpClient } from '@angular/common/http'
-import { inject, Injectable } from '@angular/core'
-import { MascotaData, PaginaMascotasData, FiltrosCatalogoData } from '../catalogointerface/CatalogoData';
-import { map, Observable, tap, firstValueFrom } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { firstValueFrom, map, Observable, of, tap } from 'rxjs';
+import { FiltrosCatalogoData, MascotaData, PaginaMascotasData } from '../catalogointerface/CatalogoData';
 
-@Injectable ({
-    providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class CatalogoService {
-
-    private http = inject(HttpClient);
-
-    readonly url = "/api/v1/mascotas"
-
+    private readonly http = inject(HttpClient);
+    readonly url = '/api/v1/catalogo/mascotas';
     totalElementos = 0;
     limite = 20;
 
-    async getAllMascotas(): Promise<MascotaData[]> {
-    const mascotas: MascotaData[] = [];
-    let pagina = 0;
-    let totalPaginas = 1;
-
-    while (pagina < totalPaginas) {
-        const respuesta = await firstValueFrom(
-            this.http.get<PaginaMascotasData>(this.url, {
-                params: { pagina, limite: 100 }
-            })
-        );
-
-        mascotas.push(...respuesta.elementos);
-
-        totalPaginas = Math.ceil(
-            respuesta.totalElementos / respuesta.limite
-        );
-
-        pagina++;
+    consultarPagina(filtros: FiltrosCatalogoData, pagina = 0, limite = 20): Observable<PaginaMascotasData> {
+        const params: Record<string, string | number> = { pagina, limite };
+        const nombre = filtros.nombre?.trim();
+        if (nombre) params['nombre'] = nombre;
+        if (filtros.especie) params['especie'] = filtros.especie;
+        if (filtros.edadEstimadaMeses !== undefined) {
+            params['edadMinimaMeses'] = filtros.edadEstimadaMeses;
+            params['edadMaximaMeses'] = filtros.edadEstimadaMeses;
+        }
+        if (filtros.tamano) params['tamanos'] = filtros.tamano;
+        if (filtros.energia) params['energias'] = filtros.energia;
+        return this.http.get<PaginaMascotasData>(this.url, { params });
     }
 
-    return mascotas;
-}
+    async getAllMascotas(): Promise<MascotaData[]> {
+        const mascotas: MascotaData[] = [];
+        let pagina = 0;
+        let totalPaginas: number;
+        do {
+            const respuesta = await firstValueFrom(this.consultarPagina({}, pagina, 100));
+            mascotas.push(...respuesta.elementos);
+            totalPaginas = Math.ceil(respuesta.totalElementos / respuesta.limite);
+            pagina++;
+        } while (pagina < totalPaginas);
+        return mascotas;
+    }
 
-    getMascotas(pagina: number = 0, nombre: string = ''): Observable<MascotaData[]> {
-        return this.http.get<PaginaMascotasData>(this.url, {
-            params: { pagina, limite: 20, nombre: nombre.trim()}
-        }).pipe(
+    getMascotas(pagina = 0, nombre = ''): Observable<MascotaData[]> {
+        return this.getMascotasByFilter({ nombre }, pagina);
+    }
+
+    getMascotasByFilter(filtros: FiltrosCatalogoData, pagina = 0): Observable<MascotaData[]> {
+        return this.consultarPagina(filtros, pagina).pipe(
             tap(respuesta => {
                 this.totalElementos = respuesta.totalElementos;
                 this.limite = respuesta.limite;
@@ -51,72 +51,23 @@ export class CatalogoService {
         );
     }
 
-    getMascotasByFilter(
-        filtros: FiltrosCatalogoData,
-        pagina: number = 0
-    ): Observable<MascotaData[]> {
-        return this.getAllMascotasDisponibles('DISPONIBLE', pagina, filtros.nombre).pipe(
-            map(mascotas => {
-                let resultado = mascotas;
-
-                if(filtros.especie) {
-                    resultado = resultado.filter(
-                        mascota => mascota.especie === filtros.especie
-                    );
-                }
-
-                if(filtros.edadEstimadaMeses !== undefined) {
-                    resultado = resultado.filter(
-                        mascota => mascota.edadEstimadaMeses === filtros.edadEstimadaMeses
-                    );
-                }
-
-                if(filtros.tamano) {
-                    resultado = resultado.filter(
-                        mascota => mascota.tamano === filtros.tamano
-                    );
-                }
-
-                if(filtros.energia) {
-                    resultado = resultado.filter(
-                        mascota => mascota.energia === filtros.energia
-                    );
-                }
-
-                return resultado;
-
-            })          
-        );
-    }
-
-    getAllMascotasDisponibles(disponible: string, pagina: number = 0, nombre: string = ''): Observable<MascotaData[]> {
-        return this.getMascotas(pagina, nombre).pipe(
-            map(mascotas => mascotas.filter(mascota => mascota.disponibilidad === disponible))
-        )
+    getAllMascotasDisponibles(disponible: string, pagina = 0, nombre = ''): Observable<MascotaData[]> {
+        return disponible === 'DISPONIBLE' ? this.getMascotas(pagina, nombre) : of([]);
     }
 
     getMascotasByEdad(edadEstimadaMeses: number): Observable<MascotaData[]> {
-        return this.getMascotas().pipe(
-            map(mascotas => mascotas.filter(mascota => mascota.edadEstimadaMeses === edadEstimadaMeses))
-        )
+        return this.getMascotasByFilter({ edadEstimadaMeses });
     }
 
     getMascotasByEspecie(especie: string): Observable<MascotaData[]> {
-        return this.getMascotas().pipe(
-            map(mascotas => mascotas.filter(mascota => mascota.especie ===  especie))
-        )
+        return this.getMascotasByFilter({ especie });
     }
 
     getMascotasByTamano(tamano: string): Observable<MascotaData[]> {
-        return this.getMascotas().pipe(
-            map(mascotas => mascotas.filter(mascota => mascota.tamano ===  tamano))
-        )
+        return this.getMascotasByFilter({ tamano });
     }
 
     getMascotasByEnergia(energia: string): Observable<MascotaData[]> {
-        return this.getMascotas().pipe(
-            map(mascotas => mascotas.filter(mascota => mascota.energia ===  energia))
-        )
+        return this.getMascotasByFilter({ energia });
     }
-
 }

@@ -20,6 +20,7 @@ public record MascotaPrivadaRespuesta(
                 mascota.getTamano(), mascota.getEnergia(), mascota.getResponsableUsuarioId(),
                 mascota.getOrganizacionId(), mascota.getDisponibilidad(), mascota.isActiva(),
                 mascota.getComportamientoIds(), mascota.getComportamientos().stream()
-                    .map(etiqueta -> new Etiqueta(etiqueta.id(), etiqueta.nombre())).toList(), null);
+                    .map(etiqueta -> new Etiqueta(etiqueta.id(), etiqueta.nombre())).toList(),
+                mascota.tieneFoto() ? "/api/v1/mascotas/" + mascota.getId() + "/foto" : null);
     }
 }

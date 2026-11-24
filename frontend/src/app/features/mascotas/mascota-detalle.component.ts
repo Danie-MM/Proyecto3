@@ -3,6 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { PublicacionMascotaComponent } from './publicacion/publicacion-mascota.component';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subscription, finalize } from 'rxjs';
 import { MascotasApiService, mensajeError } from './mascotas-api.service';
@@ -14,7 +15,7 @@ import { ConfirmacionModalComponent } from '../../shared/components/confirmacion
 @Component({
   standalone: true,
   selector: 'app-mascota-detalle',
-  imports: [CommonModule, FormsModule, RouterLink, ConfirmacionModalComponent],
+  imports: [CommonModule, FormsModule, RouterLink, ConfirmacionModalComponent, PublicacionMascotaComponent],
   templateUrl: './mascota-detalle.component.html',
   styleUrl: './mascotas.css',
 })

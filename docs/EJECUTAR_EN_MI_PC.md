@@ -86,6 +86,11 @@ docker compose -f compose.yaml -f compose.ide.yaml ps
 `DB_PORT` en `.env`, también debe coincidir el puerto de `DB_URL` usado por el
 lanzador Java.
 
+La migración V17 carga Sociable, Tranquilo y Juguetón para que puedas registrar
+la primera mascota. Si ese esquema ya aplicó el archivo local V11 con esos
+mismos datos, el backend reconoce su historial y conserva las etiquetas
+personalizadas o retiradas.
+
 Si antes iniciaste todo en Docker, detené sus aplicaciones para liberar los puertos:
 
 ```powershell

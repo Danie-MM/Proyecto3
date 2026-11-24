@@ -1,0 +1,128 @@
+<section class="card-basic tarjeta" aria-labelledby="expediente-titulo">
+  <h2 id="expediente-titulo">Expediente de vacunas</h2>
+  <form (ngSubmit)="cargarVacunas()" class="filtros" aria-label="Filtros del expediente">
+    <div><label for="clinica-tipo">Tipo de evento</label>
+      <select id="clinica-tipo" name="tipo" [(ngModel)]="tipo" class="select-single">
+        <option value="">Todos los tipos</option><option value="VACUNA">Vacuna</option>
+      </select>
+    </div>
+    <div><label for="clinica-desde">Desde</label>
+      <input type="date" id="clinica-desde" name="desde" [(ngModel)]="desde" class="input-text-basic">
+    </div>
+    <div><label for="clinica-hasta">Hasta</label>
+      <input type="date" id="clinica-hasta" name="hasta" [(ngModel)]="hasta" class="input-text-basic">
+    </div>
+    <button type="submit" class="btn-secondary">Consultar vacunas</button>
+  </form>
+
+  <p *ngIf="errorVacunas" class="error" role="alert">{{ errorVacunas }}</p>
+  <p *ngIf="!errorVacunas && !vacunas" class="aviso" role="status">Consultando vacunas…</p>
+  <ng-container *ngIf="vacunas as pagina">
+    <p *ngIf="!pagina.elementos.length" class="aviso">
+      {{ desde || hasta || tipo ? 'No hay vacunas que coincidan con los filtros.' : 'Todavía no hay vacunas registradas.' }}
+    </p>
+    <ul class="registros" *ngIf="pagina.elementos.length">
+      <li *ngFor="let vacuna of pagina.elementos" class="linea">
+        <div><strong>{{ vacuna.nombre }}</strong> · <time [attr.datetime]="vacuna.fecha">{{ vacuna.fecha + 'T00:00:00Z' | date:'dd/MM/yyyy':'UTC' }}</time></div>
+        <button type="button" class="btn-link" (click)="abrirDetalle(vacuna.id)"
+                [attr.aria-label]="'Ver detalle de ' + vacuna.nombre">Ver detalle</button>
+      </li>
+    </ul>
+    <div class="paginacion" *ngIf="pagina.totalElementos > pagina.limite">
+      <button type="button" class="btn-secondary" [disabled]="pagina.pagina === 0" (click)="cargarVacunas(pagina.pagina - 1)">Anterior</button>
+      <span>Página {{ pagina.pagina + 1 }}</span>
+      <button type="button" class="btn-secondary" [disabled]="(pagina.pagina + 1) * pagina.limite >= pagina.totalElementos" (click)="cargarVacunas(pagina.pagina + 1)">Siguiente</button>
+    </div>
+  </ng-container>
+
+  <p *ngIf="cargandoDetalle" role="status">Consultando detalle…</p>
+  <p *ngIf="errorDetalle" class="error" role="alert">{{ errorDetalle }}</p>
+  <section *ngIf="detalle as vacuna" aria-labelledby="detalle-titulo">
+    <div class="linea"><h3 id="detalle-titulo">{{ vacuna.nombre }}</h3>
+      <button type="button" class="btn-link" (click)="cerrarDetalle()">Cerrar detalle</button>
+    </div>
+    <dl class="ficha">
+      <div><dt>Fecha de aplicación</dt><dd>{{ vacuna.fecha + 'T00:00:00Z' | date:'dd/MM/yyyy':'UTC' }}</dd></div>
+      <div><dt>Origen</dt><dd>{{ vacuna.origen === 'REGISTRADO_VETERINARIO' ? 'Registrada por veterinario' : 'Declarada por responsable' }}</dd></div>
+      <div><dt>Registrada por</dt><dd class="identificador">{{ vacuna.autorUsuarioId }}</dd></div>
+      <div><dt>Fecha de registro</dt><dd>{{ vacuna.creadoEn | date:'dd/MM/yyyy HH:mm' }}</dd></div>
+      <div *ngIf="vacuna.descripcion" class="completo"><dt>Descripción</dt><dd>{{ vacuna.descripcion }}</dd></div>
+    </dl>
+  </section>
+
+  <form *ngIf="vacunas" (ngSubmit)="registrar()" aria-label="Registrar una vacuna">
+    <fieldset [disabled]="guardando">
+      <legend>Registrar una vacuna</legend>
+      <div class="campos">
+        <div><label for="clinica-nombre">Nombre de la vacuna</label>
+          <input id="clinica-nombre" name="nombre" class="input-text-basic" [(ngModel)]="nombre" maxlength="2000" required>
+        </div>
+        <div><label for="clinica-fecha">Fecha de aplicación</label>
+          <input id="clinica-fecha" type="date" name="fecha" class="input-text-basic" [(ngModel)]="fecha" [max]="hoy" required>
+        </div>
+        <div class="completo"><label for="clinica-descripcion">Descripción (opcional)</label>
+          <textarea id="clinica-descripcion" name="descripcion" class="input-text-area" [(ngModel)]="descripcion" maxlength="2000"></textarea>
+        </div>
+      </div>
+      <div class="acciones"><button type="submit" class="btn-primary">Guardar vacuna</button></div>
+    </fieldset>
+  </form>
+
+  <section *ngIf="gestionaPermisos" aria-labelledby="permisos-titulo">
+    <h3 id="permisos-titulo">Permisos clínicos</h3>
+    <label class="opcion"><input type="checkbox" [(ngModel)]="soloActivos" (ngModelChange)="cargarPermisos()" [disabled]="guardando"> Mostrar solo permisos activos</label>
+    <button type="button" class="btn-link" (click)="cargarPermisos()" [disabled]="guardando">Actualizar permisos</button>
+    <p *ngIf="errorPermisos" role="alert" class="error">{{ errorPermisos }}</p>
+    <p *ngIf="!errorPermisos && !permisos" role="status">Consultando permisos…</p>
+    <ng-container *ngIf="permisos as pagina">
+      <p *ngIf="!pagina.elementos.length" class="aviso">{{ soloActivos ? 'No hay permisos activos.' : 'No hay permisos registrados.' }}</p>
+      <ul *ngIf="pagina.elementos.length" class="registros">
+        <li *ngFor="let permiso of pagina.elementos" class="linea">
+          <div>
+            <strong class="identificador">{{ permiso.beneficiarioUsuarioId }}</strong>
+            <span> · {{ permiso.alcance === 'LECTURA' ? 'Solo lectura' : 'Lectura y escritura' }} · {{ permiso.activo ? 'Activo' : 'Revocado' }}</span>
+            <p *ngIf="!permiso.activo && permiso.motivoRevocacion">{{ permiso.motivoRevocacion }}</p>
+          </div>
+          <button *ngIf="permiso.activo" type="button" class="btn-link" [disabled]="guardando"
+                  (click)="permisoARevocar = permiso; motivo = ''; errorEscritura = ''">Revocar permiso</button>
+        </li>
+      </ul>
+      <div class="paginacion" *ngIf="pagina.totalElementos > pagina.limite">
+        <button type="button" class="btn-secondary" [disabled]="guardando || pagina.pagina === 0" (click)="cargarPermisos(pagina.pagina - 1)">Anterior</button>
+        <span>Página {{ pagina.pagina + 1 }}</span>
+        <button type="button" class="btn-secondary" [disabled]="guardando || (pagina.pagina + 1) * pagina.limite >= pagina.totalElementos" (click)="cargarPermisos(pagina.pagina + 1)">Siguiente</button>
+      </div>
+    </ng-container>
+    <form *ngIf="permisoARevocar as permiso" (ngSubmit)="revocar()">
+      <fieldset [disabled]="guardando"><legend>Revocar permiso</legend>
+        <p class="identificador">{{ permiso.beneficiarioUsuarioId }}</p>
+        <label for="clinica-motivo">Motivo de revocación</label>
+        <textarea id="clinica-motivo" name="motivo" class="input-text-area" [(ngModel)]="motivo" maxlength="500" required></textarea>
+        <div class="acciones">
+          <button type="submit" class="btn-danger">Confirmar revocación</button>
+          <button type="button" class="btn-secondary" (click)="permisoARevocar = null; motivo = ''">Cancelar</button>
+        </div>
+      </fieldset>
+    </form>
+    <form (ngSubmit)="conceder()">
+      <fieldset [disabled]="guardando"><legend>Autorizar veterinario</legend>
+        <div class="campos">
+          <div><label for="clinica-beneficiario">Identificador del veterinario</label>
+            <input id="clinica-beneficiario" class="input-text-basic" name="beneficiario" [(ngModel)]="beneficiario" required aria-describedby="clinica-vet-ayuda">
+            <small id="clinica-vet-ayuda">Usá el identificador de usuario (UUID) del veterinario habilitado.</small>
+          </div>
+          <div><label for="clinica-alcance">Alcance</label>
+            <select id="clinica-alcance" class="select-single" name="alcance" [(ngModel)]="alcance">
+              <option value="LECTURA">Solo lectura</option>
+              <option value="LECTURA_ESCRITURA">Lectura y escritura</option>
+            </select>
+          </div>
+        </div>
+        <div class="acciones"><button type="submit" class="btn-primary">Conceder permiso</button></div>
+      </fieldset>
+    </form>
+  </section>
+  <p *ngIf="guardando" role="status" class="aviso">Guardando…</p>
+  <p *ngIf="errorEscritura" role="alert" class="error">{{ errorEscritura }}</p>
+  <p *ngIf="confirmacion" role="status" class="exito">{{ confirmacion }}</p>
+</section>

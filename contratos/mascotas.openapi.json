@@ -1,9 +1,9 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "PetMatchCR · Perfil privado B-01",
-    "version": "0.2.0",
-    "description": "Contrato de la implementación local B-01. El puerto de identidad y ámbitos de A requiere integración real. La sesión de demostración no es el login del equipo. Publicación, fotografía y catálogo de adopción corresponden a B-02/D."
+    "title": "PetMatchCR · Mascotas, publicación y expediente clínico",
+    "version": "0.5.0",
+    "description": "Contrato del bloque B para perfil privado, publicación, fotografía, vacunas y permisos clínicos. La integración con A aporta la identidad, la organización activa, el rol veterinario y la auditoría."
   },
   "servers": [
     {
@@ -29,6 +29,12 @@
     {
       "name": "Demostración local",
       "description": "Solo con perfiles local y demo-b01."
+    },
+    {
+      "name": "Publicación y fotografía"
+    },
+    {
+      "name": "Vacunas y permisos clínicos"
     }
   ],
   "paths": {
@@ -890,6 +896,1095 @@
           }
         }
       }
+    },
+    "/api/v1/mascotas/{mascotaId}/disponibilidad": {
+      "put": {
+        "operationId": "put_api_v1_mascotas_mascotaId_disponibilidad",
+        "tags": [
+          "Publicación y fotografía"
+        ],
+        "summary": "200 MascotaPrivadaRespuesta.",
+        "description": "Responsable autorizado o representante de organización custodiante\n\nDISPONIBLE exige organización activa; no admitir ADOPTADA ni reapertura extraordinaria de mascota adoptada. D vuelve a comprobar disponibilidad al solicitar/formalizar.\n\nCondiciones de entrada: {disponibilidad:NO_DISPONIBLE|DISPONIBLE,versionEsperada}.",
+        "security": [
+          {
+            "bearerSesion": []
+          },
+          {
+            "sesion": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "mascotaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Uuid"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/TokenCsrfMutacion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado de la operación autorizada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MascotaPrivadaRespuesta"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/AutenticacionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/OperacionDenegada"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoAccesible"
+          },
+          "409": {
+            "$ref": "#/components/responses/ConflictoDeOperacion"
+          },
+          "415": {
+            "$ref": "#/components/responses/FormatoIncompatible"
+          },
+          "500": {
+            "$ref": "#/components/responses/FalloInterno"
+          },
+          "503": {
+            "$ref": "#/components/responses/DependenciaNoDisponible"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CambiarDisponibilidadSolicitud"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mascotas/{mascotaId}/publica": {
+      "get": {
+        "operationId": "get_api_v1_mascotas_mascotaId_publica",
+        "tags": [
+          "Publicación y fotografía"
+        ],
+        "summary": "200 MascotaPublicaRespuesta {id,nombre,especie,edadEstimadaMeses,tamano,energia,comportamientos:[{id,nombre}],",
+        "description": "Visitante\n\nSolo perfil publicable vigente; si no, 404. No responsableUsuarioId, contactos, ubicación ni expediente.\nD administra listado/filtros públicos /catalogo/mascotas y consume la misma proyección por servicio interno, sin llamada HTTP al propio servidor.\n\nCondiciones de entrada: Sin body.",
+        "security": [],
+        "parameters": [
+          {
+            "name": "mascotaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado de la operación autorizada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MascotaPublicaRespuesta"
+                },
+                "example": {
+                  "id": "11111111-1111-4111-8111-111111111111",
+                  "nombre": "Luna",
+                  "especie": "PERRO",
+                  "edadEstimadaMeses": 18,
+                  "tamano": "MEDIANO",
+                  "energia": "MEDIA",
+                  "comportamientos": [
+                    {
+                      "id": "11111111-1111-4111-8111-111111111111",
+                      "nombre": "Etiqueta de prueba"
+                    }
+                  ],
+                  "fotoUrl": null,
+                  "organizacion": {
+                    "id": "22222222-2222-4222-8222-222222222222",
+                    "nombre": "Organización ficticia"
+                  },
+                  "disponibilidad": "DISPONIBLE"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoAccesible"
+          },
+          "500": {
+            "$ref": "#/components/responses/FalloInterno"
+          },
+          "503": {
+            "$ref": "#/components/responses/DependenciaNoDisponible"
+          }
+        }
+      }
+    },
+    "/api/v1/mascotas/{mascotaId}/foto": {
+      "post": {
+        "operationId": "post_api_v1_mascotas_mascotaId_foto",
+        "tags": [
+          "Publicación y fotografía"
+        ],
+        "summary": "201 FotoMascotaRespuesta {id,mascotaId,urlPrivada,tamanoBytes,mimeVerificado,versionMascota}.",
+        "description": "Responsable o representante autorizado\n\nValidar JPEG/PNG real y <=5 000 000 bytes; reemplazo seguro conserva anterior si falla. No exponer claveAlmacenamiento o sha256.\n\nCondiciones de entrada: multipart/form-data: archivo binario, versionEsperada entero; Idempotency-Key.",
+        "security": [
+          {
+            "bearerSesion": []
+          },
+          {
+            "sesion": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "mascotaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Uuid"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/TokenCsrfMutacion"
+          },
+          {
+            "$ref": "#/components/parameters/ClaveDeReenvio"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Resultado de la operación autorizada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FotoMascotaRespuesta"
+                }
+              }
+            },
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string",
+                  "format": "uri-reference"
+                },
+                "description": "Referencia del recurso creado."
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/AutenticacionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/OperacionDenegada"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoAccesible"
+          },
+          "409": {
+            "$ref": "#/components/responses/ConflictoDeOperacion"
+          },
+          "413": {
+            "$ref": "#/components/responses/ArchivoDemasiadoGrande"
+          },
+          "415": {
+            "$ref": "#/components/responses/FormatoIncompatible"
+          },
+          "500": {
+            "$ref": "#/components/responses/FalloInterno"
+          },
+          "503": {
+            "$ref": "#/components/responses/DependenciaNoDisponible"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/FotoSolicitud"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "get_api_v1_mascotas_mascotaId_foto",
+        "tags": [
+          "Publicación y fotografía"
+        ],
+        "summary": "200 bytes JPEG/PNG; 404 si no hay foto accesible.",
+        "description": "Responsable o representante autorizado\n\nCache privada; permiso vigente en cada consulta.\n\nCondiciones de entrada: Sin body.",
+        "security": [
+          {
+            "bearerSesion": []
+          },
+          {
+            "sesion": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "mascotaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado de la operación autorizada.",
+            "content": {
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/AutenticacionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/OperacionDenegada"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoAccesible"
+          },
+          "500": {
+            "$ref": "#/components/responses/FalloInterno"
+          },
+          "503": {
+            "$ref": "#/components/responses/DependenciaNoDisponible"
+          }
+        }
+      }
+    },
+    "/api/v1/mascotas/{mascotaId}/foto/publica": {
+      "get": {
+        "operationId": "get_api_v1_mascotas_mascotaId_foto_publica",
+        "tags": [
+          "Publicación y fotografía"
+        ],
+        "summary": "200 bytes JPEG/PNG; 404 si mascota/foto no pública.",
+        "description": "Visitante\n\nNo hacer pública la carpeta de almacenamiento. Evitar URL permanente que siga sirviendo tras retirar publicación.\n\nCondiciones de entrada: Sin body.",
+        "security": [],
+        "parameters": [
+          {
+            "name": "mascotaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado de la operación autorizada.",
+            "content": {
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoAccesible"
+          },
+          "500": {
+            "$ref": "#/components/responses/FalloInterno"
+          },
+          "503": {
+            "$ref": "#/components/responses/DependenciaNoDisponible"
+          }
+        }
+      }
+    },
+    "/api/v1/mascotas/{mascotaId}/foto/retiro": {
+      "post": {
+        "operationId": "post_api_v1_mascotas_mascotaId_foto_retiro",
+        "tags": [
+          "Publicación y fotografía"
+        ],
+        "summary": "200 {foto:null,versionMascota:Entero}.",
+        "description": "Responsable o representante autorizado\n\nRetiro lógico; no borra perfil ni otros datos.\n\nCondiciones de entrada: {versionEsperada}; Idempotency-Key.",
+        "security": [
+          {
+            "bearerSesion": []
+          },
+          {
+            "sesion": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "mascotaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Uuid"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/TokenCsrfMutacion"
+          },
+          {
+            "$ref": "#/components/parameters/ClaveDeReenvio"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado de la operación autorizada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RetiroFotoRespuesta"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/AutenticacionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/OperacionDenegada"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoAccesible"
+          },
+          "409": {
+            "$ref": "#/components/responses/ConflictoDeOperacion"
+          },
+          "415": {
+            "$ref": "#/components/responses/FormatoIncompatible"
+          },
+          "500": {
+            "$ref": "#/components/responses/FalloInterno"
+          },
+          "503": {
+            "$ref": "#/components/responses/DependenciaNoDisponible"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionSolicitud"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mascotas/{mascotaId}/permisos-clinicos": {
+      "get": {
+        "operationId": "get_api_v1_mascotas_mascotaId_permisos_clinicos",
+        "tags": [
+          "Vacunas y permisos clínicos"
+        ],
+        "summary": "200 Pagina<PermisoClinicoRespuesta>.",
+        "description": "Responsable o representante autorizado\n\nNo directorio público de profesionales ni clínicas.\n\nCondiciones de entrada: Query pagina,limite,soloActivos=true.",
+        "security": [
+          {
+            "bearerSesion": []
+          },
+          {
+            "sesion": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "mascotaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Uuid"
+            }
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647,
+              "default": 0
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "name": "soloActivos",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado de la operación autorizada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginaPermisoClinicoRespuesta"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/AutenticacionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/OperacionDenegada"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoAccesible"
+          },
+          "500": {
+            "$ref": "#/components/responses/FalloInterno"
+          },
+          "503": {
+            "$ref": "#/components/responses/DependenciaNoDisponible"
+          }
+        }
+      },
+      "post": {
+        "operationId": "post_api_v1_mascotas_mascotaId_permisos_clinicos",
+        "tags": [
+          "Vacunas y permisos clínicos"
+        ],
+        "summary": "201 PermisoClinicoRespuesta y Location.",
+        "description": "Responsable o representante autorizado\n\nI1 VETERINARIO_AUTORIZADO únicamente. Verificar rol activo en A. I2 excepción exresponsable requiere acuerdo D04 y solo LECTURA.\n\nCondiciones de entrada: {beneficiarioUsuarioId,fundamento,alcance}; Idempotency-Key.",
+        "security": [
+          {
+            "bearerSesion": []
+          },
+          {
+            "sesion": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "mascotaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Uuid"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/TokenCsrfMutacion"
+          },
+          {
+            "$ref": "#/components/parameters/ClaveDeReenvio"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Resultado de la operación autorizada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermisoClinicoRespuesta"
+                }
+              }
+            },
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string",
+                  "format": "uri-reference"
+                },
+                "description": "Referencia del recurso creado."
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/AutenticacionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/OperacionDenegada"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoAccesible"
+          },
+          "409": {
+            "$ref": "#/components/responses/ConflictoDeOperacion"
+          },
+          "415": {
+            "$ref": "#/components/responses/FormatoIncompatible"
+          },
+          "500": {
+            "$ref": "#/components/responses/FalloInterno"
+          },
+          "503": {
+            "$ref": "#/components/responses/DependenciaNoDisponible"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrearPermisoClinicoSolicitud"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/permisos-clinicos/{permisoId}/revocacion": {
+      "post": {
+        "operationId": "post_api_v1_permisos_clinicos_permisoId_revocacion",
+        "tags": [
+          "Vacunas y permisos clínicos"
+        ],
+        "summary": "200 PermisoClinicoRespuesta activo=false.",
+        "description": "Responsable o representante vigente\n\nAuditoría y revocación atómicas; efecto en siguientes consultas/escrituras incluso con pantalla ya abierta.\n\nCondiciones de entrada: {motivo,versionEsperada}; Idempotency-Key.",
+        "security": [
+          {
+            "bearerSesion": []
+          },
+          {
+            "sesion": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "permisoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Uuid"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/TokenCsrfMutacion"
+          },
+          {
+            "$ref": "#/components/parameters/ClaveDeReenvio"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado de la operación autorizada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermisoClinicoRespuesta"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/AutenticacionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/OperacionDenegada"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoAccesible"
+          },
+          "409": {
+            "$ref": "#/components/responses/ConflictoDeOperacion"
+          },
+          "415": {
+            "$ref": "#/components/responses/FormatoIncompatible"
+          },
+          "500": {
+            "$ref": "#/components/responses/FalloInterno"
+          },
+          "503": {
+            "$ref": "#/components/responses/DependenciaNoDisponible"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevocarPermisoSolicitud"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mascotas/{mascotaId}/eventos-veterinarios": {
+      "post": {
+        "operationId": "post_api_v1_mascotas_mascotaId_eventos_veterinarios",
+        "tags": [
+          "Vacunas y permisos clínicos"
+        ],
+        "summary": "201 EventoVeterinarioRespuesta y Location.",
+        "description": "Responsable o veterinario con permiso de escritura\n\nServidor fija autor/origen; fecha no futura. I1 rechaza otros tipos como función no habilitada, sin declarar veterinaria completa.\nPermiso vigente al guardar; no basta con haber abierto formulario.\n\nCondiciones de entrada: I1 {tipo:VACUNA,fecha:Fecha,nombre,descripcion:null|string}; I2 agrega campos condicionales del modelo. Idempotency-Key.",
+        "security": [
+          {
+            "bearerSesion": []
+          },
+          {
+            "sesion": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "mascotaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Uuid"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/TokenCsrfMutacion"
+          },
+          {
+            "$ref": "#/components/parameters/ClaveDeReenvio"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Resultado de la operación autorizada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventoVeterinarioRespuesta"
+                }
+              }
+            },
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string",
+                  "format": "uri-reference"
+                },
+                "description": "Referencia del recurso creado."
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/AutenticacionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/OperacionDenegada"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoAccesible"
+          },
+          "409": {
+            "$ref": "#/components/responses/ConflictoDeOperacion"
+          },
+          "415": {
+            "$ref": "#/components/responses/FormatoIncompatible"
+          },
+          "500": {
+            "$ref": "#/components/responses/FalloInterno"
+          },
+          "503": {
+            "$ref": "#/components/responses/DependenciaNoDisponible"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistrarVacunaSolicitud"
+              },
+              "example": {
+                "tipo": "VACUNA",
+                "fecha": "2026-10-25",
+                "nombre": "Vacuna registrada de prueba",
+                "descripcion": null
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "get_api_v1_mascotas_mascotaId_eventos_veterinarios",
+        "tags": [
+          "Vacunas y permisos clínicos"
+        ],
+        "summary": "200 Pagina<EventoVeterinarioRespuesta>.",
+        "description": "Responsable actual o veterinario autorizado para lectura\n\nFiltros se combinan; orden fecha desc,creadoEn desc,id desc. 400 rango invertido; vacío solo en consulta exitosa sin registros.\n\nCondiciones de entrada: Query pagina,limite,desde?:Fecha,hasta?:Fecha,tipo?:TipoEventoVeterinario.",
+        "security": [
+          {
+            "bearerSesion": []
+          },
+          {
+            "sesion": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "mascotaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Uuid"
+            }
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647,
+              "default": 0
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "name": "desde",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Fecha"
+            }
+          },
+          {
+            "name": "hasta",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Fecha"
+            }
+          },
+          {
+            "name": "tipo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "const": "VACUNA"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado de la operación autorizada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginaEventoVeterinarioRespuesta"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/AutenticacionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/OperacionDenegada"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoAccesible"
+          },
+          "500": {
+            "$ref": "#/components/responses/FalloInterno"
+          },
+          "503": {
+            "$ref": "#/components/responses/DependenciaNoDisponible"
+          }
+        }
+      }
+    },
+    "/api/v1/eventos-veterinarios/{eventoId}": {
+      "get": {
+        "operationId": "get_api_v1_eventos_veterinarios_eventoId",
+        "tags": [
+          "Vacunas y permisos clínicos"
+        ],
+        "summary": "200 EventoVeterinarioRespuesta.",
+        "description": "Actor con acceso clínico vigente a la mascota\n\n404 sin información clínica si no existe o no es accesible.\n\nCondiciones de entrada: Sin body.",
+        "security": [
+          {
+            "bearerSesion": []
+          },
+          {
+            "sesion": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "eventoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado de la operación autorizada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventoVeterinarioRespuesta"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/AutenticacionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/OperacionDenegada"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoAccesible"
+          },
+          "500": {
+            "$ref": "#/components/responses/FalloInterno"
+          },
+          "503": {
+            "$ref": "#/components/responses/DependenciaNoDisponible"
+          }
+        }
+      }
+    },
+    "/api/v1/catalogo/mascotas": {
+      "get": {
+        "operationId": "listarCatalogoPublicoAdopciones",
+        "tags": [
+          "Publicación y fotografía"
+        ],
+        "security": [],
+        "summary": "Listar los perros y gatos disponibles para adopción.",
+        "description": "Combina filtros únicamente sobre perfiles publicables de organizaciones vigentes. El total corresponde a los mismos filtros y permisos que la página, ordenada por nombre y UUID.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "pagina",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647,
+              "default": 0
+            },
+            "description": "Índice de página desde cero."
+          },
+          {
+            "in": "query",
+            "name": "limite",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "description": "Perfiles por página."
+          },
+          {
+            "in": "query",
+            "name": "nombre",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Coincidencia parcial, sin distinguir mayúsculas."
+          },
+          {
+            "in": "query",
+            "name": "especie",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PERRO",
+                "GATO"
+              ]
+            },
+            "description": "Especie pública."
+          },
+          {
+            "in": "query",
+            "name": "edadMinimaMeses",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            },
+            "description": "Edad mínima incluida."
+          },
+          {
+            "in": "query",
+            "name": "edadMaximaMeses",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            },
+            "description": "Edad máxima incluida."
+          },
+          {
+            "in": "query",
+            "name": "tamanos",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "PEQUENO",
+                  "MEDIANO",
+                  "GRANDE"
+                ]
+              }
+            },
+            "description": "Se admite cualquiera de los tamaños indicados."
+          },
+          {
+            "in": "query",
+            "name": "energias",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "BAJA",
+                  "MEDIA",
+                  "ALTA"
+                ]
+              }
+            },
+            "description": "Se admite cualquiera de las energías indicadas."
+          },
+          {
+            "in": "query",
+            "name": "comportamientoIds",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "description": "Al menos una etiqueta seleccionada. Todas las etiquetas solicitadas deben estar activas."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Página de perfiles públicos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginaMascotasPublicas"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "500": {
+            "$ref": "#/components/responses/FalloInterno"
+          },
+          "503": {
+            "$ref": "#/components/responses/DependenciaNoDisponible"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -899,6 +1994,12 @@
         "in": "cookie",
         "name": "PETMATCH_SESSION",
         "description": "Cookie de sesión de esta base y demostración. La conexión con A real se documenta en docs/INTEGRACION_B01.md; A publica actualmente JWT Bearer."
+      },
+      "bearerSesion": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Token de la sesión de A. Las operaciones que escriben requieren además CSRF y su cookie asociada."
       }
     },
     "schemas": {
@@ -1228,8 +2329,12 @@
             }
           },
           "fotoUrl": {
-            "type": "null",
-            "description": "B-01 devuelve null; fotografía corresponde a B-02."
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uri-reference",
+            "description": "Ruta privada de la foto vigente. Requiere autorización en cada consulta."
           }
         }
       },
@@ -1457,6 +2562,735 @@
             "description": "Código del catálogo de especies. Para asignarlo debe estar activo; al editar se puede conservar la especie histórica retirada."
           }
         }
+      },
+      "Uuid": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "CambiarDisponibilidadSolicitud": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "disponibilidad": {
+            "type": "string",
+            "enum": [
+              "NO_DISPONIBLE",
+              "DISPONIBLE"
+            ]
+          },
+          "versionEsperada": {
+            "$ref": "#/components/schemas/Version"
+          }
+        },
+        "required": [
+          "disponibilidad",
+          "versionEsperada"
+        ]
+      },
+      "Version": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 2147483647
+      },
+      "MascotaPublicaRespuesta": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "nombre": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Se recortan extremos antes de validar. Límite en puntos de código Unicode."
+          },
+          "especie": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{0,29}$",
+            "description": "Código del catálogo de especies. Para asignarlo debe estar activo; al editar se puede conservar la especie histórica retirada."
+          },
+          "edadEstimadaMeses": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "tamano": {
+            "type": "string",
+            "enum": [
+              "PEQUENO",
+              "MEDIANO",
+              "GRANDE"
+            ]
+          },
+          "energia": {
+            "type": "string",
+            "enum": [
+              "BAJA",
+              "MEDIA",
+              "ALTA"
+            ]
+          },
+          "comportamientos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EtiquetaRespuesta"
+            }
+          },
+          "fotoUrl": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uri-reference"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "organizacion": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "$ref": "#/components/schemas/Uuid"
+              },
+              "nombre": {
+                "type": "string",
+                "maxLength": 150
+              }
+            },
+            "required": [
+              "id",
+              "nombre"
+            ]
+          },
+          "disponibilidad": {
+            "const": "DISPONIBLE"
+          }
+        },
+        "required": [
+          "id",
+          "nombre",
+          "especie",
+          "edadEstimadaMeses",
+          "tamano",
+          "energia",
+          "comportamientos",
+          "fotoUrl",
+          "organizacion",
+          "disponibilidad"
+        ],
+        "examples": [
+          {
+            "id": "11111111-1111-4111-8111-111111111111",
+            "nombre": "Luna",
+            "especie": "PERRO",
+            "edadEstimadaMeses": 18,
+            "tamano": "MEDIANO",
+            "energia": "MEDIA",
+            "comportamientos": [
+              {
+                "id": "11111111-1111-4111-8111-111111111111",
+                "nombre": "Etiqueta de prueba"
+              }
+            ],
+            "fotoUrl": null,
+            "organizacion": {
+              "id": "22222222-2222-4222-8222-222222222222",
+              "nombre": "Organización ficticia"
+            },
+            "disponibilidad": "DISPONIBLE"
+          }
+        ]
+      },
+      "FotoMascotaRespuesta": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "mascotaId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "urlPrivada": {
+            "type": "string",
+            "format": "uri-reference"
+          },
+          "tamanoBytes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5000000
+          },
+          "mimeVerificado": {
+            "$ref": "#/components/schemas/MimeFoto"
+          },
+          "versionMascota": {
+            "$ref": "#/components/schemas/Version"
+          }
+        },
+        "required": [
+          "id",
+          "mascotaId",
+          "urlPrivada",
+          "tamanoBytes",
+          "mimeVerificado",
+          "versionMascota"
+        ]
+      },
+      "MimeFoto": {
+        "type": "string",
+        "enum": [
+          "image/jpeg",
+          "image/png"
+        ]
+      },
+      "FotoSolicitud": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "archivo": {
+            "type": "string",
+            "format": "binary",
+            "description": "JPEG/PNG verificado, máximo propuesto 5000000 bytes."
+          },
+          "versionEsperada": {
+            "$ref": "#/components/schemas/Version"
+          }
+        },
+        "required": [
+          "archivo",
+          "versionEsperada"
+        ]
+      },
+      "RetiroFotoRespuesta": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "foto": {
+            "type": "null"
+          },
+          "versionMascota": {
+            "$ref": "#/components/schemas/Version"
+          }
+        },
+        "required": [
+          "foto",
+          "versionMascota"
+        ]
+      },
+      "VersionSolicitud": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "versionEsperada": {
+            "$ref": "#/components/schemas/Version"
+          }
+        },
+        "required": [
+          "versionEsperada"
+        ]
+      },
+      "PaginaPermisoClinicoRespuesta": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "elementos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PermisoClinicoRespuesta"
+            }
+          },
+          "pagina": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "limite": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "totalElementos": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          }
+        },
+        "required": [
+          "elementos",
+          "pagina",
+          "limite",
+          "totalElementos"
+        ]
+      },
+      "PermisoClinicoRespuesta": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "creadoEn": {
+            "$ref": "#/components/schemas/Instante"
+          },
+          "version": {
+            "$ref": "#/components/schemas/Version"
+          },
+          "mascotaId": {
+            "$ref": "#/components/schemas/Uuid",
+            "description": "FK mascota."
+          },
+          "beneficiarioUsuarioId": {
+            "$ref": "#/components/schemas/Uuid",
+            "description": "FK usuario destinatario."
+          },
+          "fundamento": {
+            "type": "string",
+            "const": "VETERINARIO_AUTORIZADO"
+          },
+          "alcance": {
+            "$ref": "#/components/schemas/AlcanceClinico",
+            "description": "LECTURA o LECTURA_ESCRITURA; exresponsable solo LECTURA."
+          },
+          "otorgadoPorUsuarioId": {
+            "$ref": "#/components/schemas/Uuid",
+            "description": "Responsable vigente o representante de la organización custodiante autorizado."
+          },
+          "activo": {
+            "type": "boolean",
+            "description": "true al conceder."
+          },
+          "revocadoEn": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Instante"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Servidor; null mientras activo."
+          },
+          "revocadoPorUsuarioId": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Actor autorizado o servicio de formalización; obligatorio cuando corresponda."
+          },
+          "motivoRevocacion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Obligatorio al revocar, incluido cambio de responsable."
+          }
+        },
+        "required": [
+          "id",
+          "creadoEn",
+          "version",
+          "mascotaId",
+          "beneficiarioUsuarioId",
+          "fundamento",
+          "alcance",
+          "otorgadoPorUsuarioId",
+          "activo",
+          "revocadoEn",
+          "revocadoPorUsuarioId",
+          "motivoRevocacion"
+        ]
+      },
+      "Instante": {
+        "type": "string",
+        "format": "date-time",
+        "pattern": "Z$"
+      },
+      "AlcanceClinico": {
+        "type": "string",
+        "enum": [
+          "LECTURA",
+          "LECTURA_ESCRITURA"
+        ]
+      },
+      "CrearPermisoClinicoSolicitud": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "beneficiarioUsuarioId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "fundamento": {
+            "const": "VETERINARIO_AUTORIZADO"
+          },
+          "alcance": {
+            "$ref": "#/components/schemas/AlcanceClinico"
+          }
+        },
+        "required": [
+          "beneficiarioUsuarioId",
+          "fundamento",
+          "alcance"
+        ],
+        "description": "I1 requiere rol veterinario activo. I2 puede agregar exresponsable solo con LECTURA y autorización expresa."
+      },
+      "RevocarPermisoSolicitud": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "motivo": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "versionEsperada": {
+            "$ref": "#/components/schemas/Version"
+          }
+        },
+        "required": [
+          "motivo",
+          "versionEsperada"
+        ]
+      },
+      "EventoVeterinarioRespuesta": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "creadoEn": {
+            "$ref": "#/components/schemas/Instante"
+          },
+          "version": {
+            "$ref": "#/components/schemas/Version"
+          },
+          "mascotaId": {
+            "$ref": "#/components/schemas/Uuid",
+            "description": "FK mascota, accesible al actor."
+          },
+          "tipo": {
+            "type": "string",
+            "const": "VACUNA"
+          },
+          "fecha": {
+            "$ref": "#/components/schemas/Fecha",
+            "description": "Fecha del antecedente no futura según día actual en America/Costa_Rica."
+          },
+          "autorUsuarioId": {
+            "$ref": "#/components/schemas/Uuid",
+            "description": "Actor original, fijado por servidor; no se sustituye al corregir."
+          },
+          "origen": {
+            "$ref": "#/components/schemas/OrigenClinico",
+            "description": "DECLARADO_RESPONSABLE o REGISTRADO_VETERINARIO, derivado de cómo actuó el autor."
+          },
+          "nombre": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "descripcion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Obligatoria en PROCEDIMIENTO y DIAGNOSTICO; opcional en otros tipos; si existe, 1-2000 caracteres."
+          },
+          "dosis": {
+            "type": "null",
+            "description": "No aplica a VACUNA."
+          },
+          "unidad": {
+            "type": "null",
+            "description": "No aplica a VACUNA."
+          },
+          "frecuencia": {
+            "type": "null",
+            "description": "No aplica a VACUNA."
+          },
+          "periodo": {
+            "type": "null",
+            "description": "No aplica a VACUNA."
+          },
+          "clasificacionEnfermedad": {
+            "type": "null",
+            "description": "No aplica a VACUNA."
+          },
+          "fechaFinEnfermedad": {
+            "type": "null",
+            "description": "No aplica a VACUNA."
+          },
+          "numeroRevision": {
+            "type": "integer",
+            "const": 0
+          }
+        },
+        "required": [
+          "id",
+          "creadoEn",
+          "version",
+          "mascotaId",
+          "tipo",
+          "fecha",
+          "autorUsuarioId",
+          "origen",
+          "nombre",
+          "descripcion",
+          "dosis",
+          "unidad",
+          "frecuencia",
+          "periodo",
+          "clasificacionEnfermedad",
+          "fechaFinEnfermedad",
+          "numeroRevision"
+        ]
+      },
+      "Fecha": {
+        "type": "string",
+        "format": "date"
+      },
+      "OrigenClinico": {
+        "type": "string",
+        "enum": [
+          "DECLARADO_RESPONSABLE",
+          "REGISTRADO_VETERINARIO"
+        ]
+      },
+      "RegistrarVacunaSolicitud": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tipo": {
+            "const": "VACUNA"
+          },
+          "fecha": {
+            "$ref": "#/components/schemas/Fecha"
+          },
+          "nombre": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "descripcion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "tipo",
+          "fecha",
+          "nombre"
+        ],
+        "examples": [
+          {
+            "tipo": "VACUNA",
+            "fecha": "2026-10-25",
+            "nombre": "Vacuna registrada de prueba",
+            "descripcion": null
+          }
+        ]
+      },
+      "PaginaEventoVeterinarioRespuesta": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "elementos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventoVeterinarioRespuesta"
+            }
+          },
+          "pagina": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "limite": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "totalElementos": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          }
+        },
+        "required": [
+          "elementos",
+          "pagina",
+          "limite",
+          "totalElementos"
+        ]
+      },
+      "PaginaMascotasPublicas": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "elementos",
+          "pagina",
+          "limite",
+          "totalElementos"
+        ],
+        "properties": {
+          "elementos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MascotaPublicaRespuesta"
+            }
+          },
+          "pagina": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "limite": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "totalElementos": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "responses": {
+      "SolicitudInvalida": {
+        "description": "Datos o parámetros de consulta inválidos.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorApi"
+            }
+          }
+        }
+      },
+      "AutenticacionRequerida": {
+        "description": "Se requiere una identidad vigente.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorApi"
+            }
+          }
+        }
+      },
+      "OperacionDenegada": {
+        "description": "CSRF inválido o acción sin autorización.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorApi"
+            }
+          }
+        }
+      },
+      "RecursoNoAccesible": {
+        "description": "Recurso inexistente o fuera del ámbito de la consulta.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorApi"
+            }
+          }
+        }
+      },
+      "ConflictoDeOperacion": {
+        "description": "Versión obsoleta, estado incompatible o clave reutilizada con otra entrada.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorApi"
+            }
+          }
+        }
+      },
+      "ArchivoDemasiadoGrande": {
+        "description": "El archivo supera los 5 000 000 bytes.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorApi"
+            }
+          }
+        }
+      },
+      "FormatoIncompatible": {
+        "description": "Tipo de contenido incompatible o fotografía distinta de JPEG/PNG válido.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorApi"
+            }
+          }
+        }
+      },
+      "FalloInterno": {
+        "description": "Error interno al ejecutar la operación.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorApi"
+            }
+          }
+        }
+      },
+      "DependenciaNoDisponible": {
+        "description": "Dependencia de integración o persistencia no disponible.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorApi"
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "TokenCsrfMutacion": {
+        "name": "X-CSRF-TOKEN",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": "Token de GET /api/v1/sesion/csrf asociado a la misma cookie. Renovar al cambiar de actor."
+      },
+      "ClaveDeReenvio": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "description": "UUID por intención y actor. Repetir misma clave y datos normalizados conserva un único recurso/evento. Otros datos producen 409; el permiso se revalida incluso al reenviar."
       }
     }
   },
@@ -1470,5 +3304,17 @@
       "$ref": "#/components/schemas/ResumenMascotaExtravio"
     },
     "description": "Solo responsable vigente autorizado; el resumen exige mascota activa, sin exigir publicación para adopción. No es un endpoint HTTP."
+  },
+  "x-contrato-interno-d": {
+    "interfaz": "cr.petmatchcr.mascotas.api.MascotasParaAdopciones",
+    "operaciones": [
+      "consultarPerfilPublico(UUID mascotaId)",
+      "esPublicable(UUID mascotaId)",
+      "consultarCatalogo(FiltrosCatalogoPublico filtros, int pagina, int limite)"
+    ],
+    "respuesta": {
+      "$ref": "#/components/schemas/MascotaPublicaRespuesta"
+    },
+    "description": "D consulta el servicio de B para verificar disponibilidad y vigencia de la organización al atender la solicitud."
   }
 }

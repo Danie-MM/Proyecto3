@@ -1,8 +1,9 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
-import { CatalogoService } from '../catalogoservice/CatalogoService';
-import { FiltrosCatalogoData, MascotaData } from '../catalogointerface/CatalogoData';
-import { RouterLink } from '@angular/router';
+import { ChangeDetectorRef, Component, inject, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { FiltrosCatalogoData, MascotaData } from '../catalogointerface/CatalogoData';
+import { CatalogoService } from '../catalogoservice/CatalogoService';
 
 @Component({
   selector: 'app-catalogo',
@@ -11,67 +12,51 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './catalogo.component.html',
   styleUrl: './catalogo.component.css'
 })
-export class CatalogoComponent {
-
-  catalogoService: CatalogoService = inject(CatalogoService);
+export class CatalogoComponent implements OnDestroy {
+  private readonly catalogoService = inject(CatalogoService);
+  private readonly cambios = inject(ChangeDetectorRef);
+  private peticion?: Subscription;
+  private filtrosAplicados: FiltrosCatalogoData = {};
 
   paginaActual = 0;
   totalPaginas = 0;
   cargando = false;
   errorCarga = '';
-
-  allMascotas : MascotaData[] = [];
   catalogoList: MascotaData[] = [];
-  limite = 20;
   filtros: FiltrosCatalogoData = {};
 
-  private readonly changeDetectorReference = inject(ChangeDetectorRef);
-
   constructor() {
-    this.cargarCatalogo();
+    this.buscar();
   }
-    async cargarCatalogo(): Promise<void> {
+
+  buscar(): void {
+    this.filtrosAplicados = { ...this.filtros };
+    this.cargarPagina(0);
+  }
+
+  cargarPagina(pagina: number): void {
+    this.peticion?.unsubscribe();
     this.cargando = true;
     this.errorCarga = '';
-
-    try {
-        this.allMascotas =
-            await this.catalogoService.getAllMascotas();
-
-        this.loadMascotas();
-    } catch {
-        this.errorCarga = 'No se pudo cargar el catálogo.';
-    } finally {
+    this.peticion = this.catalogoService.consultarPagina(this.filtrosAplicados, pagina).subscribe({
+      next: resultado => {
+        this.catalogoList = resultado.elementos;
+        this.paginaActual = resultado.pagina;
+        this.totalPaginas = Math.ceil(resultado.totalElementos / resultado.limite);
         this.cargando = false;
-        this.changeDetectorReference.markForCheck();
-    }
+        this.cambios.markForCheck();
+      },
+      error: () => {
+        this.catalogoList = [];
+        this.totalPaginas = 0;
+        this.cargando = false;
+        this.errorCarga = 'No se pudo cargar el catálogo.';
+        this.cambios.markForCheck();
+      }
+    });
   }
 
-  loadMascotas(pagina: number = 0): void {
-    const nombre = (this.filtros.nombre ?? '').trim().toLowerCase();
-
-    const resultados = this.allMascotas.filter(mascota =>
-        mascota.disponibilidad === 'DISPONIBLE' &&
-        mascota.nombre.toLowerCase().includes(nombre) &&
-        (!this.filtros.especie ||
-            mascota.especie === this.filtros.especie) &&
-        (this.filtros.edadEstimadaMeses === undefined ||
-            mascota.edadEstimadaMeses === this.filtros.edadEstimadaMeses) &&
-        (!this.filtros.tamano ||
-            mascota.tamano === this.filtros.tamano) &&
-        (!this.filtros.energia ||
-            mascota.energia === this.filtros.energia)
-    );
-
-    this.totalPaginas = Math.ceil(resultados.length / this.limite);
-
-    this.paginaActual = Math.max(
-        0,
-        Math.min(pagina, this.totalPaginas - 1)
-    );
-
-    const inicio = this.paginaActual * this.limite;
-
-    this.catalogoList = resultados.slice(inicio, inicio + this.limite);
+  ngOnDestroy(): void {
+    this.peticion?.unsubscribe();
   }
 }

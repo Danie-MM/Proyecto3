@@ -33,6 +33,7 @@ public class Mascota {
     private UUID organizacionId;
     private String disponibilidad;
     private boolean activa;
+    private boolean tieneFoto;
     private List<Comportamiento> comportamientos = List.of();
 
     /**
@@ -59,7 +60,7 @@ public class Mascota {
     public Mascota(UUID id, Instant creadoEn, int version, String nombre, Especie especie,
                    int edadEstimadaMeses, String tamano, String energia,
                    UUID responsableUsuarioId, UUID organizacionId, String disponibilidad,
-                   boolean activa, List<Comportamiento> comportamientos) {
+                   boolean activa, List<Comportamiento> comportamientos, boolean tieneFoto) {
         this(id, nombre, edadEstimadaMeses, especie);
         this.creadoEn = creadoEn;
         this.version = version;
@@ -69,6 +70,7 @@ public class Mascota {
         this.organizacionId = organizacionId;
         this.disponibilidad = disponibilidad;
         this.activa = activa;
+        this.tieneFoto = tieneFoto;
         this.comportamientos = List.copyOf(comportamientos);
     }
 
@@ -98,6 +100,7 @@ public class Mascota {
     public UUID getOrganizacionId() { return organizacionId; }
     public String getDisponibilidad() { return disponibilidad; }
     public boolean isActiva() { return activa; }
+    public boolean tieneFoto() { return tieneFoto; }
     public List<Comportamiento> getComportamientos() { return comportamientos; }
     public List<UUID> getComportamientoIds() {
         return comportamientos.stream().map(Comportamiento::id).toList();
