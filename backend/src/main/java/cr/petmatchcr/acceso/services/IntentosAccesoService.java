@@ -75,7 +75,7 @@ public class IntentosAccesoService {
                     bloqueado_hasta = CASE
                         WHEN intentos_acceso.inicio_ventana > ?
                              AND intentos_acceso.intentos + 1 >= ?
-                        THEN ?
+                        THEN CAST(? AS TIMESTAMPTZ)
                         ELSE NULL
                     END
                 """;
