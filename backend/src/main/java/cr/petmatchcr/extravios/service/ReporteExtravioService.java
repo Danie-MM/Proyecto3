@@ -24,6 +24,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
+import cr.petmatchcr.extravios.dto.ActualizarReporteExtravioDTO;
+import cr.petmatchcr.extravios.dto.ReporteExtravioDetalleDTO;
+import cr.petmatchcr.extravios.dto.ReporteExtravioResumenDTO;
+import cr.petmatchcr.extravios.model.ReporteExtravio;
+
+import java.util.List;
+import java.util.Objects;
+
+
 /**
  * Gestiona la publicación de reportes de mascotas
  * extraviadas por sus responsables autorizados.
@@ -36,6 +45,7 @@ public class ReporteExtravioService {
     private final ReporteExtravioMapper mapper;
     private final UsuarioActual usuarioActual;
     private final MascotasParaExtravios mascotas;
+    private final PermisosReporteExtravio permisos;
     private final IntentosReporteRepository intentos;
     private final TrabajoAvisoRepository trabajoAviso;
     private final ObjectMapper json;
@@ -182,6 +192,249 @@ public class ReporteExtravioService {
 
         return new ResultadoCreacion(respuesta, 201);
     }
+
+
+    /**
+     * Recupera los reportes activos de mascotas extraviadas,
+     * ordenados desde el extravío más reciente.
+     *
+     * @return lista resumida de reportes activos
+     */
+    @Transactional(readOnly = true)
+    public List<ReporteExtravioResumenDTO> listarActivos() {
+
+        // Comprueba que exista un usuario autenticado.
+        usuarioActual.obtenerUsuarioId();
+
+        return repository
+                .findByEstadoOrderByFechaExtravioDesc(
+                        EstadoReporteExtravio.ACTIVO
+                )
+                .stream()
+                .map(reporte -> mapper.toResumenDTO(
+                        reporte,
+                        null,
+                        null
+                ))
+                .toList();
+    }
+
+
+    /**
+     * Consulta la información permitida de un
+     * reporte de extravío.
+     *
+     * @param id identificador del reporte
+     * @return detalle vigente del reporte
+     */
+    @Transactional(readOnly = true)
+    public ReporteExtravioDetalleDTO consultarDetalle(UUID id) {
+
+        usuarioActual.obtenerUsuarioId();
+
+        ReporteExtravio reporte = buscarReporte(id);
+
+        boolean puedeEditar =
+                reporte.getEstado() == EstadoReporteExtravio.ACTIVO
+                        && permisos.esResponsable(
+                        reporte.getMascotaId()
+                );
+
+        return mapper.toDetalleDTO(
+                reporte,
+                null,
+                null,
+                puedeEditar
+        );
+    }
+
+
+    /**
+     * Actualiza los datos permitidos de un reporte activo
+     * sin modificar el origen histórico de los avisos.
+     *
+     * @param id identificador del reporte
+     * @param dto datos de actualización
+     * @return detalle actualizado del reporte
+     */
+    @Transactional
+    public ReporteExtravioDetalleDTO actualizar(
+            UUID id,
+            ActualizarReporteExtravioDTO dto
+    ) {
+        usuarioActual.obtenerUsuarioId();
+
+        ReporteExtravio reporte = buscarReporte(id);
+
+        // Comprueba la responsabilidad vigente.
+        mascotas.comprobarResponsable(
+                reporte.getMascotaId()
+        );
+
+        // Solo se pueden corregir reportes activos.
+        if (reporte.getEstado() != EstadoReporteExtravio.ACTIVO) {
+            throw error(409, "CONFLICTO",
+                    "Solo se pueden modificar reportes activos.");
+        }
+
+        if (dto == null || dto.version() == null) {
+            throw error(400, "VALIDACION",
+                    "La versión del reporte es obligatoria.");
+        }
+
+        // Evita sobrescribir modificaciones anteriores.
+        if (!Objects.equals(
+                reporte.getVersion(),
+                dto.version())) {
+
+            throw error(409, "CONFLICTO_VERSION",
+                    "El reporte fue modificado. "
+                            + "Consultá nuevamente su información.");
+        }
+
+        validarActualizacion(dto, reporte);
+
+        Instant ahora = Instant.now()
+                .truncatedTo(ChronoUnit.MICROS);
+
+        // Actualiza la fecha del extravío.
+        if (dto.fechaExtravio() != null) {
+            reporte.setFechaExtravio(dto.fechaExtravio());
+        }
+
+        // Actualiza únicamente la ubicación vigente.
+        if (dto.latitud() != null) {
+            reporte.setLatitud(dto.latitud());
+            reporte.setLongitud(dto.longitud());
+        }
+
+        // Actualiza la descripción.
+        if (dto.descripcion() != null) {
+            reporte.setDescripcion(dto.descripcion().strip());
+        }
+
+        // Actualiza el contacto y registra su autorización.
+        if (dto.tipoContacto() != null
+                || dto.contacto() != null) {
+
+            reporte.setTipoContacto(dto.tipoContacto());
+            reporte.setContacto(dto.contacto().strip());
+            reporte.setContactoAutorizadoEn(ahora);
+        }
+
+        reporte.setActualizadoEn(ahora);
+
+        ReporteExtravio actualizado =
+                repository.saveAndFlush(reporte);
+
+        return mapper.toDetalleDTO(
+                actualizado,
+                null,
+                null,
+                true
+        );
+    }
+
+
+    /**
+     * Valida los datos enviados para corregir
+     * un reporte de extravío existente.
+     *
+     * @param dto datos de actualización
+     * @param reporte reporte persistido
+     */
+    private void validarActualizacion(
+            ActualizarReporteExtravioDTO dto,
+            ReporteExtravio reporte
+    ) {
+        // Comprueba que exista información para actualizar.
+        if (dto.fechaExtravio() == null
+                && dto.latitud() == null
+                && dto.longitud() == null
+                && dto.descripcion() == null
+                && dto.tipoContacto() == null
+                && dto.contacto() == null) {
+
+            throw error(400, "VALIDACION",
+                    "Debés indicar al menos un dato para actualizar.");
+        }
+
+        // La fecha debe respetar la restricción de V11.
+        if (dto.fechaExtravio() != null
+                && dto.fechaExtravio().isAfter(
+                reporte.getCreadoEn())) {
+
+            throw error(400, "VALIDACION",
+                    "La fecha de extravío no puede ser "
+                            + "posterior a la publicación.");
+        }
+
+        // Las coordenadas deben enviarse juntas.
+        if (dto.latitud() != null
+                || dto.longitud() != null) {
+
+            validarCoordenada(
+                    dto.latitud(), 90, "latitud"
+            );
+
+            validarCoordenada(
+                    dto.longitud(), 180, "longitud"
+            );
+        }
+
+        // Valida la nueva descripción.
+        if (dto.descripcion() != null
+                && (dto.descripcion().length() > 1000
+                || dto.descripcion().strip().length() < 10)) {
+
+            throw error(400, "VALIDACION",
+                    "La descripción debe tener entre "
+                            + "10 y 1000 caracteres.");
+        }
+
+        // No se admite revocación silenciosa del consentimiento.
+        if (Boolean.FALSE.equals(dto.autorizaContacto())) {
+            throw error(400, "VALIDACION",
+                    "Esta operación no permite revocar "
+                            + "la autorización del contacto.");
+        }
+
+        // Valida el nuevo contacto autorizado.
+        if (dto.tipoContacto() != null
+                || dto.contacto() != null) {
+
+            validarContacto(
+                    dto.tipoContacto(),
+                    dto.contacto()
+            );
+
+            if (!Boolean.TRUE.equals(dto.autorizaContacto())) {
+
+                throw error(400, "VALIDACION",
+                        "Debés autorizar la publicación "
+                                + "del nuevo contacto.");
+            }
+        }
+    }
+
+
+
+    /**
+     * Recupera un reporte de extravío por su identificador.
+     *
+     * @param id identificador del reporte
+     * @return reporte encontrado
+     */
+    private ReporteExtravio buscarReporte(UUID id) {
+
+        return repository.findById(id)
+                .orElseThrow(() -> error(
+                        404,
+                        "REPORTE_NO_ENCONTRADO",
+                        "El reporte de extravío no está disponible."
+                ));
+    }
+
 
     /**
      * Valida los datos necesarios para publicar
