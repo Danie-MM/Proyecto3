@@ -1,9 +1,10 @@
-
 package cr.petmatchcr.acceso.repositories;
 
 import cr.petmatchcr.acceso.entities.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
+import java.util.UUID;
+
 /**
  * Versión 01
  * Autora: Daniela Morales
@@ -25,4 +26,10 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
      */
 
     Optional<Usuario> findByEmailAndActivoTrue(String email);
+
+    /**
+     * Busca un usuario por su identificador público
+     */
+
+    Optional<Usuario> findByIdPublico(UUID idPublico);
 }
