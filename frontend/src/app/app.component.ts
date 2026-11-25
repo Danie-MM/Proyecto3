@@ -10,6 +10,7 @@ import { AuthService } from './features/acceso/auth/services/auth.service';
     @if (auth.usuarioEnSesion()) {
       <nav class="navegacion-modulos" aria-label="Secciones de PetMatchCR">
         <a routerLink="/mascotas" routerLinkActive="actual">Mis mascotas</a>
+        <a routerLink="/organizaciones" routerLinkActive="actual">Mis organizaciones</a>
         <a routerLink="/catalogo" routerLinkActive="actual">Catálogo</a>
         <a routerLink="/mi-ubicacion" routerLinkActive="actual">Mi ubicación</a>
         <a routerLink="/comprobar-entorno" routerLinkActive="actual">Comprobar entorno</a>

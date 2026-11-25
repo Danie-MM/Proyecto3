@@ -1,0 +1,112 @@
+<!--
+  Author: Gabriel Barquero González
+  Version: 1.0
+  Description: Administración de miembros.
+-->
+
+<section class="miembros">
+
+  <a routerLink="/organizaciones" class="btn-secondary">
+    Volver a organizaciones
+  </a>
+
+  @if (organizacion(); as datos) {
+    <header class="encabezado">
+      <h1>{{ datos.nombre }}</h1>
+      <p>Administración de miembros y permisos.</p>
+    </header>
+  }
+
+  @if (mensaje()) {
+    <p class="mensaje" role="status">{{ mensaje() }}</p>
+  }
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+
+  @if (cargando()) {
+    <p>Cargando información...</p>
+  } @else if (puedeAdministrar()) {
+
+    <section class="panel">
+      <h2>Agregar miembro</h2>
+
+      <form class="formulario" (ngSubmit)="agregarMiembro()">
+
+        <div class="campo">
+          <label for="usuarioId">Identificador público del usuario</label>
+
+          <input
+            id="usuarioId"
+            name="usuarioId"
+            class="input-text-basic"
+            type="text"
+            [(ngModel)]="usuarioId"
+            maxlength="36"
+            required
+          />
+        </div>
+
+        <label class="checkbox-group">
+          <input
+            type="checkbox"
+            name="administrador"
+            [(ngModel)]="administrador"
+          />
+          Permitir administrar
+        </label>
+
+        <button
+          type="submit"
+          class="btn-primary"
+          [disabled]="guardando() || !usuarioId.trim()">
+          Agregar miembro
+        </button>
+
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Miembros de la organización</h2>
+
+      @for (miembro of miembros(); track miembro.usuarioId) {
+        <article class="miembro">
+          <div>
+            <h3>{{ miembro.nombreCompleto }}</h3>
+
+            <p>
+              {{ miembro.puedeAdministrar ? 'Administrador' : 'Miembro' }}
+            </p>
+          </div>
+
+          <div class="acciones">
+            <button
+              type="button"
+              class="btn-secondary"
+              [disabled]="guardando()"
+              (click)="cambiarPermiso(miembro)">
+              {{ miembro.puedeAdministrar ? 'Quitar permiso' : 'Dar permiso' }}
+            </button>
+
+            <button
+              type="button"
+              class="btn-danger"
+              [disabled]="guardando()"
+              (click)="quitarMiembro(miembro)">
+              Quitar miembro
+            </button>
+          </div>
+        </article>
+      } @empty {
+        <p>No hay miembros registrados.</p>
+      }
+    </section>
+
+  } @else if (organizacion() && !error()) {
+    <section class="panel">
+      <p>No tienes permisos para administrar los miembros.</p>
+    </section>
+  }
+
+</section>

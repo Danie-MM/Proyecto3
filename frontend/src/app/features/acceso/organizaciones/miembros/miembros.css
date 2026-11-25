@@ -1,0 +1,111 @@
+/*
+ * Author: Gabriel Barquero González
+ * Version: 1.0
+ * Description: CSS de miembros.html.
+ */
+
+:host {
+  display: block;
+  color: var(--color-text);
+  font-family: var(--font-family);
+}
+
+.miembros {
+  max-width: 1000px;
+  margin: 32px auto;
+  padding: 0 20px;
+}
+
+.encabezado {
+  margin: 24px 0;
+}
+
+.encabezado p {
+  color: var(--color-text-muted);
+}
+
+.panel {
+  padding: 24px;
+  margin-bottom: 20px;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-primary);
+  border-radius: 8px;
+}
+
+.panel h2 {
+  margin-top: 0;
+  font-size: 20px;
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.campo input {
+  box-sizing: border-box;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.miembro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  background-color: var(--color-background);
+  border-radius: 6px;
+  overflow-wrap: anywhere;
+}
+
+.miembro h3 {
+  margin: 0;
+}
+
+.miembro p {
+  margin: 6px 0;
+  color: var(--color-text-muted);
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mensaje {
+  padding: 12px;
+  background-color: var(--color-background);
+  border-radius: 6px;
+}
+
+.error {
+  padding: 12px;
+  color: var(--color-danger);
+}
+
+@media (max-width: 600px) {
+  .miembro {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .panel {
+    padding: 16px;
+  }
+}

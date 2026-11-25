@@ -1,0 +1,79 @@
+<!--
+  Author: Gabriel Barquero González
+  Version: 1.0
+  Description: Registro y listado de organizaciones.
+-->
+
+<section class="organizaciones">
+
+  <header class="encabezado">
+    <h1>Mis organizaciones</h1>
+    <p>Consulta las organizaciones de las que formas parte.</p>
+  </header>
+
+  @if (puedeRegistrar()) {
+    <section class="panel">
+      <h2>Registrar organización</h2>
+
+      <form class="formulario" (ngSubmit)="registrar()">
+        <div class="campo">
+          <label for="nombre">Nombre de la organización</label>
+
+          <input
+            id="nombre"
+            name="nombre"
+            type="text"
+            class="input-text-basic"
+            [(ngModel)]="nombre"
+            maxlength="255"
+            placeholder="Nombre de la organización"
+            required
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="btn-primary"
+          [disabled]="guardando() || !nombre.trim()">
+          {{ guardando() ? 'Registrando...' : 'Registrar' }}
+        </button>
+      </form>
+    </section>
+  }
+
+  @if (mensaje()) {
+    <p class="mensaje" role="status">{{ mensaje() }}</p>
+  }
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+
+  <section class="panel">
+    <h2>Organizaciones registradas</h2>
+
+    @if (cargando()) {
+      <p>Cargando organizaciones...</p>
+    } @else if (organizaciones().length === 0 && !error()) {
+      <p>No tienes organizaciones registradas.</p>
+    } @else {
+      <div class="lista">
+        @for (organizacion of organizaciones(); track organizacion.id) {
+          <article class="organizacion">
+            <div>
+              <h3>{{ organizacion.nombre }}</h3>
+              <span>{{ organizacion.activa ? 'Activa' : 'Inactiva' }}</span>
+            </div>
+
+            <a
+              class="btn-secondary"
+              [routerLink]="['/organizaciones', organizacion.id]">
+              Ver organización
+            </a>
+          </article>
+        }
+      </div>
+    }
+  </section>
+
+</section>

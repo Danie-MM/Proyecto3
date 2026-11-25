@@ -67,6 +67,20 @@ export const routes: Routes = [
     redirectTo: 'login'
   },
   {
+    path: 'organizaciones',
+    title: 'Mis organizaciones | PetMatchCR',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/acceso/organizaciones/lista/organizaciones')
+      .then(modulo => modulo.Organizaciones)
+  },
+  {
+    path: 'organizaciones/:id',
+    title: 'Miembros | PetMatchCR',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/acceso/organizaciones/miembros/miembros')
+      .then(modulo => modulo.Miembros)
+  },
+  {
     path: '**',
     redirectTo: 'login'
   }
