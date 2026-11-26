@@ -54,6 +54,8 @@ export const routes: Routes = [
       }
     ]
   },
+
+  // C-01: Preferencias de ubicación
   {
     path: 'mi-ubicacion',
     title: 'Mi ubicación | PetMatchCR',
@@ -61,6 +63,8 @@ export const routes: Routes = [
     loadComponent: () => import('./features/extravios/preferencias-ubicacion/preferencias-ubicacion.component')
       .then(modulo => modulo.PreferenciasUbicacionComponent)
   },
+
+  // C-02: Publicación de reportes de extravío
   {
     path: 'publicar-extravio',
     title: 'Publicar extravío | PetMatchCR',
@@ -69,6 +73,38 @@ export const routes: Routes = [
       import('./features/extravios/publicar-extravio/publicar-extravio.component')
         .then(modulo => modulo.PublicarExtravioComponent)
   },
+
+  // C-03: Listado de reportes activos
+  {
+    path: 'reportes-extravio',
+    pathMatch: 'full',
+    title: 'Reportes de extravío | PetMatchCR',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/extravios/reportes-extravio/reportes-extravio.component')
+        .then(modulo => modulo.ReportesExtravioComponent)
+  },
+
+  // C-03: Edición de un reporte
+  {
+    path: 'reportes-extravio/:id/editar',
+    title: 'Editar reporte de extravío | PetMatchCR',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/extravios/editar-extravio/editar-extravio.component')
+        .then(modulo => modulo.EditarExtravioComponent)
+  },
+
+  // C-03: Consulta del detalle de un reporte
+  {
+    path: 'reportes-extravio/:id',
+    title: 'Detalle del extravío | PetMatchCR',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/extravios/detalle-extravio/detalle-extravio.component')
+        .then(modulo => modulo.DetalleExtravioComponent)
+  },
+
   {
     path: '',
     pathMatch: 'full',

@@ -1,0 +1,833 @@
+
+<main class="extravios-contenedor">
+
+  <header class="encabezado">
+
+    <div>
+
+      <span class="etiqueta-modulo">Extravíos</span>
+
+      <h1>Editar reporte de extravío</h1>
+
+      <p>
+        Actualizá la información vigente de la mascota extraviada.
+      </p>
+
+    </div>
+
+    <a
+      routerLink="/reportes-extravio"
+      class="boton-secundario">
+      Volver al listado
+    </a>
+
+  </header>
+
+  <!-- Estado de carga -->
+
+  @if (cargando) {
+
+    <section class="tarjeta estado-carga" role="status">
+
+      <span
+        class="indicador-carga"
+        aria-hidden="true">
+      </span>
+
+      <p>Cargando información del reporte...</p>
+
+    </section>
+
+  <!-- Error de consulta o autorización -->
+
+  } @else if (mensajeError) {
+
+    <section class="tarjeta estado-error" role="alert">
+
+      <h2>No fue posible editar el reporte</h2>
+
+      <p>{{ mensajeError }}</p>
+
+      <div class="acciones-formulario">
+
+        <button
+          type="button"
+          class="boton-secundario"
+          (click)="cargarReporte()">
+          Consultar nuevamente
+        </button>
+
+        <a
+          routerLink="/reportes-extravio"
+          class="boton-secundario">
+          Volver al listado
+        </a>
+
+      </div>
+
+    </section>
+
+  <!-- Actualización exitosa -->
+
+  } @else if (reporteActualizado) {
+
+    <section
+      class="tarjeta estado-exito"
+      role="status">
+
+      <span
+        class="indicador-exito"
+        aria-hidden="true">
+        ✓
+      </span>
+
+      <h2>Reporte actualizado correctamente</h2>
+
+      <p>
+        Los cambios fueron guardados y ya forman parte
+        de la información vigente del reporte.
+      </p>
+
+      <dl class="informacion-grid">
+
+        <div class="campo-informacion">
+
+          <dt>Mascota</dt>
+
+          <dd>
+            {{ reporteActualizado.nombreMascota
+              || 'Información no disponible' }}
+          </dd>
+
+        </div>
+
+        <div class="campo-informacion">
+
+          <dt>Estado</dt>
+
+          <dd>
+            <span class="estado-reporte estado-activo">
+              Activo
+            </span>
+          </dd>
+
+        </div>
+
+        <div class="campo-informacion">
+
+          <dt>Última actualización</dt>
+
+          <dd>
+            {{ reporteActualizado.actualizadoEn
+              | date:'dd/MM/yyyy HH:mm':'-0600' }}
+          </dd>
+
+        </div>
+
+        <div class="campo-informacion">
+
+          <dt>Versión del reporte</dt>
+
+          <dd>{{ reporteActualizado.version }}</dd>
+
+        </div>
+
+      </dl>
+
+      <div class="aviso-informativo">
+
+        La actualización no modifica el punto histórico
+        utilizado para los avisos de proximidad ni genera
+        nuevos avisos automáticamente.
+
+      </div>
+
+      <div class="acciones-formulario">
+
+        <a
+          routerLink="/reportes-extravio"
+          class="boton-secundario">
+          Volver al listado
+        </a>
+
+        <a
+          [routerLink]="[
+            '/reportes-extravio',
+            reporteActualizado.id
+          ]"
+          class="boton-primario">
+          Ver reporte actualizado
+        </a>
+
+      </div>
+
+    </section>
+
+  } @else {
+
+    @if (reporteOriginal; as original) {
+
+      @if (puedeEditar) {
+
+        <!-- Información original del reporte -->
+
+        <section class="tarjeta">
+
+          <div class="reporte-encabezado">
+
+            <div>
+
+              <span class="texto-secundario">Mascota</span>
+
+              <h2>
+                {{ original.nombreMascota
+                  || 'Información no disponible' }}
+              </h2>
+
+            </div>
+
+            <span class="estado-reporte estado-activo">
+              Activo
+            </span>
+
+          </div>
+
+          <dl class="informacion-grid">
+
+            <div class="campo-informacion">
+
+              <dt>Especie</dt>
+
+              <dd>
+                {{ original.especie
+                  || 'Información no disponible' }}
+              </dd>
+
+            </div>
+
+            <div class="campo-informacion">
+
+              <dt>Fecha de publicación</dt>
+
+              <dd>
+                {{ original.creadoEn
+                  | date:'dd/MM/yyyy HH:mm':'-0600' }}
+              </dd>
+
+            </div>
+
+            <div class="campo-informacion">
+
+              <dt>Última actualización</dt>
+
+              <dd>
+                {{ original.actualizadoEn
+                  | date:'dd/MM/yyyy HH:mm':'-0600' }}
+              </dd>
+
+            </div>
+
+            <div class="campo-informacion">
+
+              <dt>Versión actual</dt>
+
+              <dd>{{ original.version }}</dd>
+
+            </div>
+
+          </dl>
+
+          <div class="aviso-informativo">
+
+            La mascota asociada y el estado del reporte
+            no pueden modificarse desde este formulario.
+
+          </div>
+
+        </section>
+
+        <!-- Formulario de edición -->
+
+        <form
+          #formularioEdicion="ngForm"
+          (ngSubmit)="solicitarConfirmacion()"
+          novalidate>
+
+          <fieldset
+            class="grupo-formulario"
+            [disabled]="formularioBloqueado">
+
+            <!-- Fecha del extravío -->
+
+            <section class="tarjeta">
+
+              <h2>Fecha del extravío</h2>
+
+              <div class="campo-formulario">
+
+                <label for="fecha-extravio">
+                  Fecha y hora del extravío *
+                </label>
+
+                <input
+                  id="fecha-extravio"
+                  name="fechaExtravio"
+                  type="datetime-local"
+                  [(ngModel)]="fechaExtravio"
+                  [max]="fechaMaxima"
+                  required
+                  aria-describedby="ayuda-fecha">
+
+                <p
+                  id="ayuda-fecha"
+                  class="texto-ayuda">
+
+                  Hora de Costa Rica (UTC-6).
+                  La fecha no puede ser posterior
+                  a la publicación del reporte.
+
+                </p>
+
+              </div>
+
+            </section>
+
+            <!-- Ubicación del extravío -->
+
+            <section class="tarjeta">
+
+              <h2>Ubicación del extravío</h2>
+
+              <p class="texto-secundario">
+
+                Consultá la ubicación actual o seleccioná
+                un nuevo punto para corregirla.
+
+              </p>
+
+              <div class="campo-formulario">
+
+                <label for="busqueda-ubicacion">
+                  Buscar una ubicación en Costa Rica
+                </label>
+
+                <div class="grupo-busqueda">
+
+                  <input
+                    id="busqueda-ubicacion"
+                    name="busqueda"
+                    type="text"
+                    [(ngModel)]="busqueda"
+                    placeholder="Distrito, barrio o lugar de referencia"
+                    maxlength="200"
+                    autocomplete="off"
+                    [disabled]="buscando"
+                    (keydown.enter)="
+                      $event.preventDefault();
+                      buscarUbicacion()
+                    ">
+
+                  <button
+                    type="button"
+                    class="boton-secundario"
+                    [disabled]="buscando"
+                    (click)="buscarUbicacion()">
+
+                    {{ buscando ? 'Buscando...' : 'Buscar' }}
+
+                  </button>
+
+                </div>
+
+              </div>
+
+              @if (mensajeBusqueda) {
+
+                <div
+                  class="mensaje-busqueda"
+                  [class.mensaje-info]="
+                    tipoMensajeBusqueda === 'info'
+                  "
+                  [class.mensaje-advertencia]="
+                    tipoMensajeBusqueda === 'advertencia'
+                  "
+                  [class.mensaje-error]="
+                    tipoMensajeBusqueda === 'error'
+                  "
+                  role="status">
+
+                  {{ mensajeBusqueda }}
+
+                </div>
+
+              }
+
+              <!-- Mapa interactivo Leaflet -->
+
+              <div
+                #mapaEdicion
+                class="mapa-edicion"
+                role="region"
+                aria-label="Mapa para seleccionar la ubicación del extravío"
+                [attr.aria-disabled]="formularioBloqueado">
+              </div>
+
+              @if (mensajeMapa) {
+
+                <div
+                  class="aviso-advertencia"
+                  role="status">
+
+                  {{ mensajeMapa }}
+
+                </div>
+
+              }
+
+              <p class="texto-ayuda">
+
+                Hacé clic sobre el mapa para seleccionar
+                el punto exacto del extravío.
+                Buscar una dirección no cambia automáticamente
+                la ubicación seleccionada.
+
+              </p>
+
+              <dl class="informacion-grid">
+
+                <div class="campo-informacion">
+
+                  <dt>Latitud seleccionada</dt>
+
+                  <dd>
+                    {{ latitud | number:'1.6-6' }}
+                  </dd>
+
+                </div>
+
+                <div class="campo-informacion">
+
+                  <dt>Longitud seleccionada</dt>
+
+                  <dd>
+                    {{ longitud | number:'1.6-6' }}
+                  </dd>
+
+                </div>
+
+              </dl>
+
+              <div class="acciones-ubicacion">
+
+                <button
+                  type="button"
+                  class="boton-secundario"
+                  [disabled]="
+                    buscando ||
+                    (
+                      latitud === original.latitud &&
+                      longitud === original.longitud
+                    )
+                  "
+                  (click)="restaurarUbicacion()">
+
+                  Restaurar ubicación original
+
+                </button>
+
+              </div>
+
+              @if (
+                latitud !== original.latitud ||
+                longitud !== original.longitud
+              ) {
+
+                <div class="aviso-informativo">
+
+                  Modificaste la ubicación vigente del extravío.
+                  El punto histórico utilizado para los avisos
+                  de proximidad permanecerá sin cambios.
+
+                </div>
+
+              }
+
+            </section>
+
+            <!-- Descripción -->
+
+            <section class="tarjeta">
+
+              <h2>Descripción del extravío</h2>
+
+              <div class="campo-formulario">
+
+                <label for="descripcion">
+                  Descripción *
+                </label>
+
+                <textarea
+                  id="descripcion"
+                  name="descripcion"
+                  [(ngModel)]="descripcion"
+                  rows="6"
+                  minlength="10"
+                  maxlength="1000"
+                  required
+                  aria-describedby="ayuda-descripcion"
+                  placeholder="Describí las circunstancias del extravío">
+                </textarea>
+
+                <div class="detalle-campo">
+
+                  <p
+                    id="ayuda-descripcion"
+                    class="texto-ayuda">
+
+                    Incluí únicamente información relevante
+                    para localizar a la mascota.
+
+                  </p>
+
+                  <span class="contador-caracteres">
+                    {{ descripcion.length }}/1000
+                  </span>
+
+                </div>
+
+              </div>
+
+            </section>
+
+            <!-- Información de contacto -->
+
+            <section class="tarjeta">
+
+              <h2>Información de contacto</h2>
+
+              <p class="texto-secundario">
+
+                Actualizá el medio autorizado para recibir
+                información relacionada con el extravío.
+
+              </p>
+
+              <div class="campo-formulario">
+
+                <label for="tipo-contacto">
+                  Medio de contacto *
+                </label>
+
+                <select
+                  id="tipo-contacto"
+                  name="tipoContacto"
+                  [(ngModel)]="tipoContacto"
+                  (ngModelChange)="alCambiarContacto()"
+                  required>
+
+                  <option value="CORREO">
+                    Correo electrónico
+                  </option>
+
+                  <option value="TELEFONO">
+                    Teléfono
+                  </option>
+
+                </select>
+
+              </div>
+
+              <div class="campo-formulario">
+
+                <label for="contacto">
+
+                  {{ tipoContacto === 'CORREO'
+                    ? 'Correo electrónico *'
+                    : 'Número de teléfono *' }}
+
+                </label>
+
+                <input
+                  id="contacto"
+                  name="contacto"
+                  [type]="
+                    tipoContacto === 'CORREO'
+                      ? 'email'
+                      : 'tel'
+                  "
+                  [(ngModel)]="contacto"
+                  (ngModelChange)="alCambiarContacto()"
+                  [placeholder]="
+                    tipoContacto === 'CORREO'
+                      ? 'correo@ejemplo.com'
+                      : '+50688888888'
+                  "
+                  maxlength="254"
+                  autocomplete="off"
+                  required
+                  aria-describedby="ayuda-contacto">
+
+                <p
+                  id="ayuda-contacto"
+                  class="texto-ayuda">
+
+                  @if (tipoContacto === 'TELEFONO') {
+
+                    Utilizá el formato internacional,
+                    incluyendo el código del país.
+
+                  } @else {
+
+                    Ingresá una dirección de correo válida.
+
+                  }
+
+                </p>
+
+              </div>
+
+              <!-- Consentimiento condicional -->
+
+              @if (contactoModificado) {
+
+                <div class="bloque-consentimiento">
+
+                  <h3>Autorización del nuevo contacto</h3>
+
+                  <p>
+
+                    Modificaste la información de contacto.
+                    Es necesario autorizar nuevamente
+                    su publicación.
+
+                  </p>
+
+                  <label class="opcion-consentimiento">
+
+                    <input
+                      type="checkbox"
+                      name="autorizaContacto"
+                      [(ngModel)]="autorizaContacto"
+                      required>
+
+                    <span>
+
+                      Autorizo que el nuevo medio de contacto
+                      sea visible para los usuarios que consulten
+                      este reporte activo de extravío.
+
+                    </span>
+
+                  </label>
+
+                </div>
+
+              } @else {
+
+                <div class="aviso-informativo">
+
+                  Se conservará el contacto previamente autorizado.
+                  No es necesario otorgar nuevamente
+                  el consentimiento si no se modifica.
+
+                </div>
+
+              }
+
+              <div class="aviso-privacidad">
+
+                No incluyás domicilios privados, información médica
+                ni otros datos personales que no sean necesarios
+                para localizar a la mascota.
+
+              </div>
+
+            </section>
+
+          </fieldset>
+
+          <!-- Estado de los cambios y acciones -->
+
+          <section class="tarjeta">
+
+            <h2>Guardar cambios</h2>
+
+            @if (hayCambios) {
+
+              <div class="aviso-informativo">
+                Existen cambios pendientes de guardar.
+              </div>
+
+            } @else {
+
+              <p class="texto-secundario">
+                No se han realizado cambios en el reporte.
+              </p>
+
+            }
+
+            <!-- Errores de validación -->
+
+            @if (errorValidacion) {
+
+              <div
+                class="aviso-error"
+                role="alert">
+
+                {{ errorValidacion }}
+
+              </div>
+
+            }
+
+            <!-- Errores de guardado -->
+
+            @if (errorGuardado) {
+
+              <div
+                class="aviso-error"
+                role="alert">
+
+                {{ errorGuardado }}
+
+              </div>
+
+            }
+
+            <!-- Conflicto de versión -->
+
+            @if (conflictoVersion) {
+
+              <div class="aviso-advertencia">
+
+                <h3>El reporte fue modificado</h3>
+
+                <p>
+
+                  Es necesario consultar la versión vigente
+                  antes de realizar una nueva actualización.
+
+                  Al recargar se descartarán los cambios
+                  locales pendientes.
+
+                </p>
+
+                <button
+                  type="button"
+                  class="boton-secundario"
+                  (click)="cargarReporte()">
+
+                  Recargar información vigente
+
+                </button>
+
+              </div>
+
+            }
+
+            <!-- Resultado de guardado incierto -->
+
+            @if (guardadoIncierto) {
+
+              <div class="aviso-advertencia">
+
+                <h3>Guardado sin confirmación</h3>
+
+                <p>
+
+                  Es posible que el servidor haya procesado
+                  la actualización.
+
+                  Consultá el reporte vigente para comprobar
+                  el resultado antes de volver a guardar.
+
+                  Al recargar se descartarán los cambios locales.
+
+                </p>
+
+                <button
+                  type="button"
+                  class="boton-secundario"
+                  (click)="cargarReporte()">
+
+                  Consultar información vigente
+
+                </button>
+
+              </div>
+
+            }
+
+            <div class="acciones-formulario">
+
+              @if (!guardando) {
+
+                <a
+                  [routerLink]="[
+                    '/reportes-extravio',
+                    original.id
+                  ]"
+                  class="boton-secundario">
+
+                  Cancelar edición
+
+                </a>
+
+              }
+
+              <button
+                type="submit"
+                class="boton-primario"
+                [disabled]="
+                  formularioBloqueado ||
+                  buscando ||
+                  !hayCambios
+                ">
+
+                {{ guardando
+                  ? 'Guardando cambios...'
+                  : 'Guardar cambios' }}
+
+              </button>
+
+            </div>
+
+          </section>
+
+        </form>
+
+      }
+
+    }
+
+  }
+
+  <!-- Modal de confirmación -->
+
+  <app-confirmacion-modal
+    [abierta]="modalAbierto"
+    titulo="Confirmar actualización"
+    descripcion="¿Deseás guardar los cambios realizados en este reporte de extravío?"
+    tamano="md"
+    [ocupado]="guardando"
+    (cancelada)="cancelarConfirmacion()">
+
+    <div accionesModal>
+
+      <button
+        type="button"
+        class="boton-primario"
+        [disabled]="guardando"
+        (click)="confirmarActualizacion()">
+
+        {{ guardando
+          ? 'Guardando...'
+          : 'Confirmar actualización' }}
+
+      </button>
+
+    </div>
+
+  </app-confirmacion-modal>
+
+</main>

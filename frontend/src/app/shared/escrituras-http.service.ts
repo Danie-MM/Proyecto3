@@ -10,7 +10,7 @@ export class EscriturasHttpService {
   private readonly http = inject(HttpClient);
 
   enviar<T>(
-    metodo: 'POST' | 'PUT' | 'DELETE',
+    metodo: 'POST' | 'PUT' | 'PATCH' | 'DELETE',
     ruta: string,
     body?: unknown,
     cabeceras: Record<string, string> = {}
@@ -26,7 +26,7 @@ export class EscriturasHttpService {
 
   /** Permite consultar el cuerpo y el estado HTTP de una escritura. */
   enviarConRespuesta<T>(
-    metodo: 'POST' | 'PUT' | 'DELETE',
+    metodo: 'POST' | 'PUT' | 'PATCH' | 'DELETE',
     ruta: string,
     body?: unknown,
     cabeceras: Record<string, string> = {}

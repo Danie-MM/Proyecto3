@@ -1,0 +1,290 @@
+
+<main class="extravios-contenedor">
+
+  <header class="encabezado">
+
+    <div>
+      <span class="etiqueta-modulo">Extravíos</span>
+
+      <h1>Detalle del reporte</h1>
+
+      <p>Consultá la información vigente del extravío.</p>
+    </div>
+
+    <a
+      routerLink="/reportes-extravio"
+      class="boton-secundario">
+      Volver al listado
+    </a>
+
+  </header>
+
+  <!-- Estado de carga -->
+
+  @if (cargando) {
+
+    <section class="tarjeta estado-carga" role="status">
+
+      <span class="indicador-carga" aria-hidden="true"></span>
+
+      <p>Cargando información del reporte...</p>
+
+    </section>
+
+  <!-- Estado de error -->
+
+  } @else if (mensajeError) {
+
+    <section class="tarjeta estado-error" role="alert">
+
+      <h2>No fue posible consultar el reporte</h2>
+
+      <p>{{ mensajeError }}</p>
+
+      <button
+        type="button"
+        class="boton-secundario"
+        (click)="cargarDetalle()">
+        Reintentar
+      </button>
+
+    </section>
+
+  } @else {
+
+    <!-- Información del reporte -->
+
+    @if (reporte; as detalle) {
+
+      <section class="tarjeta">
+
+        <div class="reporte-encabezado">
+
+          <div>
+
+            <span class="texto-secundario">Mascota</span>
+
+            <h2>
+              {{ detalle.nombreMascota || 'Información no disponible' }}
+            </h2>
+
+          </div>
+
+          <span
+            class="estado-reporte"
+            [class.estado-activo]="detalle.estado === 'ACTIVO'"
+            [class.estado-encontrada]="detalle.estado === 'ENCONTRADA'"
+            [class.estado-cancelado]="detalle.estado === 'CANCELADO'">
+
+            {{ obtenerEstado(detalle.estado) }}
+
+          </span>
+
+        </div>
+
+        <dl class="informacion-grid">
+
+          <div class="campo-informacion">
+            <dt>Especie</dt>
+            <dd>
+              {{ detalle.especie || 'Información no disponible' }}
+            </dd>
+          </div>
+
+          <div class="campo-informacion">
+            <dt>Fecha de extravío</dt>
+            <dd>
+              {{ detalle.fechaExtravio | date:'dd/MM/yyyy HH:mm':'-0600' }}
+            </dd>
+          </div>
+
+          <div class="campo-informacion">
+            <dt>Fecha de publicación</dt>
+            <dd>
+              {{ detalle.creadoEn | date:'dd/MM/yyyy HH:mm':'-0600' }}
+            </dd>
+          </div>
+
+          <div class="campo-informacion">
+            <dt>Última actualización</dt>
+            <dd>
+              {{ detalle.actualizadoEn | date:'dd/MM/yyyy HH:mm':'-0600' }}
+            </dd>
+          </div>
+
+          @if (detalle.cerradoEn) {
+
+            <div class="campo-informacion">
+              <dt>Fecha de cierre</dt>
+              <dd>
+                {{ detalle.cerradoEn | date:'dd/MM/yyyy HH:mm':'-0600' }}
+              </dd>
+            </div>
+
+          }
+
+        </dl>
+
+      </section>
+
+      <!-- Descripción del extravío -->
+
+      <section class="tarjeta">
+
+        <h2>Descripción del extravío</h2>
+
+        <p class="descripcion-extravio">
+          {{ detalle.descripcion }}
+        </p>
+
+      </section>
+
+      @if (mostrarInformacionActiva) {
+
+        <!-- Ubicación vigente -->
+
+        <section class="tarjeta">
+
+          <h2>Ubicación del extravío</h2>
+
+          <p class="texto-secundario">
+            Lugar del extravío indicado en el reporte vigente.
+          </p>
+
+          <!-- Mapa Leaflet de solo consulta -->
+
+          <div
+            #mapaDetalle
+            class="mapa-detalle"
+            role="region"
+            aria-label="Mapa de la ubicación vigente del extravío">
+          </div>
+
+          @if (mensajeMapa) {
+
+            <div
+              class="aviso-mapa"
+              role="status">
+
+              {{ mensajeMapa }}
+
+            </div>
+
+          }
+
+          <p class="ayuda-mapa">
+            Podés acercar, alejar y desplazar el mapa para
+            consultar la ubicación del extravío.
+            El marcador no puede modificarse desde esta pantalla.
+          </p>
+
+          <dl class="informacion-grid">
+
+            <div class="campo-informacion">
+              <dt>Latitud</dt>
+              <dd>{{ detalle.latitud | number:'1.6-6' }}</dd>
+            </div>
+
+            <div class="campo-informacion">
+              <dt>Longitud</dt>
+              <dd>{{ detalle.longitud | number:'1.6-6' }}</dd>
+            </div>
+
+          </dl>
+
+        </section>
+
+        <!-- Contacto autorizado -->
+
+        <section class="tarjeta">
+
+          <h2>Información de contacto</h2>
+
+          <p class="texto-secundario">
+            Medio de contacto autorizado para este reporte de extravío.
+          </p>
+
+          <dl class="informacion-grid">
+
+            <div class="campo-informacion">
+
+              <dt>Medio de contacto</dt>
+
+              <dd>
+                {{ detalle.tipoContacto === 'CORREO'
+                  ? 'Correo electrónico'
+                  : 'Teléfono' }}
+              </dd>
+
+            </div>
+
+            <div class="campo-informacion">
+
+              <dt>Contacto autorizado</dt>
+
+              <dd class="dato-contacto">
+                {{ detalle.contacto }}
+              </dd>
+
+            </div>
+
+          </dl>
+
+          <div class="aviso-privacidad">
+
+            Utilizá esta información únicamente para comunicar
+            datos relacionados con la mascota extraviada.
+
+          </div>
+
+        </section>
+
+      } @else {
+
+        <section class="tarjeta aviso-reporte-cerrado">
+
+          <h2>Reporte cerrado</h2>
+
+          <p>
+            Este reporte ya no se encuentra activo.
+            La ubicación y los datos de contacto no se muestran.
+          </p>
+
+        </section>
+
+      }
+
+      <!-- Acciones disponibles -->
+
+      <section class="tarjeta acciones-reporte">
+
+        <a
+          routerLink="/reportes-extravio"
+          class="boton-secundario">
+          Volver al listado
+        </a>
+
+        <button
+          type="button"
+          class="boton-secundario"
+          (click)="cargarDetalle()">
+          Actualizar información
+        </button>
+
+        @if (puedeEditar) {
+
+          <a
+            [routerLink]="['/reportes-extravio', detalle.id, 'editar']"
+            class="boton-primario">
+            Editar reporte
+          </a>
+
+        }
+
+      </section>
+
+    }
+
+  }
+
+</main>

@@ -1,0 +1,154 @@
+
+<main class="extravios-contenedor">
+
+  <header class="encabezado">
+    <div>
+      <span class="etiqueta-modulo">Extravíos</span>
+
+      <h1>Reportes de extravío</h1>
+
+      <p>
+        Consultá los reportes de mascotas extraviadas
+        y ayudá a que regresen a casa.
+      </p>
+    </div>
+
+    <a
+      routerLink="/publicar-extravio"
+      class="boton-primario">
+      Publicar extravío
+    </a>
+  </header>
+
+  <section
+    class="tarjeta"
+    aria-labelledby="titulo-reportes"
+    [attr.aria-busy]="cargando">
+
+    <div class="encabezado-listado">
+
+      <div>
+        <h2 id="titulo-reportes">Reportes activos</h2>
+
+        @if (!cargando && !mensajeError) {
+          <p class="contador-reportes" aria-live="polite">
+            {{ reportes.length }}
+            {{ reportes.length === 1 ? 'reporte activo' : 'reportes activos' }}
+          </p>
+        }
+      </div>
+
+      <button
+        type="button"
+        class="boton-secundario"
+        [disabled]="cargando"
+        (click)="cargarReportes()">
+        Actualizar listado
+      </button>
+
+    </div>
+
+    <!-- Estado de carga -->
+    @if (cargando) {
+
+      <div class="estado-carga" role="status">
+        <span class="indicador-carga" aria-hidden="true"></span>
+        <p>Cargando reportes de extravío...</p>
+      </div>
+
+    <!-- Estado de error -->
+    } @else if (mensajeError) {
+
+      <div class="estado-error" role="alert">
+        <h3>No fue posible cargar los reportes</h3>
+        <p>{{ mensajeError }}</p>
+
+        <button
+          type="button"
+          class="boton-secundario"
+          (click)="cargarReportes()">
+          Reintentar
+        </button>
+      </div>
+
+    <!-- Estado vacío -->
+    } @else if (reportes.length === 0) {
+
+      <div class="estado-vacio" role="status">
+        <h3>No hay reportes activos</h3>
+
+        <p>
+          Actualmente no hay reportes de mascotas extraviadas
+          disponibles para consulta.
+        </p>
+
+        <a
+          routerLink="/publicar-extravio"
+          class="boton-primario">
+          Publicar un reporte
+        </a>
+      </div>
+
+    <!-- Listado de reportes -->
+    } @else {
+
+      <div class="reportes-grid">
+
+        @for (reporte of reportes; track reporte.id) {
+
+          <article class="reporte-tarjeta">
+
+            <div class="reporte-encabezado">
+              <h3>
+                {{ reporte.nombreMascota || 'Información no disponible' }}
+              </h3>
+
+              <span class="estado-activo">
+                Activo
+              </span>
+            </div>
+
+            <dl class="reporte-informacion">
+
+              <div>
+                <dt>Especie</dt>
+                <dd>
+                  {{ reporte.especie || 'Información no disponible' }}
+                </dd>
+              </div>
+
+              <div>
+                <dt>Fecha de extravío</dt>
+                <dd>
+                  {{ reporte.fechaExtravio | date:'dd/MM/yyyy HH:mm':'-0600' }}
+                </dd>
+              </div>
+
+              <div>
+                <dt>Última actualización</dt>
+                <dd>
+                  {{ reporte.actualizadoEn | date:'dd/MM/yyyy HH:mm':'-0600' }}
+                </dd>
+              </div>
+
+            </dl>
+
+            <div class="reporte-acciones">
+              <a
+                [routerLink]="['/reportes-extravio', reporte.id]"
+                class="boton-primario">
+                Ver detalle
+              </a>
+            </div>
+
+          </article>
+
+        }
+
+      </div>
+
+    }
+
+  </section>
+
+</main>

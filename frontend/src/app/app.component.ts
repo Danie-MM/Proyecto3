@@ -1,3 +1,4 @@
+
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from './features/acceso/auth/services/auth.service';
@@ -13,6 +14,7 @@ import { AuthService } from './features/acceso/auth/services/auth.service';
         <a routerLink="/catalogo" routerLinkActive="actual">Catálogo</a>
         <a routerLink="/mi-ubicacion" routerLinkActive="actual">Mi ubicación</a>
         <a routerLink="/publicar-extravio" routerLinkActive="actual">Publicar extravío</a>
+        <a routerLink="/reportes-extravio" routerLinkActive="actual">Reportes de extravío</a>
         <a routerLink="/comprobar-entorno" routerLinkActive="actual">Comprobar entorno</a>
 
       </nav>
